@@ -35,6 +35,8 @@ public class HomeFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public interface OnSuccessFragmentInteractionListener { void onLogout();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

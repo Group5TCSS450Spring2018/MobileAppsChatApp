@@ -56,7 +56,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/LogFragUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -64,7 +64,7 @@
             android:inputType="text" />
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/LogFragPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -72,7 +72,7 @@
             android:inputType="textPassword" />
 
         <CheckBox
-            android:id="@+id/checkBox"
+            android:id="@+id/LogFragCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Stay Logged In" />
