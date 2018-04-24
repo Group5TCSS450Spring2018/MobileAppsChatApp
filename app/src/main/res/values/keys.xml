@@ -5,4 +5,6 @@
     <string name="keys_prefs_stay_logged_in">loggedIn</string>
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>
+    <string name="keys_username_error">members_username_key</string>
+    <string name="keys_email_error">members_email_key</string>
 </resources>
