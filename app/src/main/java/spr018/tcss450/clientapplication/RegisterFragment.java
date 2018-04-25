@@ -78,7 +78,7 @@ public class RegisterFragment extends Fragment {
     private void onFirstNameFocusChange(View firstNameET, boolean hasFocus) {
         if (!hasFocus) {
             if (mFirstName.getText().toString().isEmpty()) {
-                mFirstName.setError("Cannot be empty");
+                mFirstName.setError(getString(R.string.error_empty));
             }
         }
 
@@ -88,7 +88,7 @@ public class RegisterFragment extends Fragment {
     private void onLastNameFocusChange(View lastNameET, boolean hasFocus) {
         if (!hasFocus) {
             if (mLastName.getText().toString().isEmpty()) {
-                mLastName.setError("Cannot be empty");
+                mLastName.setError(getString(R.string.error_empty));
             }
         }
 
@@ -96,9 +96,18 @@ public class RegisterFragment extends Fragment {
     }
 
     private void onEmailFocusChange(View emailET, boolean hasFocus) {
+        String email = mEmail.getText().toString();
         if (!hasFocus) {
-            if (mEmail.getText().toString().isEmpty()) {
-                mEmail.setError("Cannot be empty");
+            if (email.isEmpty()) {
+                mEmail.setError(getString(R.string.error_empty));
+            } else {
+                if (!email.contains("@")){
+                    mEmail.setError(getString(R.string.error_email_invalid));
+                } else {
+                    if (email.indexOf('@') == 0 || email.indexOf('@') == email.length() - 1) {
+                        mEmail.setError(getString(R.string.error_email_invalid));
+                    }
+                }
             }
         }
 
@@ -108,7 +117,7 @@ public class RegisterFragment extends Fragment {
     private void onUsernameFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (mUsername.getText().toString().isEmpty()) {
-                mUsername.setError("Cannot be empty");
+                mUsername.setError(getString(R.string.error_empty));
             }
         }
 
@@ -119,9 +128,9 @@ public class RegisterFragment extends Fragment {
         if (!hasFocus) {
             String password = mPassword.getText().toString();
             if (password.isEmpty()) {
-                mPassword.setError("Cannot be empty");
-            } else if (password.length() < 6) {
-                mPassword.setError("Cannot be less than 6 characters");
+                mPassword.setError(getString(R.string.error_empty));
+            } else if (password.length() < getResources().getInteger(R.integer.password_minimum_length)) {
+                mPassword.setError(getString(R.string.error_password_short));
             }
         }
 
@@ -132,9 +141,9 @@ public class RegisterFragment extends Fragment {
         String rePassword = mRePassword.getText().toString();
         if (!hasFocus) {
             if (rePassword.isEmpty()) {
-                mRePassword.setError("Cannot be empty");
+                mRePassword.setError(getString(R.string.error_empty));
             } else if (!rePassword.equals(mPassword.getText().toString())) {
-                mRePassword.setError("Password does not match");
+                mRePassword.setError(getString(R.string.error_password_not_match));
             }
         } else if (!rePassword.isEmpty() && rePassword.equals(mPassword.getText().toString())) {
             mRePassword.setError(null);
@@ -171,9 +180,9 @@ public class RegisterFragment extends Fragment {
         try {
             String error = errorJSON.getString("constraint");
             if (error.equals(getString(R.string.keys_email_error))) {
-                mEmail.setError("This email address has already been used");
+                mEmail.setError(getString(R.string.error_email_used));
             } else if (error.equals(getString(R.string.keys_username_error))) {
-                mUsername.setError("This username already exists");
+                mUsername.setError(getString(R.string.error_username_existed));
             }
         } catch (JSONException e) {
             Log.e("JSON_PARSE_ERROR", e.getMessage());

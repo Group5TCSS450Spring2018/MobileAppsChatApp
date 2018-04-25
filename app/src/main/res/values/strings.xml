@@ -20,4 +20,5 @@
     <string name="edit_text_email">Email</string>
     <string name="checkbox_stay_logged_in">Stay logged in</string>
     <string name="register_message">Register</string>
+    <integer name="password_minimum_length">6</integer>
 </resources>
