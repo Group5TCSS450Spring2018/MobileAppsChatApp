@@ -7,75 +7,70 @@
     android:layout_height="match_parent"
     tools:context=".LoginFragment">
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <EditText
+        android:id="@+id/usernameText"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="64dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
+        android:ems="10"
+        android:hint="@string/edit_text_username"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/passwordText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <EditText
+        android:id="@+id/passwordText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/edit_text_password"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toTopOf="@+id/logCheckBox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/usernameText" />
+
+    <Button
+        android:id="@+id/loginButton"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/button_login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/registerButton"
+        app:layout_constraintTop_toBottomOf="@+id/logCheckBox" />
+
+    <Button
+        android:id="@+id/registerButton"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/button_register"
+        app:layout_constraintEnd_toStartOf="@+id/loginButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/logCheckBox" />
 
-        <EditText
-            android:id="@+id/usernameText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/edit_text_username"
-            android:inputType="text"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="100dp" />
-
-        <EditText
-            android:id="@+id/passwordText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/edit_text_password"
-            android:inputType="textPassword"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="152dp" />
-
-        <CheckBox
-            android:id="@+id/logCheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_stay_logged_in"
-            tools:layout_editor_absoluteX="102dp"
-            tools:layout_editor_absoluteY="204dp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:paddingTop="16dp">
-
-            <Button
-                android:id="@+id/loginButton"
-                style="@style/Widget.AppCompat.Button.Small"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onLoginButtonPressed"
-                android:text="@string/button_login"
-                tools:layout_editor_absoluteX="215dp"
-                tools:layout_editor_absoluteY="441dp" />
-
-            <Button
-                android:id="@+id/registerButton"
-                style="@style/Widget.AppCompat.Button.Small"
-                android:layout_width="100dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:onClick="onRegisterButtonPressed"
-                android:text="@string/button_register"
-                app:layout_constraintBaseline_toBaselineOf="@+id/loginButton"
-                tools:layout_editor_absoluteX="99dp" />
-        </LinearLayout>
-    </LinearLayout>
+    <CheckBox
+        android:id="@+id/logCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="92dp"
+        android:text="@string/checkbox_stay_logged_in"
+        app:layout_constraintBottom_toTopOf="@+id/loginButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordText" />
 
 
 </android.support.constraint.ConstraintLayout>

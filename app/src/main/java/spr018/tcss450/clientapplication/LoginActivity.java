@@ -36,29 +36,25 @@ public class LoginActivity extends AppCompatActivity
                         getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
                 if (prefs.getBoolean(getString(R.string.keys_prefs_stay_logged_in), false)) {
                     showMainActivity();
-                    Log.d("CHECK IN WAS SAVED","SHARED PREFS");
                 } else {
-
                     getSupportFragmentManager().beginTransaction().
                             add(R.id.loginFragmentContainer, new LoginFragment(),
                                     getString(R.string.keys_fragment_login)).
                             commit();
-                    //loadFragment(new LoginFragment(), Pages.LOGIN);
                 }
         }
     }
 
     @Override
-    public void onLoginAttempt(Credentials c) {
+    public void onLoginAttempt(Credentials loginCredentials) {
             //step 51 in lab 4 track 1.
             //build
             Uri uri = new Uri.Builder().scheme("https").
                     appendPath(getString(R.string.ep_base_url)).
                     appendPath(getString(R.string.ep_login)).build();
             //build
-            JSONObject msg = c.asJSONObject();
-            mCredentials = c;
-            Log.d("ONLOGININTERACTION","CREDENTIALS ASSIGNED TO C.");
+            JSONObject msg = loginCredentials.asJSONObject();
+            mCredentials = loginCredentials;
             new SendPostAsyncTask.Builder(uri.toString(), msg)
                     .onPostExecute(this::handleLoginOnPost)
                     .onCancelled(this::handleErrorsInTask) .build().execute();
@@ -70,7 +66,7 @@ public class LoginActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.loginFragmentContainer, r, getString(R.string.keys_fragment_register))
-                .addToBackStack("register");
+                .addToBackStack(getString(R.string.keys_fragment_register));
         transaction.commit();
     }
 
@@ -132,7 +128,6 @@ public class LoginActivity extends AppCompatActivity
         try{
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
-            Log.e("HANDLELOGINONPOST","TRYING SUCCESS");
             if(success){
                 //login was successful so open the main activity
                 checkStayLoggedIn();
