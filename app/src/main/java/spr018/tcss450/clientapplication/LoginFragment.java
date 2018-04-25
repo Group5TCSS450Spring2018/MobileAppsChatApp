@@ -3,14 +3,13 @@ package spr018.tcss450.clientapplication;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
 import spr018.tcss450.clientapplication.model.Credentials;
-import android.widget.TextView;
 
 
 /**
@@ -40,38 +39,12 @@ public class LoginFragment extends Fragment {
         mPassword = v.findViewById(R.id.passwordText);
         mPassword.setOnFocusChangeListener(this::onPasswordFocusChange);
         Button login = v.findViewById(R.id.loginButton);
-        login.setOnClickListener(this::getLoginInfo);
+        login.setOnClickListener(this::onLoginButtonPressed);
         Button register = v.findViewById(R.id.registerButton);
-        register.setOnClickListener(this::onRegisterClicked);
+        register.setOnClickListener(this::onRegisterButtonPressed);
         return v;
     }
 
-    public void onButtonPressed(View view) {
-        if (mListener != null) {
-            int id = view.getId();
-            if (id == R.id.loginButton) {
-                EditText username = getView().findViewById(R.id.LogFragUsername);
-                EditText password = getView().findViewById(R.id.LogFragPassword);
-                if(username.getText().toString().equals("")){
-                    username.setError("Fields cant be empty");
-                } if(password.getText().toString().equals("")){
-                    password.setError("Field cant be empty.");
-                } else {
-                    //send to the successful login screen.
-                    String u = username.getText().toString();
-
-                    Editable p = password.getText();
-                    Credentials c = new Credentials.Builder(u,p).build();
-                    mListener.onLoginAttempt(c);
-
-                }
-
-            } else if (id == R.id.registerButton) {
-                //mListener.onLoginInteraction();
-            }
-        }
-    }
-    
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -83,30 +56,42 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    /**
-     * Allows an external source to set an error message on this fragment. This may * be needed if an Activity includes processing that could cause login to fail. * @param err the error message to display.
-     */
-    public void setError(String err) {
-        //Log in unsuccessful for reason: err. Try again.
-        //you may want to add error stuffs for the user here
-        ((TextView) getView().findViewById(R.id.LogFragUsername)).setError("Login Unsuccessul");
-    }
-
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
-    private void getLoginInfo(View v) {
-        onUsernameFocusChange(null, false);
-        onPasswordFocusChange(null, false);
+    public void onLoginButtonPressed(View view) {
+        if (mListener != null) {
+            int id = view.getId();
+            if (id == R.id.loginButton) {
+                EditText username = getView().findViewById(R.id.usernameText);
+                EditText password = getView().findViewById(R.id.passwordText);
 
-        if (mUsername.getError() == null && mPassword.getError() == null) {
-            Credentials loginCredentials = new Credentials.Builder(mUsername.getText().toString(),
-                    mPassword.getText()).build();
-            mListener.onLoginAttempt(loginCredentials);
+                boolean result = true;
+
+                if (username.getText().toString().equals("")) {
+                    result = false;
+                    username.setError("Fields cant be empty");
+                }
+
+                if (password.getText().toString().equals("")) {
+                    result = false;
+                    password.setError("Field cant be empty.");
+                }
+
+                if (result) {
+                    Credentials c = new Credentials.Builder(username.getText().toString(),
+                            password.getText()).build();
+                    mListener.onLoginAttempt(c);
+                }
+            }
         }
+    }
+
+    public void onRegisterButtonPressed(View v) {
+        mListener.onRegisterClicked();
     }
 
     private void onUsernameFocusChange(View v, boolean hasFocus) {
@@ -123,10 +108,6 @@ public class LoginFragment extends Fragment {
                 mPassword.setError("Cannot be empty");
             }
         }
-    }
-
-    public void onRegisterClicked(View v) {
-        mListener.onRegisterClicked();
     }
 
     /**
@@ -152,8 +133,7 @@ public class LoginFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void 
-        Attempt(Credentials c);
+        void onLoginAttempt(Credentials c);
         void onRegisterClicked();
     }
 }

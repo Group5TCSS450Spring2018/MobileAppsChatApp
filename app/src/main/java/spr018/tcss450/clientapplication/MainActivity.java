@@ -1,11 +1,12 @@
 package spr018.tcss450.clientapplication;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -136,6 +137,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showLoginActivity() {
+        // clear stay logged in regardless of whether it is set or not
+        SharedPreferences p = getSharedPreferences
+                (getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+        p.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in), false).apply();
+
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
