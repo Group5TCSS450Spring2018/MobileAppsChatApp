@@ -3,6 +3,7 @@ package spr018.tcss450.clientapplication;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,18 @@ import spr018.tcss450.clientapplication.model.Credentials;
  * Activities that contain this fragment must implement the
  * {@link LoginFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
+ *
+ * @author Deepjot Kaur
+ * @author Daryan Hanshew
+ * @author Tenma Rollins
+ * @author Tuan Dinh
  */
-
 public class LoginFragment extends Fragment {
 
-
+    /* Listener to be attached */
     private OnFragmentInteractionListener mListener;
+
+    /* Text Fields */
     private EditText mUsername;
     private EditText mPassword;
 
@@ -30,7 +37,9 @@ public class LoginFragment extends Fragment {
         // Required empty public constructor
     }
 
-
+    /* ****************************************** */
+    /* OVERRIDES FOR CALLBACK AND FACTORY METHODS */
+    /* ****************************************** */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -40,9 +49,9 @@ public class LoginFragment extends Fragment {
         mPassword = v.findViewById(R.id.passwordText);
         mPassword.setOnFocusChangeListener(this::onPasswordFocusChange);
         Button login = v.findViewById(R.id.loginButton);
-        login.setOnClickListener(this::getLoginInfo);
+        login.setOnClickListener(this::handleLoginAttempt);
         Button register = v.findViewById(R.id.registerButton);
-        register.setOnClickListener(this::onRegisterClicked);
+        register.setOnClickListener(this::handleRegisterClicked);
         return v;
     }
 
@@ -63,22 +72,17 @@ public class LoginFragment extends Fragment {
         mListener = null;
     }
 
-    private void getLoginInfo(View v) {
-        onUsernameFocusChange(null, false);
-        onPasswordFocusChange(null, false);
 
-        if (mUsername.getError() == null && mPassword.getError() == null) {
-            Credentials loginCredentials = new Credentials.Builder(mUsername.getText().toString(),
-                    mPassword.getText()).build();
-            mListener.onLoginAttempt(loginCredentials);
-        }
-    }
-
+    /* **************** */
+    /* PRIVATE HANDLERS */
+    /* **************** */
     private void onUsernameFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (mUsername.getText().toString().isEmpty()) {
                 mUsername.setError(getString(R.string.error_empty));
             }
+        } else {
+            mUsername.setError(null);
         }
     }
 
@@ -87,13 +91,27 @@ public class LoginFragment extends Fragment {
             if (mPassword.getText().toString().isEmpty()) {
                 mPassword.setError(getString(R.string.error_empty));
             }
+        } else {
+            mPassword.setError(null);
         }
     }
 
-    public void onRegisterClicked(View v) {
+    private void handleLoginAttempt(View v) {
+        if (mPassword.getError() == null && mUsername.getError() == null) {
+            Credentials loginCredentials = new Credentials.Builder(
+                    mUsername.getText().toString(), mPassword.getText())
+                    .build();
+            mListener.onLoginAttempt(loginCredentials);
+        }
+    }
+
+    private void handleRegisterClicked(View v) {
         mListener.onRegisterClicked();
     }
 
+    /* *********** */
+    /* EXPOSED API */
+    /* *********** */
     /**
      * Allows an external source to set an error message on this fragment. This may
      * be needed if an Activity includes processing that could cause login to fail.
@@ -111,14 +129,9 @@ public class LoginFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+     **/
     public interface OnFragmentInteractionListener {
         void onLoginAttempt(Credentials loginCredentials);
-
         void onRegisterClicked();
     }
 }
