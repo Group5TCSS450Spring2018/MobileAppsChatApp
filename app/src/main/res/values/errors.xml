@@ -4,6 +4,9 @@
     <string name="error_empty">Cannot be empty</string>
     <string name="error_special_chars">Cannot contain non-alphanumeric characters</string>
 
+    <string name="error_too_long">Cannot be longer than 32 characters</string>
+    <string name="error_too_long_email">Cannot be longer than 48 characters</string>
+
     <string name="error_email_invalid">Invalid email address</string>
     <string name="error_email_used">Already used</string>
 
@@ -17,4 +20,6 @@
     <!-- Error Checking -->
     <string name="regex_non_alphanumeric">[^a-zA-Z0-9]</string>
     <integer name="password_minimum_length">6</integer>
+    <integer name="too_long">32</integer>
+    <integer name="too_long_email">48</integer>
 </resources>
