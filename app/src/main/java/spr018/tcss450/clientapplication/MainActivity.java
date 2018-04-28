@@ -16,6 +16,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import spr018.tcss450.clientapplication.utility.Pages;
@@ -27,9 +29,17 @@ public class MainActivity extends AppCompatActivity
         WeatherFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
 
+    private SharedPreferences mPrefs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPrefs = getSharedPreferences(
+                getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+        // make sure to set the app theme
+//        setTheme(mPrefs.getInt(
+//            getString(R.string.keys_prefs_app_theme), R.style.AppTheme_NoActionBar));
 
         setContentView(R.layout.activity_main);
 
@@ -120,8 +130,29 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSettingsInteration(Uri uri) {
+    public void settings_ToggleStayLoggedIn(Switch v) {
+        boolean currentState = mPrefs.getBoolean(
+                getString(R.string.keys_prefs_stay_logged_in), false);
 
+        mPrefs.edit().putBoolean(
+                getString(R.string.keys_prefs_stay_logged_in), !currentState).apply();
+
+        v.setChecked(!currentState);
+    }
+
+    @Override
+    public void settings_ChangeTheme(String styleID) {
+        Log.e("THEME CHOSEN", styleID + " IS THE THEME");
+        int themeID = R.style.AppTheme_NoActionBar; // default
+
+        if (styleID.equals(getString(R.string.washedOutThemeName))) {
+            themeID = R.style.AppTheme_WashedOut;
+        } else if (styleID.equals(getString(R.string.coralThemeName))) {
+            themeID = R.style.AppTheme_Coral;
+        }
+
+        mPrefs.edit().putInt(
+                getString(R.string.keys_prefs_app_theme), themeID).apply();
     }
 
     /* Helpers */
@@ -138,9 +169,7 @@ public class MainActivity extends AppCompatActivity
 
     private void showLoginActivity() {
         // clear stay logged in regardless of whether it is set or not
-        SharedPreferences p = getSharedPreferences
-                (getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
-        p.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in), false).apply();
+        mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in), false).apply();
 
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
