@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     tools:context=".WeatherFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- TODO: IMPLEMENT ACTUAL WEB SERVICE CALLS AND DISPLAYS -->
+
     <TextView
         android:id="@+id/textView8"
         android:layout_width="wrap_content"

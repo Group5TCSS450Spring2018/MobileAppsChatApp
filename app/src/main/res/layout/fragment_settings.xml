@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- TODO: ADD ACTUAL SETTINGS -->
 
     <ScrollView
         android:layout_width="match_parent"

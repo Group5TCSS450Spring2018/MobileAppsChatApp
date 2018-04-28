@@ -10,23 +10,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.Toast;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import spr018.tcss450.clientapplication.model.Credentials;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
+/**
+ * @author Deepjot Kaur
+ * @author Daryan Hanshew
+ * @author Tenma Rollins
+ * @author Tuan Dinh
+ */
 public class LoginActivity extends AppCompatActivity
         implements LoginFragment.OnFragmentInteractionListener,
         RegisterFragment.OnFragmentInteractionListener {
-          
+
+    /* Credentials for POST to webservice */
     private Credentials mCredentials;
 
 
-    /** ****************************************** **/
-    /** OVERRIDES FOR CALLBACK AND FACTORY METHODS **/
-    /** ****************************************** **/
+    /* ****************************************** */
+    /* OVERRIDES FOR CALLBACK AND FACTORY METHODS */
+    /* ****************************************** */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +52,22 @@ public class LoginActivity extends AppCompatActivity
 
     @Override
     public void onLoginAttempt(Credentials loginCredentials) {
-            //step 51 in lab 4 track 1.
             //build
-            Uri uri = new Uri.Builder().scheme("https").
+            Uri uri = new Uri.Builder()
+                    .scheme("https").
                     appendPath(getString(R.string.ep_base_url)).
-                    appendPath(getString(R.string.ep_login)).build();
+                    appendPath(getString(R.string.ep_login))
+                    .build();
             //build
             JSONObject msg = loginCredentials.asJSONObject();
             mCredentials = loginCredentials;
+
+            Log.i("LOG", "LOGGING IN: " + mCredentials.toString());
+
             new SendPostAsyncTask.Builder(uri.toString(), msg)
                     .onPostExecute(this::handleLoginOnPost)
-                    .onCancelled(this::handleErrorsInTask) .build().execute();
+                    .onCancelled(this::handleErrorsInTask)
+                    .build().execute();
     }
 
     @Override
@@ -87,9 +97,9 @@ public class LoginActivity extends AppCompatActivity
     }
 
 
-    /** *************** **/
-    /** PRIVATE HELPERS **/
-    /** *************** **/
+    /* *************** */
+    /* PRIVATE HELPERS */
+    /* *************** */
     private void showMainActivity() {
        Intent intent = new Intent(this, MainActivity.class);
        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -110,9 +120,9 @@ public class LoginActivity extends AppCompatActivity
     }
 
 
-    /** ******************* **/
-    /** ASYNC TASK HANDLERS **/
-    /** ******************* **/
+    /* ******************* */
+    /* ASYNC TASK HANDLERS */
+    /* ******************* */
     /**
      * Handle errors that may occur during the AsyncTask.
      * @param result the error message provide from the AsyncTask */
@@ -150,7 +160,7 @@ public class LoginActivity extends AppCompatActivity
                 getSupportFragmentManager().popBackStack();
                 Toast.makeText(this, "Registered successfully", Toast.LENGTH_SHORT).show();
             } else {
-                //Login was unsuccessful. Don’t switch fragments and inform the user
+                //register was unsuccessful. Don’t switch fragments and inform the user
                 RegisterFragment frag =
                         (RegisterFragment) getSupportFragmentManager()
                                 .findFragmentByTag(
