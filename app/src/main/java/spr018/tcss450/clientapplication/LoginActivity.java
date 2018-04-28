@@ -43,8 +43,8 @@ public class LoginActivity extends AppCompatActivity
             mPrefs = getSharedPreferences(
                         getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
             // make sure to set the app theme
-            setTheme(mPrefs.getInt(
-                    getString(R.string.keys_prefs_app_theme), R.style.AppTheme));
+//            setTheme(mPrefs.getInt(
+//                    getString(R.string.keys_prefs_app_theme), R.style.AppTheme));
             // check which landing we should go to
             if (mPrefs.getBoolean(getString(R.string.keys_prefs_stay_logged_in), false)) {
                 showMainActivity();
