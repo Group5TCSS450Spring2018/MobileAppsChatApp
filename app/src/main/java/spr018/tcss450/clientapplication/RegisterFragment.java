@@ -106,6 +106,9 @@ public class RegisterFragment extends Fragment {
             if (firstName.matches(getString(R.string.regex_non_alphanumeric))) {
                 mFirstName.setError(getString(R.string.error_special_chars));
             }
+            if (firstName.length() > getResources().getInteger(R.integer.too_long)) {
+                mFirstName.setError(getString(R.string.error_too_long));
+            }
         } else { // never set error until finished writing input and unfocused
             mFirstName.setError(null);
         }
@@ -124,6 +127,9 @@ public class RegisterFragment extends Fragment {
             // special chars
             if (lastName.matches(getString(R.string.regex_non_alphanumeric))) {
                 mLastName.setError(getString(R.string.error_special_chars));
+            }
+            if (lastName.length() > getResources().getInteger(R.integer.too_long)) {
+                mLastName.setError(getString(R.string.error_too_long));
             }
         } else { // never set error until finished writing input and unfocused
             mLastName.setError(null);
@@ -152,6 +158,9 @@ public class RegisterFragment extends Fragment {
             if (email.indexOf('@') > email.indexOf('.')) {
                 mEmail.setError(getString(R.string.error_email_invalid));
             }
+            if (email.length() > getResources().getInteger(R.integer.too_long_email)) {
+                mEmail.setError(getString(R.string.error_too_long_email));
+            }
         } else {
             mEmail.setError(null);
         }
@@ -170,6 +179,9 @@ public class RegisterFragment extends Fragment {
             // special characters
             if (username.matches(getString(R.string.regex_non_alphanumeric))) {
                 mUsername.setError(getString(R.string.error_special_chars));
+            }
+            if (username.length() > getResources().getInteger(R.integer.too_long)) {
+                mUsername.setError(getString(R.string.error_too_long));
             }
         } else {
             mUsername.setError(null);
@@ -194,6 +206,10 @@ public class RegisterFragment extends Fragment {
             // has special characters
             if (password.matches(getString(R.string.regex_non_alphanumeric))) {
                 mPassword.setError(getString(R.string.error_special_chars));
+            }
+
+            if (password.length() > getResources().getInteger(R.integer.too_long)) {
+                mPassword.setError(getString(R.string.error_too_long));
             }
         } else {
             mPassword.setError(null);
