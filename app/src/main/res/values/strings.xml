@@ -24,4 +24,14 @@
 
     <string name="navigation_drawer_open">Navigation Drawer Opened</string>
     <string name="navigation_drawer_close">Navigation Drawer Closed</string>
+
+    <string name="defaultThemeName">Default</string>
+    <string name="washedOutThemeName">Washed Out</string>
+    <string name="coralThemeName">Coral</string>
+
+    <string-array name="settings_themes">
+        <item>@string/defaultThemeName</item>
+        <item>@string/washedOutThemeName</item>
+        <item>@string/coralThemeName</item>
+    </string-array>
 </resources>

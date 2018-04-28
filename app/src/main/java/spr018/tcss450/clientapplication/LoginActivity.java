@@ -28,6 +28,8 @@ public class LoginActivity extends AppCompatActivity
     /* Credentials for POST to webservice */
     private Credentials mCredentials;
 
+    private SharedPreferences mPrefs;
+
 
     /* ****************************************** */
     /* OVERRIDES FOR CALLBACK AND FACTORY METHODS */
@@ -36,17 +38,22 @@ public class LoginActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         if (savedInstanceState == null) {
-            SharedPreferences prefs = getSharedPreferences(
+            mPrefs = getSharedPreferences(
                         getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
-                if (prefs.getBoolean(getString(R.string.keys_prefs_stay_logged_in), false)) {
-                    showMainActivity();
-                } else {
-                    getSupportFragmentManager().beginTransaction().
-                            add(R.id.loginFragmentContainer, new LoginFragment(),
-                                    getString(R.string.keys_fragment_login)).
-                            commit();
-                }
+            // make sure to set the app theme
+            setTheme(mPrefs.getInt(
+                    getString(R.string.keys_prefs_app_theme), R.style.AppTheme));
+            // check which landing we should go to
+            if (mPrefs.getBoolean(getString(R.string.keys_prefs_stay_logged_in), false)) {
+                showMainActivity();
+            } else {
+                getSupportFragmentManager().beginTransaction().
+                        add(R.id.loginFragmentContainer, new LoginFragment(),
+                                getString(R.string.keys_fragment_login)).
+                        commit();
+            }
         }
     }
 

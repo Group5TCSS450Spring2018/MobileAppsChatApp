@@ -2,7 +2,9 @@
 <resources>
     <string name="keys_shared_prefs">edu.uw.tcss450.chatApp.PREFS</string>
     <string name="keys_prefs_username">username</string>
-    <string name="keys_prefs_stay_logged_in">loggedIn</string>
+    <string name="keys_prefs_stay_logged_in">stay_logged_in</string>
+    <string name="keys_prefs_app_theme">current_app_theme</string>
+    <string name="keys_prefs_current_theme_pos">current_theme_pos</string>
 
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>
