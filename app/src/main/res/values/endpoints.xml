@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ep_base_url">tcss450.herokuapp.com</string>
+    
     <string name="ep_login">login</string>
     <string name="ep_register">register</string>
+
+    <!-- TODO: RENAME ENDPOINTS WHEN IMPLEMENTED -->
+    <string name="ep_conections">connections</string>
+    <string name="ep_chat_all">all-chats</string>
+    <string name="ep_chat">chat</string>
 </resources>

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".ConnectionsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- TODO: UPDATE LAYOUT -->
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/connectionsListContainer"

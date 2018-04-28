@@ -14,6 +14,8 @@ import android.widget.EditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+
 import spr018.tcss450.clientapplication.model.Credentials;
 
 
@@ -22,22 +24,35 @@ import spr018.tcss450.clientapplication.model.Credentials;
  * Activities that contain this fragment must implement the
  * {@link RegisterFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
+ *
+ * @author Deepjot Kaur
+ * @author Daryan Hanshew
+ * @author Tenma Rollins
+ * @author Tuan Dinh
  */
 public class RegisterFragment extends Fragment {
 
+    /* listener to be attached */
     private OnFragmentInteractionListener mListener;
+
+    /* Text Fields */
     private EditText mFirstName;
     private EditText mLastName;
     private EditText mEmail;
     private EditText mUsername;
     private EditText mPassword;
     private EditText mRePassword;
+
+    /* For determining if registration is possible */
     private boolean canRegister;
 
     public RegisterFragment() {
-        canRegister = true;
+        // empty constructor
     }
 
+    /* ****************************************** */
+    /* OVERRIDES FOR CALLBACK AND FACTORY METHODS */
+    /* ****************************************** */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -75,63 +90,113 @@ public class RegisterFragment extends Fragment {
         mListener = null;
     }
 
-    private void onFirstNameFocusChange(View firstNameET, boolean hasFocus) {
+
+    /* **************** */
+    /* PRIVATE HANDLERS */
+    /* **************** */
+    private void onFirstNameFocusChange(View v, boolean hasFocus) {
+        String firstName = mFirstName.getText().toString();
+
         if (!hasFocus) {
-            if (mFirstName.getText().toString().isEmpty()) {
+            // empty
+            if (firstName.isEmpty()) {
                 mFirstName.setError(getString(R.string.error_empty));
             }
+            // special chars
+            if (firstName.matches(getString(R.string.regex_non_alphanumeric))) {
+                mFirstName.setError(getString(R.string.error_special_chars));
+            }
+        } else { // never set error until finished writing input and unfocused
+            mFirstName.setError(null);
         }
 
         canRegister = canRegister && mFirstName.getError() == null;
     }
 
-    private void onLastNameFocusChange(View lastNameET, boolean hasFocus) {
+    private void onLastNameFocusChange(View v, boolean hasFocus) {
+        String lastName = mLastName.getText().toString();
+
         if (!hasFocus) {
-            if (mLastName.getText().toString().isEmpty()) {
+            // empty
+            if (lastName.isEmpty()) {
                 mLastName.setError(getString(R.string.error_empty));
             }
+            // special chars
+            if (lastName.matches(getString(R.string.regex_non_alphanumeric))) {
+                mLastName.setError(getString(R.string.error_special_chars));
+            }
+        } else { // never set error until finished writing input and unfocused
+            mLastName.setError(null);
         }
 
         canRegister = canRegister && mLastName.getError() == null;
     }
 
-    private void onEmailFocusChange(View emailET, boolean hasFocus) {
+    private void onEmailFocusChange(View v, boolean hasFocus) {
         String email = mEmail.getText().toString();
+
         if (!hasFocus) {
+            // must not be empty
             if (email.isEmpty()) {
                 mEmail.setError(getString(R.string.error_empty));
-            } else {
-                if (!email.contains("@")){
-                    mEmail.setError(getString(R.string.error_email_invalid));
-                } else {
-                    if (email.indexOf('@') == 0 || email.indexOf('@') == email.length() - 1) {
-                        mEmail.setError(getString(R.string.error_email_invalid));
-                    }
-                }
             }
+            // must contain @
+            if (!email.contains("@")){
+                mEmail.setError(getString(R.string.error_email_invalid));
+            }
+            // must contain something to both sides of the @
+            if (Arrays.stream(email.split("@")).anyMatch(s -> s.isEmpty())) {
+                mEmail.setError(getString(R.string.error_email_invalid));
+            }
+            // must contain at least one . to the right of @
+            if (email.indexOf('@') > email.indexOf('.')) {
+                mEmail.setError(getString(R.string.error_email_invalid));
+            }
+        } else {
+            mEmail.setError(null);
         }
 
         canRegister = canRegister && mEmail.getError() == null;
     }
 
     private void onUsernameFocusChange(View v, boolean hasFocus) {
+        String username = mUsername.getText().toString();
+
         if (!hasFocus) {
-            if (mUsername.getText().toString().isEmpty()) {
+            // is empty
+            if (username.isEmpty()) {
                 mUsername.setError(getString(R.string.error_empty));
             }
+            // special characters
+            if (username.matches(getString(R.string.regex_non_alphanumeric))) {
+                mUsername.setError(getString(R.string.error_special_chars));
+            }
+        } else {
+            mUsername.setError(null);
         }
 
         canRegister = canRegister && mUsername.getError() == null;
     }
 
     private void onPasswordFocusChange(View v, boolean hasFocus) {
+        String password = mPassword.getText().toString();
+
         if (!hasFocus) {
-            String password = mPassword.getText().toString();
+            // is empty
             if (password.isEmpty()) {
                 mPassword.setError(getString(R.string.error_empty));
-            } else if (password.length() < getResources().getInteger(R.integer.password_minimum_length)) {
+            }
+            // is less than 6 characters
+            if (password.length() < getResources().getInteger(R.integer.password_minimum_length)) {
                 mPassword.setError(getString(R.string.error_password_short));
             }
+
+            // has special characters
+            if (password.matches(getString(R.string.regex_non_alphanumeric))) {
+                mPassword.setError(getString(R.string.error_special_chars));
+            }
+        } else {
+            mPassword.setError(null);
         }
 
         canRegister = canRegister && mPassword.getError() == null;
@@ -140,12 +205,15 @@ public class RegisterFragment extends Fragment {
     private void onRePasswordFocusChange(View v, boolean hasFocus) {
         String rePassword = mRePassword.getText().toString();
         if (!hasFocus) {
+            // if empty
             if (rePassword.isEmpty()) {
                 mRePassword.setError(getString(R.string.error_empty));
-            } else if (!rePassword.equals(mPassword.getText().toString())) {
+            }
+            // if password check matches password
+            if (!rePassword.equals(mPassword.getText().toString())) {
                 mRePassword.setError(getString(R.string.error_password_not_match));
             }
-        } else if (!rePassword.isEmpty() && rePassword.equals(mPassword.getText().toString())) {
+        } else {
             mRePassword.setError(null);
         }
 
@@ -153,13 +221,16 @@ public class RegisterFragment extends Fragment {
     }
 
     private void onRegisterClicked(View v) {
-        canRegister = true;
+        canRegister = true; // allow base canRegister to be true
+
+        // run the checks via their focus change listeners
         onFirstNameFocusChange(null, false);
         onLastNameFocusChange(null, false);
         onEmailFocusChange(null, false);
         onUsernameFocusChange(null, false);
         onPasswordFocusChange(null, false);
         onRePasswordFocusChange(null, false);
+
         if (canRegister) {
             String username = mUsername.getText().toString();
             Editable password = mPassword.getText();
@@ -176,6 +247,14 @@ public class RegisterFragment extends Fragment {
         }
     }
 
+    /* *********** */
+    /* EXPOSED API */
+    /* *********** */
+    /**
+     * Allows an external source to set an error message on this fragment. This may
+     * be needed if an Activity includes processing that could cause login to fail.
+     * @param errorJSON the error message(s) to determine what errors were thrown.
+     */
     public void setError(JSONObject errorJSON) {
         try {
             String error = errorJSON.getString("constraint");
@@ -194,10 +273,6 @@ public class RegisterFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
         void onRegisterAttempt(Credentials loginCredentials);
