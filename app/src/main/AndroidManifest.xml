@@ -20,6 +20,8 @@
         <activity android:name=".MainActivity"
             android:label="Chat Application TCSS 450"
             android:theme="@style/AppTheme.NoActionBar">
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
 
     </application>
