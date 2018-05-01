@@ -1,5 +1,6 @@
 package spr018.tcss450.clientapplication;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,17 +9,19 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import spr018.tcss450.clientapplication.utility.Pages;
 
@@ -27,9 +30,11 @@ public class MainActivity extends AppCompatActivity
         HomeFragment.OnFragmentInteractionListener,
         ConnectionsFragment.OnFragmentInteractionListener,
         WeatherFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener {
+        SettingsFragment.OnFragmentInteractionListener,
+        NewMessageFragment.OnFragmentInteractionListener {
 
     private SharedPreferences mPrefs;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
+        mFab = findViewById(R.id.fab);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -55,7 +61,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        loadFragment(new HomeFragment(), Pages.HOME);
+
+        loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
     }
 
     @Override
@@ -67,13 +74,32 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
+//
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        MenuItem item = menu.findItem(R.id.search);
+//        item.setVisible(false);
+//        super.onPrepareOptionsMenu(menu);
+//        return true;
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        MenuItem item = menu.findItem(R.id.search);
+        item.setVisible(false);
+        //TODO Implement search
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -85,7 +111,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             // check from which page ?
-            loadFragment(new SettingsFragment(), Pages.SETTINGS);
+            loadFragmentWithBackStack(new SettingsFragment(), Pages.SETTINGS);
         }
 
         return super.onOptionsItemSelected(item);
@@ -98,13 +124,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            loadFragment(new HomeFragment(), Pages.HOME);
+            loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
         } else if (id == R.id.nav_connections) {
-            loadFragment(new ConnectionsFragment(), Pages.CONNECTIONS);
+            loadFragmentNoBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
         } else if (id == R.id.nav_weather) {
-            loadFragment(new WeatherFragment(), Pages.WEATHER);
+            loadFragmentNoBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_settings) {
-            loadFragment(new SettingsFragment(), Pages.SETTINGS);
+            loadFragmentNoBackStack(new SettingsFragment(), Pages.SETTINGS);
         } else if (id == R.id.nav_log_out) {
             showLoginActivity();
         }
@@ -127,6 +153,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onWeatherInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onNewChatDetach() {
+        modifyFab(Pages.HOME);
     }
 
     @Override
@@ -156,7 +187,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     /* Helpers */
-    private void loadFragment(Fragment frag, Pages page) {
+    private void loadFragmentWithBackStack(Fragment frag, Pages page) {
+        FragmentTransaction ft = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.mainFragmentContainer, frag)
+                .addToBackStack(null);
+        ft.commit();
+
+        modifyFab(page);
+
+        setTitle(page.toString());
+    }
+
+    private void loadFragmentNoBackStack(Fragment frag, Pages page) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, frag)
@@ -176,29 +219,38 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private View loadNewChat(View v) {
+        loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWCHAT);
+        return v;
+    }
+
     private void modifyFab(Pages page) {
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         switch (page) {
             case HOME:
-                fab.hide();
+                mFab.show();
+                mFab.setOnClickListener(this::loadNewChat);
+                mFab.setImageResource(R.drawable.ic_fab_send);
                 break;
             case CONNECTIONS:
-                fab.show();
-                fab.setOnClickListener(view -> {
-                    Toast.makeText(this, "Add button clicked!", Toast.LENGTH_SHORT).show();
-                });
-                fab.setImageResource(R.drawable.ic_fab_add);
+                mFab.show();
+                mFab.setOnClickListener(null);
+                mFab.setImageResource(R.drawable.ic_fab_add);
                 break;
             case WEATHER:
-                fab.hide();
+                mFab.hide();
                 break;
             case SETTINGS:
-                fab.hide();
+                mFab.hide();
+                break;
+            case NEWCHAT:
+                mFab.hide();
                 break;
             default:
                 Log.wtf("Impossible", "How did this happen?");
                 break;
         }
     }
+
+
 }

@@ -9,7 +9,8 @@ public enum Pages {
     WEATHER("Weather"),
     SETTINGS("Settings"),
     LOGIN("Login"),
-    REGISTER("Register");
+    REGISTER("Register"),
+    NEWCHAT("New Chat");
 
     private String title;
     Pages(String title) {
