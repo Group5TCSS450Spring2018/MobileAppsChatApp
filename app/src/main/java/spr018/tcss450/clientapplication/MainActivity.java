@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case NEWCHAT:
                 mFab.hide();
+                setTitle("Chat name");
                 break;
             default:
                 Log.wtf("Impossible", "How did this happen?");
