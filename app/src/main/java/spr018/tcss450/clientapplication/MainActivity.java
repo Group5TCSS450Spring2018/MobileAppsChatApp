@@ -14,7 +14,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
+import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -90,12 +90,13 @@ public class MainActivity extends AppCompatActivity
         MenuItem item = menu.findItem(R.id.search);
         item.setVisible(false);
         //TODO Implement search
-//        SearchManager searchManager =
-//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//        SearchView searchView =
-//                (SearchView) menu.findItem(R.id.search).getActionView();
-//        searchView.setSearchableInfo(
-//                searchManager.getSearchableInfo(getComponentName()));
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
         return true;
     }
 
@@ -156,7 +157,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onNewChatDetach() {
-        //modifyFab(Pages.HOME);
+        modifyFab(Pages.HOME);
     }
 
     @Override
@@ -219,7 +220,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private View loadNewChat(View v) {
-        loadFragmentNoBackStack(new NewMessageFragment(), Pages.NEWCHAT);
+        loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWCHAT);
         return v;
     }
 
@@ -233,7 +234,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case CONNECTIONS:
                 mFab.show();
-                mFab.setOnClickListener(this::loadNewChat);
+                mFab.setOnClickListener(null);
                 mFab.setImageResource(R.drawable.ic_fab_add);
                 break;
             case WEATHER:
