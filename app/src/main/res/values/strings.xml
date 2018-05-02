@@ -21,6 +21,8 @@
     <string name="edit_text_password">Password</string>
     <string name="edit_text_re_password">Reenter password</string>
 
+    <string name="button_send">Send</string>
+
     <string name="checkbox_stay_logged_in">Stay logged in</string>
     <string name="menu_search">Search</string>
     <string name="menu_search_hint">Search for username...</string>
@@ -37,7 +39,4 @@
         <item>@string/washedOutThemeName</item>
         <item>@string/coralThemeName</item>
     </string-array>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
