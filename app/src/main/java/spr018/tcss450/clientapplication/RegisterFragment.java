@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,16 +147,7 @@ public class RegisterFragment extends Fragment {
             if (email.isEmpty()) {
                 mEmail.setError(getString(R.string.error_empty));
             }
-            // must contain @
-            if (!email.contains("@")){
-                mEmail.setError(getString(R.string.error_email_invalid));
-            }
-            // must contain something to both sides of the @
-            if (Arrays.stream(email.split("@")).anyMatch(s -> s.isEmpty())) {
-                mEmail.setError(getString(R.string.error_email_invalid));
-            }
-            // must contain at least one . to the right of @
-            if (email.indexOf('@') > email.indexOf('.')) {
+            if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 mEmail.setError(getString(R.string.error_email_invalid));
             }
             if (email.length() > getResources().getInteger(R.integer.too_long_email)) {

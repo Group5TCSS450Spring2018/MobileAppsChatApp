@@ -23,7 +23,8 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
  */
 public class LoginActivity extends AppCompatActivity
         implements LoginFragment.OnFragmentInteractionListener,
-        RegisterFragment.OnFragmentInteractionListener {
+        RegisterFragment.OnFragmentInteractionListener,
+        LoginValidationFragment.OnFragmentInteractionListener {
 
     /* Credentials for POST to webservice */
     private Credentials mCredentials;
@@ -49,32 +50,32 @@ public class LoginActivity extends AppCompatActivity
             if (mPrefs.getBoolean(getString(R.string.keys_prefs_stay_logged_in), false)) {
                 showMainActivity();
             } else {
-                getSupportFragmentManager().beginTransaction().
-                        add(R.id.loginFragmentContainer, new LoginFragment(),
-                                getString(R.string.keys_fragment_login)).
-                        commit();
+                getSupportFragmentManager().beginTransaction()
+                    .add(R.id.loginFragmentContainer, new LoginFragment(),
+                            getString(R.string.keys_fragment_login))
+                    .commit();
             }
         }
     }
 
     @Override
     public void onLoginAttempt(Credentials loginCredentials) {
-            //build
-            Uri uri = new Uri.Builder()
-                    .scheme("https").
-                    appendPath(getString(R.string.ep_base_url)).
-                    appendPath(getString(R.string.ep_login))
-                    .build();
-            //build
-            JSONObject msg = loginCredentials.asJSONObject();
-            mCredentials = loginCredentials;
+        //build
+        Uri uri = new Uri.Builder()
+            .scheme("https")
+            .appendPath(getString(R.string.ep_base_url))
+            .appendPath(getString(R.string.ep_login))
+            .build();
+        //build
+        JSONObject msg = loginCredentials.asJSONObject();
+        mCredentials = loginCredentials;
 
-            Log.i("LOG", "LOGGING IN: " + mCredentials.toString());
+        Log.i("LOG", "LOGGING IN: " + mCredentials.toString());
 
-            new SendPostAsyncTask.Builder(uri.toString(), msg)
-                    .onPostExecute(this::handleLoginOnPost)
-                    .onCancelled(this::handleErrorsInTask)
-                    .build().execute();
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+            .onPostExecute(this::handleLoginOnPost)
+            .onCancelled(this::handleErrorsInTask)
+            .build().execute();
     }
 
     @Override
@@ -103,6 +104,29 @@ public class LoginActivity extends AppCompatActivity
                 .build().execute();
     }
 
+    @Override
+    public void onValidationAttempt(int code, String email) {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_verify))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try {
+            msg.put("verifyCode", code);
+            msg.put("email", email);
+        } catch (JSONException e) {
+            Log.wtf("VERIFICATION OBJECT", "Error creating JSON: " + e.getMessage());
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleLoginVerificationOnPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+
+
+    }
 
     /* *************** */
     /* PRIVATE HELPERS */
@@ -119,11 +143,22 @@ public class LoginActivity extends AppCompatActivity
             SharedPreferences p = getSharedPreferences
                     (getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
             //Save the username for later usage
-            p.edit().putString(getString(R.string.keys_shared_prefs),
+            p.edit().putString(getString(R.string.keys_prefs_user_name),
                     mCredentials.getUsername()).apply();
             //save the users "want" to stay logged in
-            p.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in), true).apply();
+            p.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in),
+                    true).apply();
         }
+    }
+
+    private void showVerificationPage() {
+        LoginValidationFragment l_v_frag = new LoginValidationFragment();
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.loginFragmentContainer, l_v_frag,
+                        getString(R.string.keys_fragment_login_validation))
+                .addToBackStack(getString(R.string.keys_fragment_login));
+        transaction.commit();
     }
 
 
@@ -145,10 +180,16 @@ public class LoginActivity extends AppCompatActivity
         try{
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
-            if(success){
-                //login was successful so open the main activity
-                checkStayLoggedIn();
-                showMainActivity();
+            //boolean isVerified = resultsJSON.getBoolean("verified");
+            boolean isVerified = false;
+             if(success){
+                 if (isVerified) { // login completely successful
+                     checkStayLoggedIn();
+                     showMainActivity();
+                 } else { // login was successful, but verification wasnt
+                     // force verification
+                     showVerificationPage();
+                 }
             } else {
                 //login failed.
                 LoginFragment frag = (LoginFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.keys_fragment_login));
@@ -173,6 +214,32 @@ public class LoginActivity extends AppCompatActivity
                                 .findFragmentByTag(
                                         getString(R.string.keys_fragment_register));
                 frag.setError(resultsJSON.getJSONObject("error"));
+            }
+        } catch (JSONException e) {
+            //It appears that the web service didn’t return a JSON formatted String
+            //or it didn’t have what we expected in it.
+            Log.e("JSON_PARSE_ERROR", result
+                    + System.lineSeparator()
+                    + e.getMessage());
+        }
+    }
+
+    private void handleLoginVerificationOnPost(String result) {
+        try {
+            JSONObject resultsJSON = new JSONObject(result);
+            boolean success = resultsJSON.getBoolean("success");
+            if (success) {
+                checkStayLoggedIn(); // save login info
+                showMainActivity();
+                Toast.makeText(this, "Verification successful!", Toast.LENGTH_SHORT).show();
+
+            } else {
+                //register was unsuccessful. Don’t switch fragments and inform the user
+                LoginValidationFragment frag =
+                        (LoginValidationFragment) getSupportFragmentManager()
+                                .findFragmentByTag(
+                                        getString(R.string.keys_fragment_login_validation));
+                frag.setError("Verification unsuccessful!");
             }
         } catch (JSONException e) {
             //It appears that the web service didn’t return a JSON formatted String
