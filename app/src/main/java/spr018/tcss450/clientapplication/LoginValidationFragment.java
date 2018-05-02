@@ -17,6 +17,11 @@ import android.widget.EditText;
  * Activities that contain this fragment must implement the
  * {@link LoginValidationFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
+ * 
+ * @author Deepjot Kaur
+ * @author Daryan Hanshew
+ * @author Tenma Rollins
+ * @author Tuan Dinh
  */
 public class LoginValidationFragment extends Fragment {
 
@@ -29,7 +34,9 @@ public class LoginValidationFragment extends Fragment {
         // Required empty public constructor
     }
 
-
+    /* ****************************************** */
+    /* OVERRIDES FOR CALLBACK AND FACTORY METHODS */
+    /* ****************************************** */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
