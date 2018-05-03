@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="keys_shared_prefs">edu.uw.tcss450.chatApp.PREFS</string>
-    <string name="keys_prefs_username">username</string>
+    <string name="keys_prefs_user_name">username</string>
     <string name="keys_prefs_stay_logged_in">stay_logged_in</string>
     <string name="keys_prefs_app_theme">current_app_theme</string>
+    <string name="keys_prefs_app_theme_no_actionbar">current_app_theme_no_actionbar</string>
     <string name="keys_prefs_current_theme_pos">current_theme_pos</string>
 
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>
+    <string name="keys_fragment_login_validation">loginValidationTag</string>
 
     <string name="keys_username_error">members_username_key</string>
     <string name="keys_email_error">members_email_key</string>
