@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity
         mPrefs = getSharedPreferences(
                 getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
         // make sure to set the app theme
-//        setTheme(mPrefs.getInt(
-//            getString(R.string.keys_prefs_app_theme), R.style.AppTheme_NoActionBar));
+        setTheme(mPrefs.getInt(
+            getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
 
         setContentView(R.layout.activity_main);
 
@@ -174,16 +174,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void settings_ChangeTheme(String styleID) {
         Log.e("THEME CHOSEN", styleID + " IS THE THEME");
-        int themeID = R.style.AppTheme_NoActionBar; // default
+        int themeID = R.style.AppTheme; // default
+        int themeID_no_actionbar = R.style.AppTheme_NoActionBar;
 
         if (styleID.equals(getString(R.string.washedOutThemeName))) {
             themeID = R.style.AppTheme_WashedOut;
+            themeID_no_actionbar = R.style.AppTheme_WashedOut_NoActionBar;
         } else if (styleID.equals(getString(R.string.coralThemeName))) {
             themeID = R.style.AppTheme_Coral;
+            themeID_no_actionbar = R.style.AppTheme_Coral_NoActionBar;
         }
 
         mPrefs.edit().putInt(
                 getString(R.string.keys_prefs_app_theme), themeID).apply();
+        mPrefs.edit().putInt(
+                getString(R.string.keys_prefs_app_theme_no_actionbar), themeID_no_actionbar).apply();
+
+        setTheme(themeID_no_actionbar);
+        recreate();
     }
 
     /* Helpers */

@@ -22,6 +22,7 @@ import android.widget.Toast;
 public class SettingsFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private OnFragmentInteractionListener mListener;
+    private boolean firstOpen = true;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -82,16 +83,19 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String theme = (String) parent.getAdapter().getItem(position);
+        if (!firstOpen) {
+            String theme = (String) parent.getAdapter().getItem(position);
 
-        getActivity().getSharedPreferences(
-                getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE)
-                .edit().putInt(getString(R.string.keys_prefs_current_theme_pos), position).apply();
+            getActivity().getSharedPreferences(
+                    getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE)
+                    .edit().putInt(getString(R.string.keys_prefs_current_theme_pos), position).apply();
 
-        if (theme != null && mListener != null) {
-            mListener.settings_ChangeTheme(theme);
+            if (theme != null && mListener != null) {
+                mListener.settings_ChangeTheme(theme);
+            }
+        } else {
+            firstOpen = false;
         }
-
     }
 
     @Override
