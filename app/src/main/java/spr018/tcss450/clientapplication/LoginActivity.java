@@ -29,6 +29,9 @@ public class LoginActivity extends AppCompatActivity
     /* Credentials for POST to webservice */
     private Credentials mCredentials;
 
+    private boolean stayLoggedIn = false;
+    private String emailTemp = "";
+
     private SharedPreferences mPrefs;
 
 
@@ -90,6 +93,7 @@ public class LoginActivity extends AppCompatActivity
 
     @Override
     public void onRegisterAttempt(Credentials loginCredentials) {
+        emailTemp = loginCredentials.getEmail().toString();
         //build the web service URL
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -105,7 +109,7 @@ public class LoginActivity extends AppCompatActivity
     }
 
     @Override
-    public void onValidationAttempt(int code, String email) {
+    public void onValidationAttempt(int code) {
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -115,7 +119,7 @@ public class LoginActivity extends AppCompatActivity
         JSONObject msg = new JSONObject();
         try {
             msg.put("verifyCode", code);
-            msg.put("email", email);
+            msg.put("username", mCredentials.getUsername().toString());
         } catch (JSONException e) {
             Log.wtf("VERIFICATION OBJECT", "Error creating JSON: " + e.getMessage());
         }
@@ -140,15 +144,17 @@ public class LoginActivity extends AppCompatActivity
     private void checkStayLoggedIn() {
         if (((CheckBox) findViewById(R.id.logCheckBox)).isChecked()) {
             Log.e("CHECK BOX", "CHECKED");
-            SharedPreferences p = getSharedPreferences
-                    (getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
-            //Save the username for later usage
-            p.edit().putString(getString(R.string.keys_prefs_user_name),
-                    mCredentials.getUsername()).apply();
-            //save the users "want" to stay logged in
-            p.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in),
-                    true).apply();
+            stayLoggedIn = true;
         }
+    }
+
+    private void saveUserInfo() {
+        //Save the username for later usage
+        mPrefs.edit().putString(getString(R.string.keys_prefs_user_name),
+                mCredentials.getUsername()).apply();
+        //save the users "want" to stay logged in
+        mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in),
+                stayLoggedIn).apply();
     }
 
     private void showVerificationPage() {
@@ -173,18 +179,18 @@ public class LoginActivity extends AppCompatActivity
     }
 
     /**
-     * Handle onPostExecute of the AsynceTask. The result from our webservice is * a JSON formatted String. Parse it for success or failure.
+     * Handle onPostExecute of the AsynceTask. The result from our webservice is * a J  SON formatted String. Parse it for success or failure.
      * @param result the JSON formatted String response from the web service
      */
     private void handleLoginOnPost(String result) {
         try{
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
-            //boolean isVerified = resultsJSON.getBoolean("verified");
-            boolean isVerified = false;
+            boolean isVerified = resultsJSON.getBoolean("verify");
+            //boolean isVerified = false;
              if(success){
+                 checkStayLoggedIn();
                  if (isVerified) { // login completely successful
-                     checkStayLoggedIn();
                      showMainActivity();
                  } else { // login was successful, but verification wasnt
                      // force verification
@@ -206,7 +212,7 @@ public class LoginActivity extends AppCompatActivity
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
                 getSupportFragmentManager().popBackStack();
-                Toast.makeText(this, "Registered successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Registered successfully! Verification code sent to: " + emailTemp, Toast.LENGTH_SHORT).show();
             } else {
                 //register was unsuccessful. Don’t switch fragments and inform the user
                 RegisterFragment frag =
@@ -229,7 +235,7 @@ public class LoginActivity extends AppCompatActivity
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
-                checkStayLoggedIn(); // save login info
+                saveUserInfo();
                 showMainActivity();
                 Toast.makeText(this, "Verification successful!", Toast.LENGTH_SHORT).show();
 

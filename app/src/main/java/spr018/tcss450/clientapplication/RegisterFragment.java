@@ -147,7 +147,7 @@ public class RegisterFragment extends Fragment {
             if (email.isEmpty()) {
                 mEmail.setError(getString(R.string.error_empty));
             }
-            if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 mEmail.setError(getString(R.string.error_email_invalid));
             }
             if (email.length() > getResources().getInteger(R.integer.too_long_email)) {

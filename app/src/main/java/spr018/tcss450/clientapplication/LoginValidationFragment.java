@@ -17,7 +17,7 @@ import android.widget.EditText;
  * Activities that contain this fragment must implement the
  * {@link LoginValidationFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * 
+ *
  * @author Deepjot Kaur
  * @author Daryan Hanshew
  * @author Tenma Rollins
@@ -28,8 +28,6 @@ public class LoginValidationFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     private EditText mCode;
-    private EditText mEmail;
-
     public LoginValidationFragment() {
         // Required empty public constructor
     }
@@ -45,9 +43,6 @@ public class LoginValidationFragment extends Fragment {
 
         mCode = v.findViewById(R.id.validationNumberInput);
         mCode.setOnFocusChangeListener(this::onCodeFocusChange);
-
-        mEmail = v.findViewById(R.id.validationEmailInput);
-        mEmail.setOnFocusChangeListener(this::onEmailFocusChange);
 
         v.findViewById(R.id.validationButton).setOnClickListener(this::onValidationButtonPressed);
 
@@ -78,13 +73,11 @@ public class LoginValidationFragment extends Fragment {
         if (mListener != null) {
             // check for errors in input
             onCodeFocusChange(null, false);
-            onEmailFocusChange(null, false);
 
             // if no errors, attempt to verify
-            if (mCode.getError() == null && mEmail.getError() == null) {
+            if (mCode.getError() == null) {
                 int code = Integer.parseInt(mCode.getText().toString());
-                String email = mEmail.getText().toString();
-                mListener.onValidationAttempt(code, email);
+                mListener.onValidationAttempt(code);
             }
         }
     }
@@ -99,25 +92,6 @@ public class LoginValidationFragment extends Fragment {
             }
         } else {
             mCode.setError(null);
-        }
-    }
-
-    private void onEmailFocusChange(View v, boolean hasFocus) {
-        String email = mEmail.getText().toString();
-
-        if (!hasFocus) {
-            // must not be empty
-            if (email.isEmpty()) {
-                mEmail.setError(getString(R.string.error_empty));
-            }
-            if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                mEmail.setError(getString(R.string.error_email_invalid));
-            }
-            if (email.length() > getResources().getInteger(R.integer.too_long_email)) {
-                mEmail.setError(getString(R.string.error_too_long_email));
-            }
-        } else {
-            mEmail.setError(null);
         }
     }
 
@@ -148,6 +122,6 @@ public class LoginValidationFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onValidationAttempt(int code, String email);
+        void onValidationAttempt(int code);
     }
 }
