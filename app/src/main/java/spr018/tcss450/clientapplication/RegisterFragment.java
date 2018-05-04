@@ -251,6 +251,7 @@ public class RegisterFragment extends Fragment {
                     .addLastName(lastName)
                     .addEmail(email)
                     .build();
+            setEnabledAllButtons(false);
             mListener.onRegisterAttempt(loginCredentials);
         }
     }
@@ -258,6 +259,11 @@ public class RegisterFragment extends Fragment {
     /* *********** */
     /* EXPOSED API */
     /* *********** */
+    public void setEnabledAllButtons(boolean state) {
+        getActivity().findViewById(R.id.newRegisterButton).setEnabled(state);
+    }
+
+
     /**
      * Allows an external source to set an error message on this fragment. This may
      * be needed if an Activity includes processing that could cause login to fail.

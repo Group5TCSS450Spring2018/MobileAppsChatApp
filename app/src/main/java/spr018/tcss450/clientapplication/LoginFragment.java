@@ -101,6 +101,7 @@ public class LoginFragment extends Fragment {
             Credentials loginCredentials = new Credentials.Builder(
                     mUsername.getText().toString(), mPassword.getText())
                     .build();
+            setEnabledAllButtons(false);
             mListener.onLoginAttempt(loginCredentials);
         }
     }
@@ -112,6 +113,11 @@ public class LoginFragment extends Fragment {
     /* *********** */
     /* EXPOSED API */
     /* *********** */
+    public void setEnabledAllButtons(boolean state) {
+        getActivity().findViewById(R.id.loginButton).setEnabled(state);
+        getActivity().findViewById(R.id.registerButton).setEnabled(state);
+    }
+
     /**
      * Allows an external source to set an error message on this fragment. This may
      * be needed if an Activity includes processing that could cause login to fail.
