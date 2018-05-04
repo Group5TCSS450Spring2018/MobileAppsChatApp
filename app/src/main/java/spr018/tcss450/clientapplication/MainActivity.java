@@ -130,8 +130,6 @@ public class MainActivity extends AppCompatActivity
             loadFragmentNoBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
         } else if (id == R.id.nav_weather) {
             loadFragmentNoBackStack(new WeatherFragment(), Pages.WEATHER);
-        } else if (id == R.id.nav_settings) {
-            loadFragmentNoBackStack(new SettingsFragment(), Pages.SETTINGS);
         } else if (id == R.id.nav_log_out) {
             showLoginActivity();
         }
