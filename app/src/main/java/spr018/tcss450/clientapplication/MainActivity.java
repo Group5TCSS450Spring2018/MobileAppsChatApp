@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -242,7 +243,13 @@ public class MainActivity extends AppCompatActivity
                 break;
             case CONNECTIONS:
                 mFab.show();
-                mFab.setOnClickListener(null);
+                mFab.setOnClickListener(view -> {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Add New Connection!")
+                            .setMessage("Attempted to add new connection! (Placeholder)")
+                            .setCancelable(false)
+                            .show();
+                });
                 mFab.setImageResource(R.drawable.ic_fab_add);
                 break;
             case WEATHER:

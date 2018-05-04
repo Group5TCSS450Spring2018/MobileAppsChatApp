@@ -77,6 +77,7 @@ public class LoginValidationFragment extends Fragment {
             // if no errors, attempt to verify
             if (mCode.getError() == null) {
                 int code = Integer.parseInt(mCode.getText().toString());
+                setEnabledAllButtons(false);
                 mListener.onValidationAttempt(code);
             }
         }
@@ -98,6 +99,10 @@ public class LoginValidationFragment extends Fragment {
     /* *********** */
     /* EXPOSED API */
     /* *********** */
+    public void setEnabledAllButtons(boolean state) {
+        getActivity().findViewById(R.id.validationButton).setEnabled(state);
+    }
+
     /**
      * Allows an external source to set an error message on this fragment. This may
      * be needed if an Activity includes processing that could cause login to fail.

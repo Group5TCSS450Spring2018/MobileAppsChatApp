@@ -185,6 +185,10 @@ public class LoginActivity extends AppCompatActivity
      * @param result the JSON formatted String response from the web service
      */
     private void handleLoginOnPost(String result) {
+        LoginFragment frag = (LoginFragment) getSupportFragmentManager()
+            .findFragmentByTag(getString(R.string.keys_fragment_login));
+
+        frag.setEnabledAllButtons(true);
         try{
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
@@ -200,8 +204,7 @@ public class LoginActivity extends AppCompatActivity
                      showVerificationPage();
                  }
             } else {
-                //login failed.
-                LoginFragment frag = (LoginFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.keys_fragment_login));
+                 //login failed.
                 frag.setError("Log in unsuccessful");
             }
         } catch(JSONException e){
@@ -210,6 +213,10 @@ public class LoginActivity extends AppCompatActivity
     }
 
     private void handleRegisterOnPost(String result) {
+        RegisterFragment frag = (RegisterFragment) getSupportFragmentManager()
+            .findFragmentByTag(getString(R.string.keys_fragment_register));
+
+        frag.setEnabledAllButtons(true);
         try {
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
@@ -218,10 +225,7 @@ public class LoginActivity extends AppCompatActivity
                 Toast.makeText(this, "Registered successfully! Verification code sent to: " + emailTemp, Toast.LENGTH_SHORT).show();
             } else {
                 //register was unsuccessful. Don’t switch fragments and inform the user
-                RegisterFragment frag =
-                        (RegisterFragment) getSupportFragmentManager()
-                                .findFragmentByTag(
-                                        getString(R.string.keys_fragment_register));
+
                 frag.setError(resultsJSON.getJSONObject("error"));
             }
         } catch (JSONException e) {
@@ -234,6 +238,10 @@ public class LoginActivity extends AppCompatActivity
     }
 
     private void handleLoginVerificationOnPost(String result) {
+        LoginValidationFragment frag = (LoginValidationFragment) getSupportFragmentManager()
+            .findFragmentByTag(getString(R.string.keys_fragment_login_validation));
+
+        frag.setEnabledAllButtons(true);
         try {
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
@@ -244,10 +252,6 @@ public class LoginActivity extends AppCompatActivity
 
             } else {
                 //register was unsuccessful. Don’t switch fragments and inform the user
-                LoginValidationFragment frag =
-                        (LoginValidationFragment) getSupportFragmentManager()
-                                .findFragmentByTag(
-                                        getString(R.string.keys_fragment_login_validation));
                 frag.setError("Verification unsuccessful!");
             }
         } catch (JSONException e) {
