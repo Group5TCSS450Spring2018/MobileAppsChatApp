@@ -2,6 +2,7 @@ package spr018.tcss450.clientapplication;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,7 +42,7 @@ public class LoginFragment extends Fragment {
     /* OVERRIDES FOR CALLBACK AND FACTORY METHODS */
     /* ****************************************** */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login, container, false);
         mUsername = v.findViewById(R.id.usernameText);
@@ -51,7 +52,7 @@ public class LoginFragment extends Fragment {
         Button login = v.findViewById(R.id.loginButton);
         login.setOnClickListener(this::handleLoginAttempt);
         Button register = v.findViewById(R.id.registerButton);
-        register.setOnClickListener(this::handleRegisterClicked);
+        register.setOnClickListener(view -> mListener.onRegisterClicked());
         return v;
     }
 
@@ -81,8 +82,6 @@ public class LoginFragment extends Fragment {
             if (mUsername.getText().toString().isEmpty()) {
                 mUsername.setError(getString(R.string.error_empty));
             }
-        } else {
-            mUsername.setError(null);
         }
     }
 
@@ -91,12 +90,15 @@ public class LoginFragment extends Fragment {
             if (mPassword.getText().toString().isEmpty()) {
                 mPassword.setError(getString(R.string.error_empty));
             }
-        } else {
-            mPassword.setError(null);
         }
     }
 
     private void handleLoginAttempt(View v) {
+        //These two methods call are NECESSARY.
+        //They simulate the views losing focus.
+        onUsernameFocusChange(null, false);
+        onPasswordFocusChange(null, false);
+
         if (mPassword.getError() == null && mUsername.getError() == null) {
             Credentials loginCredentials = new Credentials.Builder(
                     mUsername.getText().toString(), mPassword.getText())
@@ -106,9 +108,6 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    private void handleRegisterClicked(View v) {
-        mListener.onRegisterClicked();
-    }
 
     /* *********** */
     /* EXPOSED API */

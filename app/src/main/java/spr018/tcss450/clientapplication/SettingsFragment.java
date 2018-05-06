@@ -3,6 +3,7 @@ package spr018.tcss450.clientapplication;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,7 @@ import android.widget.Toast;
 public class SettingsFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private OnFragmentInteractionListener mListener;
-    private boolean firstOpen = true;
+    private boolean firstOpen;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -35,6 +36,8 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        firstOpen = true;
+        Log.e("SETTINGS", "CREATE VIEW");
         Switch stayLogged = v.findViewById(R.id.stayLoggedInSwitch);
         stayLogged.setOnClickListener(this::onStayLoggedInToggle);
         stayLogged.setChecked(getActivity().getSharedPreferences(
@@ -73,6 +76,11 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override

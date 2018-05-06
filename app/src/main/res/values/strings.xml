@@ -21,6 +21,7 @@
     <string name="edit_text_password">Password</string>
     <string name="edit_text_re_password">Reenter password</string>
     <string name="edit_text_verify">Verification Code</string>
+    <string name="edit_text_hint_chat">Type a message…</string>
 
     <string name="button_send">Send</string>
 
@@ -31,6 +32,7 @@
     <string name="navigation_drawer_open">Navigation Drawer Opened</string>
     <string name="navigation_drawer_close">Navigation Drawer Closed</string>
 
+    <string name="toast_server_down">Unable to connect to server. Please try again later.</string>
     <string name="defaultThemeName">Default</string>
     <string name="washedOutThemeName">Washed Out</string>
     <string name="coralThemeName">Coral</string>
