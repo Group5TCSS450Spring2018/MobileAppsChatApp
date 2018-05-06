@@ -110,8 +110,6 @@ public class RegisterFragment extends Fragment {
             if (firstName.length() > getResources().getInteger(R.integer.too_long)) {
                 mFirstName.setError(getString(R.string.error_too_long));
             }
-        } else { // never set error until finished writing input and unfocused
-            mFirstName.setError(null);
         }
 
         canRegister = canRegister && mFirstName.getError() == null;
@@ -132,8 +130,6 @@ public class RegisterFragment extends Fragment {
             if (lastName.length() > getResources().getInteger(R.integer.too_long)) {
                 mLastName.setError(getString(R.string.error_too_long));
             }
-        } else { // never set error until finished writing input and unfocused
-            mLastName.setError(null);
         }
 
         canRegister = canRegister && mLastName.getError() == null;
@@ -153,8 +149,6 @@ public class RegisterFragment extends Fragment {
             if (email.length() > getResources().getInteger(R.integer.too_long_email)) {
                 mEmail.setError(getString(R.string.error_too_long_email));
             }
-        } else {
-            mEmail.setError(null);
         }
 
         canRegister = canRegister && mEmail.getError() == null;
@@ -175,8 +169,6 @@ public class RegisterFragment extends Fragment {
             if (username.length() > getResources().getInteger(R.integer.too_long)) {
                 mUsername.setError(getString(R.string.error_too_long));
             }
-        } else {
-            mUsername.setError(null);
         }
 
         canRegister = canRegister && mUsername.getError() == null;
@@ -203,8 +195,6 @@ public class RegisterFragment extends Fragment {
             if (password.length() > getResources().getInteger(R.integer.too_long)) {
                 mPassword.setError(getString(R.string.error_too_long));
             }
-        } else {
-            mPassword.setError(null);
         }
 
         canRegister = canRegister && mPassword.getError() == null;
@@ -221,8 +211,6 @@ public class RegisterFragment extends Fragment {
             if (!rePassword.equals(mPassword.getText().toString())) {
                 mRePassword.setError(getString(R.string.error_password_not_match));
             }
-        } else {
-            mRePassword.setError(null);
         }
 
         canRegister = canRegister && mRePassword.getError() == null;

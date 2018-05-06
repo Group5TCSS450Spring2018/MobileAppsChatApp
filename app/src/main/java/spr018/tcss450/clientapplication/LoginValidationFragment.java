@@ -87,12 +87,9 @@ public class LoginValidationFragment extends Fragment {
         if (!hasFocus) {
             if (mCode.getText().toString().isEmpty()) {
                 mCode.setError("Cannot by empty!");
-            }
-            if (mCode.getText().toString().length() != 4) {
+            } else if (mCode.getText().toString().length() != 4) {
                 mCode.setError("Must be of length 4!");
             }
-        } else {
-            mCode.setError(null);
         }
     }
 
