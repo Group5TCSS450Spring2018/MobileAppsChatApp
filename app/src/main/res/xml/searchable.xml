@@ -2,4 +2,4 @@
 
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
     android:label="@string/app_name"
-    android:hint="@string/menu_search_hint" />
+    android:hint="@string/edit_text_hint_menu_search" />
