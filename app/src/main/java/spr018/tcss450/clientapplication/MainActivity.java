@@ -23,9 +23,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import spr018.tcss450.clientapplication.utility.Pages;
 
@@ -35,7 +33,8 @@ public class MainActivity extends AppCompatActivity
         ConnectionsFragment.OnFragmentInteractionListener,
         WeatherFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener,
-        NewMessageFragment.OnFragmentInteractionListener {
+        NewMessageFragment.OnFragmentInteractionListener,
+        NewConnectionFragment.OnFragmentInteractionListener {
 
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
+        loadFragmentNoBackStack(new HomeFragment());
     }
 
     @Override
@@ -172,6 +171,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onSearchAttempt(String username) {
+
+    }
+
+    @Override
     public void settings_ToggleStayLoggedIn(Switch v) {
         boolean currentState = mPrefs.getBoolean(
                 getString(R.string.keys_prefs_stay_logged_in), false);
@@ -220,18 +224,15 @@ public class MainActivity extends AppCompatActivity
                 .addToBackStack(page.toString());
         ft.commit();
         modifyFab(fragment);
-        setTitle(page.toString());
     }
 
-    private void loadFragmentNoBackStack(Fragment fragment, Pages page) {
+    private void loadFragmentNoBackStack(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment)
                 .commit();
 
         modifyFab(fragment);
-
-        setTitle(page.toString());
     }
 
     private void showLoginActivity() {
@@ -243,34 +244,38 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    private View loadNewChat(View v) {
-        loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWCHAT);
-        return v;
-    }
-
     private void modifyFab(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
         if (fragment instanceof HomeFragment) {
-            Log.e("FAB", "HERE");
             mFab.show();
-            mFab.setOnClickListener(this::loadNewChat);
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
             mFab.setImageResource(R.drawable.ic_fab_send);
             nv.getMenu().getItem(0).setChecked(true);
+            setTitle(Pages.HOME.toString());
         } else if (fragment instanceof ConnectionsFragment) {
             mFab.show();
-            mFab.setOnClickListener(view -> Toast.makeText(getApplicationContext(), "Add new connection", Toast.LENGTH_SHORT).show());
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewConnectionFragment(), Pages.NEWCONNECTION));
             mFab.setImageResource(R.drawable.ic_fab_add);
             nv.getMenu().getItem(1).setChecked(true);
+            setTitle(Pages.CONNECTIONS.toString());
         } else if (fragment instanceof WeatherFragment) {
             mFab.hide();
             nv.getMenu().getItem(2).setChecked(true);
+            setTitle(Pages.WEATHER.toString());
         } else if (fragment instanceof SettingsFragment) {
             mFab.hide();
             nv.getMenu().getItem(3).setChecked(true);
+            setTitle(Pages.SETTINGS.toString());
         } else if (fragment instanceof NewMessageFragment) {
             mFab.hide();
+            setTitle(Pages.NEWMESSAGE.toString());
+        } else if (fragment instanceof NewConnectionFragment) {
+            mFab.hide();
+            setTitle(Pages.NEWCONNECTION.toString());
         } else {
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }
     }
+
+
 }

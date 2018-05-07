@@ -10,7 +10,8 @@ public enum Pages {
     SETTINGS("Settings"),
     LOGIN("Login"),
     REGISTER("Register"),
-    NEWCHAT("New Chat");
+    NEWMESSAGE("Open new chat"),
+    NEWCONNECTION("Add new connection");
 
     private String title;
     Pages(String title) {
