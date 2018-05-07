@@ -134,13 +134,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            loadFragmentWithBackStack(new HomeFragment(), Pages.HOME);
+            loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
         } else if (id == R.id.nav_connections) {
-            loadFragmentWithBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
+            loadFragmentNoBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
         } else if (id == R.id.nav_weather) {
-            loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
-        } else if (id == R.id.nav_settings) {
-            loadFragmentWithBackStack(new SettingsFragment(), Pages.SETTINGS);
+            loadFragmentNoBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
             showLoginActivity();
         }
