@@ -8,16 +8,13 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import spr018.tcss450.clientapplication.model.ChatViewItem;
+import spr018.tcss450.clientapplication.model.ChatAdapter;
+import spr018.tcss450.clientapplication.model.Connection;
 
 
 /**
@@ -29,7 +26,7 @@ import spr018.tcss450.clientapplication.model.ChatViewItem;
 public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private ArrayList<ChatViewItem> mChatList;
+    private ArrayList<Connection> mChatList;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -39,20 +36,23 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment\
+        // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         RecyclerView connections = v.findViewById(R.id.chatListContainer);
 
-        mChatList = ChatViewItem.populateChats(20    );
+        mChatList = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            Connection c = new Connection("Username " + i, "Name" + i);
+            c.setRecentMessage("Recent message");
+            mChatList.add(c);
+        }
 
-        ChatViewItemAdapter adapter = new ChatViewItemAdapter(mChatList);
-
+        ChatAdapter adapter = new ChatAdapter(mChatList);
         connections.setAdapter(adapter);
         connections.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         setHasOptionsMenu(true);
 
         return v;
@@ -97,59 +97,5 @@ public class HomeFragment extends Fragment {
         void onHomeInteraction(Uri uri);
     }
 
-    private class ChatViewItemAdapter
-            extends RecyclerView.Adapter<ChatViewItemAdapter.ViewHolder> {
 
-        private ArrayList<ChatViewItem> mChats;
-
-        public ChatViewItemAdapter(ArrayList<ChatViewItem> list) {
-            this.mChats = list;
-        }
-
-        @NonNull
-        @Override
-        public ChatViewItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            Context context = parent.getContext();
-            LayoutInflater inflater = LayoutInflater.from(context);
-
-            View chatViewItem = inflater.inflate(R.layout.fragment_home_chat_list_item,
-                    parent, false);
-
-
-            ChatViewItemAdapter.ViewHolder viewHolder = new ChatViewItemAdapter.ViewHolder(chatViewItem);
-
-            return viewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ChatViewItemAdapter.ViewHolder holder, int position) {
-            ChatViewItem chat = mChats.get(position);
-
-            // Set item views based on your views and data model
-            TextView textView = holder.mChatTitle;
-            textView.setText(chat.getTitle());
-        }
-
-        @Override
-        public int getItemCount() {
-            return mChats.size();
-        }
-
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public ImageView mChatIcon;
-            public TextView mChatTitle;
-
-            // We also create a constructor that accepts the entire item row
-            // and does the view lookups to find each subview
-            public ViewHolder(View view) {
-                // Stores the itemView in a public final member variable that can be used
-                // to access the context from any ViewHolder instance.
-                super(view);
-
-                mChatIcon = view.findViewById(R.id.chatIcon);
-                mChatTitle = view.findViewById(R.id.chatTitle);
-            }
-        }
-    }
 }

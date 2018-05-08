@@ -2,6 +2,7 @@ package spr018.tcss450.clientapplication;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,7 +37,7 @@ public class NewMessageFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_new_message, container, false);
@@ -44,7 +45,7 @@ public class NewMessageFragment extends Fragment {
         //TODO Remove this when there is a real list of connections
         List<Connection> bigList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Connection " + i);
+            Connection c = new Connection("Username " + i, "Name" + i);
             bigList.add(c);
         }
 

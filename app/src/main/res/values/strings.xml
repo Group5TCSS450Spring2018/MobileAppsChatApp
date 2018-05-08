@@ -22,7 +22,7 @@
     <string name="edit_text_re_password">Reenter password</string>
     <string name="edit_text_verify">Verification Code</string>
     <string name="edit_text_hint_chat">Type a message…</string>
-    <string name="edit_text_hint_new_connection">Type a username…</string>
+    <string name="search_view_hint_new_connection">Search for name, username, or email…</string>
     <string name="edit_text_hint_menu_search">Search for username…</string>
 
     <string name="button_send">Send</string>
