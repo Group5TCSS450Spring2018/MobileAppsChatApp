@@ -17,6 +17,9 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,6 +27,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
+
+import java.util.Objects;
 
 import spr018.tcss450.clientapplication.utility.Pages;
 
@@ -67,7 +72,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         loadFragmentNoBackStack(new HomeFragment());
     }
 
@@ -85,7 +89,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-//
+
 //    @Override
 //    public boolean onPrepareOptionsMenu(Menu menu) {
 //        MenuItem item = menu.findItem(R.id.search);
@@ -106,9 +110,8 @@ public class MainActivity extends AppCompatActivity
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.actionBarSearch).getActionView();
         searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+                Objects.requireNonNull(searchManager).getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
-//        searchView.setOnClickListener(view -> view.requestFocus());
         return true;
     }
 
@@ -211,17 +214,16 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStack();
         }
-        HomeFragment h = null;
-        modifyFab(h);
+        modifyFab(null);
     }
 
     /* Helpers */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
-        FragmentTransaction ft = getSupportFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment, page.toString())
-                .addToBackStack(page.toString());
-        ft.commit();
+                .addToBackStack(page.toString())
+                .commit();
         modifyFab(fragment);
     }
 
@@ -277,6 +279,4 @@ public class MainActivity extends AppCompatActivity
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }
     }
-
-
 }
