@@ -98,16 +98,17 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        MenuItem item = menu.findItem(R.id.search);
+        MenuItem item = menu.findItem(R.id.actionBarSearch);
         item.setVisible(false);
         //TODO Implement search
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
-                (SearchView) menu.findItem(R.id.search).getActionView();
+                (SearchView) menu.findItem(R.id.actionBarSearch).getActionView();
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
+//        searchView.setOnClickListener(view -> view.requestFocus());
         return true;
     }
 
@@ -266,9 +267,11 @@ public class MainActivity extends AppCompatActivity
             setTitle(Pages.SETTINGS.toString());
         } else if (fragment instanceof NewMessageFragment) {
             mFab.hide();
+            nv.getMenu().getItem(0).setChecked(true);
             setTitle(Pages.NEWMESSAGE.toString());
         } else if (fragment instanceof NewConnectionFragment) {
             mFab.hide();
+            nv.getMenu().getItem(1).setChecked(true);
             setTitle(Pages.NEWCONNECTION.toString());
         } else {
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");

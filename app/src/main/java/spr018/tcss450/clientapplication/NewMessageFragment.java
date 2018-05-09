@@ -63,7 +63,7 @@ public class NewMessageFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_settings);
         item.setVisible(false);
-        item = menu.findItem(R.id.search);
+        item = menu.findItem(R.id.actionBarSearch);
         item.setVisible(true);
         super.onPrepareOptionsMenu(menu);
     }
