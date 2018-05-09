@@ -7,6 +7,7 @@
     <string name="ep_verify">verify</string>
 
     <!-- TODO: RENAME ENDPOINTS WHEN IMPLEMENTED -->
+    <string name="ep_search_connection">searchConnections</string>
     <string name="ep_conections">connections</string>
     <string name="ep_chat_all">all-chats</string>
     <string name="ep_chat">chat</string>
