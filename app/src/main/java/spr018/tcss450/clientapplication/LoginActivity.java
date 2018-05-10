@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import spr018.tcss450.clientapplication.model.Credentials;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
-import spr018.tcss450.clientapplication.utility.ValidationInfoFragment;
 
 /**
  * @author Deepjot Kaur
