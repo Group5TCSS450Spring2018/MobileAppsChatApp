@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import spr018.tcss450.clientapplication.model.Credentials;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
+import spr018.tcss450.clientapplication.utility.ValidationInfoFragment;
 
 /**
  * @author Deepjot Kaur
@@ -167,6 +168,16 @@ public class LoginActivity extends AppCompatActivity
         transaction.commit();
     }
 
+    private void showValidationInfoPage(){
+        ValidationInfoFragment v_i_frag = new ValidationInfoFragment();
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.loginFragmentContainer, v_i_frag,
+                        getString(R.string.keys_fragment_validation_info))
+                .addToBackStack(getString(R.string.keys_fragment_login));
+        transaction.commit();
+    }
+
     /* ******************* */
     /* ASYNC TASK HANDLERS */
     /* ******************* */
@@ -237,7 +248,9 @@ public class LoginActivity extends AppCompatActivity
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
                 getSupportFragmentManager().popBackStack();
-                Toast.makeText(this, "Registered successfully! Verification code sent to: " + emailTemp, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Registered successfully! Verification code sent " +
+                        "to: " + emailTemp, Toast.LENGTH_SHORT).show();
+                showValidationInfoPage();
             } else {
                 //register was unsuccessful. Don’t switch fragments and inform the user
 
