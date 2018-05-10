@@ -6,10 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -17,6 +15,11 @@ import spr018.tcss450.clientapplication.R;
 
 public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.ViewHolder> {
     private List<Connection> mConnections;
+    private OnItemClickListener mListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Connection connection);
+    }
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -25,11 +28,17 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
         // each data item is just a string in this case
         private TextView mNameTextView;
         private TextView mUsernameTextView;
+        private View mView;
 
         ViewHolder(View v) {
             super(v);
             mNameTextView = v.findViewById(R.id.connectionName);
             mUsernameTextView = v.findViewById(R.id.connectionUsername);
+            mView = v;
+        }
+
+        void bind(Connection connection, OnItemClickListener listener) {
+            mView.setOnClickListener(view -> listener.onItemClick(connection));
         }
     }
 
@@ -55,6 +64,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
         Connection connection = mConnections.get(position);
         holder.mUsernameTextView.setText(connection.getUsername());
         holder.mNameTextView.setText(connection.getName());
+        holder.bind(mConnections.get(position), mListener);
     }
 
 
@@ -62,6 +72,10 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
     @Override
     public int getItemCount() {
         return mConnections.size();
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mListener = listener;
     }
 }
 

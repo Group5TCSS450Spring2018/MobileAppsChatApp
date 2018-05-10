@@ -12,13 +12,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -27,9 +24,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import java.util.Objects;
 
+import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
 
 public class MainActivity extends AppCompatActivity
@@ -39,7 +38,8 @@ public class MainActivity extends AppCompatActivity
         WeatherFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener,
         NewMessageFragment.OnFragmentInteractionListener,
-        NewConnectionFragment.OnFragmentInteractionListener {
+        NewConnectionFragment.OnFragmentInteractionListener,
+        ConnectionProfileFragment.OnFragmentInteractionListener {
 
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
@@ -63,10 +63,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fm = getSupportFragmentManager();
             Fragment fragment = fm.findFragmentById(R.id.mainFragmentContainer);
             if (fragment != null) {
-                modifyFab(fragment);
+                updateFABandNV(fragment);
             }
         }
     }
@@ -158,8 +158,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnectionsInteraction(Uri uri) {
-
+    public void onFriendConnectionClicked(Connection connection) {
+        String name = connection.getName();
+        String username = connection.getUsername();
+        String email = connection.getEmail();
+        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, true), Pages.PROFILE);
     }
 
     @Override
@@ -173,8 +176,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSearchAttempt(String username) {
+    public void onSearchedConnectionClicked(Connection connection) {
+        InputMethodManager inputManager = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        assert inputManager != null;
+        inputManager.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+        String name = connection.getName();
+        String username = connection.getUsername();
+        String email = connection.getEmail();
+        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, false), Pages.PROFILE);
+    }
 
+    @Override
+    public void onAddNewConnectionAttempt() {
+        Toast.makeText(getApplicationContext(), "Add me!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -214,7 +230,7 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStack();
         }
-        modifyFab(null);
+        updateFABandNV(null);
     }
 
     /* Helpers */
@@ -224,7 +240,7 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.mainFragmentContainer, fragment, page.toString())
                 .addToBackStack(page.toString())
                 .commit();
-        modifyFab(fragment);
+        updateFABandNV(fragment);
     }
 
     private void loadFragmentNoBackStack(Fragment fragment) {
@@ -233,7 +249,7 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.mainFragmentContainer, fragment)
                 .commit();
 
-        modifyFab(fragment);
+        updateFABandNV(fragment);
     }
 
     private void showLoginActivity() {
@@ -245,36 +261,39 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    private void modifyFab(@Nullable Fragment fragment) {
+    //Sets the Floating Action Button and NavigationView to the correct state.
+    private void updateFABandNV(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
         if (fragment instanceof HomeFragment) {
             mFab.show();
             mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
             mFab.setImageResource(R.drawable.ic_fab_send);
-            nv.getMenu().getItem(0).setChecked(true);
+            nv.setCheckedItem(R.id.nav_home);
             setTitle(Pages.HOME.toString());
         } else if (fragment instanceof ConnectionsFragment) {
             mFab.show();
             mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewConnectionFragment(), Pages.NEWCONNECTION));
             mFab.setImageResource(R.drawable.ic_fab_add);
-            nv.getMenu().getItem(1).setChecked(true);
+            nv.setCheckedItem(R.id.nav_connections);
             setTitle(Pages.CONNECTIONS.toString());
         } else if (fragment instanceof WeatherFragment) {
             mFab.hide();
-            nv.getMenu().getItem(2).setChecked(true);
+            nv.setCheckedItem(R.id.nav_weather);
             setTitle(Pages.WEATHER.toString());
         } else if (fragment instanceof SettingsFragment) {
             mFab.hide();
-            nv.getMenu().getItem(3).setChecked(true);
             setTitle(Pages.SETTINGS.toString());
         } else if (fragment instanceof NewMessageFragment) {
             mFab.hide();
-            nv.getMenu().getItem(0).setChecked(true);
+            nv.setCheckedItem(R.id.nav_home);
             setTitle(Pages.NEWMESSAGE.toString());
         } else if (fragment instanceof NewConnectionFragment) {
             mFab.hide();
-            nv.getMenu().getItem(1).setChecked(true);
+            nv.setCheckedItem(R.id.nav_connections);
             setTitle(Pages.NEWCONNECTION.toString());
+        } else if (fragment instanceof ConnectionProfileFragment) {
+            mFab.hide();
+            setTitle(Pages.PROFILE.toString());
         } else {
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }
