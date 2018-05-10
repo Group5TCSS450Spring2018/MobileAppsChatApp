@@ -81,8 +81,6 @@ public class LoginActivity extends AppCompatActivity
         JSONObject msg = loginCredentials.asJSONObject();
         mCredentials = loginCredentials;
 
-        Log.i("LOG", "LOGGING IN: " + mCredentials.toString());
-
         new SendPostAsyncTask.Builder(uri.toString(), msg)
                 .onPostExecute(this::handleLoginOnPost)
                 .onCancelled(this::handleLoginErrorsInTask)
@@ -131,7 +129,7 @@ public class LoginActivity extends AppCompatActivity
 
     @Override
     public void onRegisterAttempt(Credentials loginCredentials) {
-        emailTemp = loginCredentials.getEmail().toString();
+        emailTemp = loginCredentials.getEmail();
         //build the web service URL
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -142,7 +140,7 @@ public class LoginActivity extends AppCompatActivity
         JSONObject msg = loginCredentials.asJSONObject();
         new SendPostAsyncTask.Builder(uri.toString(), msg)
                 .onPostExecute(this::handleRegisterOnPost)
-                .onCancelled(this::handleErrorsInTask)
+                .onCancelled(this::handleRegisterErrorsInTask)
                 .build().execute();
     }
 
@@ -157,14 +155,14 @@ public class LoginActivity extends AppCompatActivity
         JSONObject msg = new JSONObject();
         try {
             msg.put("verifyCode", code);
-            msg.put("username", mCredentials.getUsername().toString());
+            msg.put("username", mCredentials.getUsername());
         } catch (JSONException e) {
             Log.wtf("VERIFICATION OBJECT", "Error creating JSON: " + e.getMessage());
         }
 
         new SendPostAsyncTask.Builder(uri.toString(), msg)
                 .onPostExecute(this::handleLoginVerificationOnPost)
-                .onCancelled(this::handleErrorsInTask)
+                .onCancelled(this::handleValidationErrorsInTask)
                 .build().execute();
     }
 
@@ -209,16 +207,6 @@ public class LoginActivity extends AppCompatActivity
         transaction.commit();
     }
 
-    private void showValidationInfoPage(){
-        ValidationInfoFragment v_i_frag = new ValidationInfoFragment();
-        FragmentTransaction transaction = getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.loginFragmentContainer, v_i_frag,
-                        getString(R.string.keys_fragment_validation_info))
-                .addToBackStack(getString(R.string.keys_fragment_login));
-        transaction.commit();
-    }
-
     /* ******************* */
     /* ASYNC TASK HANDLERS */
     /* ******************* */
@@ -231,6 +219,11 @@ public class LoginActivity extends AppCompatActivity
     private void handleLoginErrorsInTask(String result) {
         Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
         Log.e("ASYNCT_TASK_ERROR", result);
+        LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager()
+                .findFragmentByTag(getString(R.string.keys_fragment_login));
+        if (loginFragment != null) {
+            loginFragment.setEnabledAllButtons(true);
+        }
     }
 
     /**
@@ -278,20 +271,20 @@ public class LoginActivity extends AppCompatActivity
     }
 
     private void handleRegisterOnPost(String result) {
-        RegisterFragment frag = (RegisterFragment) getSupportFragmentManager()
-            .findFragmentByTag(getString(R.string.keys_fragment_register));
-
-        frag.setEnabledAllButtons(true);
+        RegisterFragment registerFragment = (RegisterFragment) getSupportFragmentManager()
+                .findFragmentByTag(getString(R.string.keys_fragment_register));
+        if (registerFragment != null) {
+            registerFragment.setEnabledAllButtons(true);
+        }
         try {
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
                 getSupportFragmentManager().popBackStack();
-                Toast.makeText(this, "Registered successfully! Verification code sent " +
-                        "to: " + emailTemp, Toast.LENGTH_SHORT).show();
-                showValidationInfoPage();
+                Toast.makeText(this, "Registered successfully! Verification code sent to: " + emailTemp, Toast.LENGTH_SHORT).show();
             } else {
                 //register was unsuccessful. Don’t switch fragments and inform the user
+
                 Objects.requireNonNull(registerFragment).setError(resultsJSON.getJSONObject("error"));
             }
         } catch (JSONException e) {
@@ -316,6 +309,7 @@ public class LoginActivity extends AppCompatActivity
     private void handleLoginVerificationOnPost(String result) {
         LoginValidationFragment validationFragment = (LoginValidationFragment) getSupportFragmentManager()
                 .findFragmentByTag(getString(R.string.keys_fragment_login_validation));
+
         validationFragment.setEnabledAllButtons(true);
         try {
             JSONObject resultsJSON = new JSONObject(result);
