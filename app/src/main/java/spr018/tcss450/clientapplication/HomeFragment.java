@@ -45,7 +45,7 @@ public class HomeFragment extends Fragment {
 
         mChatList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i);
+            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
             c.setRecentMessage("Recent message");
             mChatList.add(c);
         }

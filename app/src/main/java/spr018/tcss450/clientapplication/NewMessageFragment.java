@@ -20,12 +20,10 @@ import spr018.tcss450.clientapplication.model.ConnectionAdapter;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link NewMessageFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link NewMessageFragment# newInstance} factory method to
- * create an instance of this fragment.
+ * @author Deepjot Kaur
+ * @author Daryan Hanshew
+ * @author Tenma Rollins
+ * @author Tuan Dinh
  */
 public class NewMessageFragment extends Fragment {
 
@@ -45,7 +43,7 @@ public class NewMessageFragment extends Fragment {
         //TODO Remove this when there is a real list of connections
         List<Connection> bigList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i);
+            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
             bigList.add(c);
         }
 

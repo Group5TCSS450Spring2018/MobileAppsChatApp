@@ -60,7 +60,7 @@ public class ForgotPasswordFragment extends Fragment {
     private void onSendClicked(View button) {
         onEmailFocusChange(mEmail, false);
         if (mEmail.getError() == null) {
-            mListener.onSendValidationAttempt(mEmail.getText().toString());
+            mListener.onSendResetCodeAttempt(mEmail.getText().toString());
         }
     }
 
@@ -91,6 +91,6 @@ public class ForgotPasswordFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onSendValidationAttempt(String email);
+        void onSendResetCodeAttempt(String email);
     }
 }

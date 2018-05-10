@@ -107,11 +107,11 @@ public class LoginActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSendValidationAttempt(String email) {
+    public void onSendResetCodeAttempt(String email) {
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_verify))
+                .appendPath(getString(R.string.ep_reset_password))
                 .build();
         JSONObject msg = new JSONObject();
         try {
@@ -188,13 +188,14 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
-    private void saveUserInfo() {
+    private void saveUserInfo(int memberID) {
         //Save the username for later usage
         mPrefs.edit().putString(getString(R.string.keys_prefs_user_name),
                 mCredentials.getUsername()).apply();
         //save the users "want" to stay logged in
         mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in),
                 stayLoggedIn).apply();
+        mPrefs.edit().putInt(getString(R.string.keys_prefs_user_key), memberID).apply();
     }
 
     private void showVerificationPage() {
@@ -241,11 +242,12 @@ public class LoginActivity extends AppCompatActivity
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
             boolean isVerified = resultsJSON.getBoolean("verify");
+            int memberID = resultsJSON.getInt("memberid");
             //boolean isVerified = false;
             if (success) {
                 checkStayLoggedIn();
                 if (isVerified) { // login completely successful
-                    saveUserInfo();
+                    saveUserInfo(memberID);
                     showMainActivity();
                 } else { // login was successful, but verification wasnt
                     // force verification
@@ -313,9 +315,10 @@ public class LoginActivity extends AppCompatActivity
         validationFragment.setEnabledAllButtons(true);
         try {
             JSONObject resultsJSON = new JSONObject(result);
+            int memberID = resultsJSON.getInt("memberid");
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
-                saveUserInfo();
+                saveUserInfo(memberID);
                 showMainActivity();
                 Toast.makeText(this, "Verification successful!", Toast.LENGTH_SHORT).show();
 

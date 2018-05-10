@@ -31,7 +31,10 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * @author Deepjot Kaur
+ * @author Daryan Hanshew
+ * @author Tenma Rollins
+ * @author Tuan Dinh
  */
 public class NewConnectionFragment extends Fragment {
 
@@ -49,10 +52,16 @@ public class NewConnectionFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_new_connection, container, false);
+
         CardView cardView = v.findViewById(R.id.newConnectionCardView);
         cardView.setOnClickListener(this::onCardViewClicked);
+
+        v.findViewById(R.id.newConnectionRecyclerViewContainer).setOnClickListener(this::onContainerClicked);
+
         mConnections = new ArrayList<>();
         mAdapter = new ConnectionAdapter(mConnections);
+        mAdapter.setOnItemClickListener(this::onItemClicked);
+
         RecyclerView recyclerView = v.findViewById(R.id.newConnectionRecylerView);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -93,13 +102,22 @@ public class NewConnectionFragment extends Fragment {
 
 
     //Helper methods
+
+    //Open the search when user clicked on the container.
     private void onCardViewClicked(View cardView) {
         mSearchView.setIconified(false);
     }
 
+
+    //Close the search when user clicked on the bottom container.
     private void onContainerClicked(View container) {
         Log.d("CONTAINER", "CLICKED");
         mSearchView.setIconified(true);
+    }
+
+    private void onItemClicked(Connection connection) {
+        mSearchView.setIconified(true);
+        mListener.onSearchedConnectionClicked(connection);
     }
 
     private void handleQuery(String input) {
@@ -126,6 +144,7 @@ public class NewConnectionFragment extends Fragment {
                 .execute();
     }
 
+
     private void handleSearchPost(String result) {
         try {
             JSONObject objectJSON = new JSONObject(result);
@@ -136,7 +155,9 @@ public class NewConnectionFragment extends Fragment {
                 for (int i = 0; i < arrayJSON.length(); i++) {
                     JSONObject connectionJSON = arrayJSON.getJSONObject(i);
                     String fullName = connectionJSON.getString("firstname") + " " + connectionJSON.getString("lastname");
-                    Connection c = new Connection(connectionJSON.getString("username"), fullName);
+                    int memberID = connectionJSON.getInt("memberid");
+                    String email = connectionJSON.getString("email");
+                    Connection c = new Connection(connectionJSON.getString("username"), fullName, memberID, email);
                     mConnections.add(c);
                 }
                 mAdapter.notifyDataSetChanged();
@@ -159,7 +180,7 @@ public class NewConnectionFragment extends Fragment {
 
 
     public interface OnFragmentInteractionListener {
-        void onSearchAttempt(String username);
+        void onSearchedConnectionClicked(Connection connection);
     }
 
 }
