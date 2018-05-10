@@ -3,7 +3,6 @@ package spr018.tcss450.clientapplication;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -53,12 +51,7 @@ public class NewConnectionFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_new_connection, container, false);
         CardView cardView = v.findViewById(R.id.newConnectionCardView);
         cardView.setOnClickListener(this::onCardViewClicked);
-
-        LinearLayout linearLayout = v.findViewById(R.id.newConnectionContainer);
-        linearLayout.setOnClickListener(this::onContainerClicked);
-
         mConnections = new ArrayList<>();
-
         mAdapter = new ConnectionAdapter(mConnections);
         RecyclerView recyclerView = v.findViewById(R.id.newConnectionRecylerView);
         recyclerView.setAdapter(mAdapter);
@@ -160,7 +153,7 @@ public class NewConnectionFragment extends Fragment {
     }
 
     private void handleSearchError(String result) {
-        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
+        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 

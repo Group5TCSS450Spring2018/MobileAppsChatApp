@@ -4,12 +4,15 @@ import android.content.Context;
 import android.net.Credentials;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import java.util.Objects;
 
 
 /**
@@ -36,7 +39,7 @@ public class LoginValidationFragment extends Fragment {
     /* OVERRIDES FOR CALLBACK AND FACTORY METHODS */
     /* ****************************************** */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_login_validation, container, false);
@@ -86,9 +89,9 @@ public class LoginValidationFragment extends Fragment {
     private void onCodeFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (mCode.getText().toString().isEmpty()) {
-                mCode.setError("Cannot by empty!");
+                mCode.setError(getString(R.string.error_empty));
             } else if (mCode.getText().toString().length() != 4) {
-                mCode.setError("Must be of length 4!");
+                mCode.setError(getString(R.string.error_verification_code));
             }
         }
     }
@@ -97,7 +100,7 @@ public class LoginValidationFragment extends Fragment {
     /* EXPOSED API */
     /* *********** */
     public void setEnabledAllButtons(boolean state) {
-        getActivity().findViewById(R.id.validationButton).setEnabled(state);
+        Objects.requireNonNull(getActivity()).findViewById(R.id.validationButton).setEnabled(state);
     }
 
     /**
@@ -108,7 +111,7 @@ public class LoginValidationFragment extends Fragment {
     public void setError(String err) {
         //Log in unsuccessful for reason: err. Try again.
         //you may want to add error stuffs for the user here.
-        ((EditText) getView().findViewById(R.id.validationNumberInput))
+        ((EditText) Objects.requireNonNull(getView()).findViewById(R.id.validationNumberInput))
                 .setError(getString(R.string.error_empty));
     }
 
