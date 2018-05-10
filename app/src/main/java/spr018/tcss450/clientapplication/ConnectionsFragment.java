@@ -46,6 +46,7 @@ public class ConnectionsFragment extends Fragment {
             Connection c = new Connection("Username " + i, "Name" + i);
             mConnectionsList.add(c);
         }
+        checkConnections();
 
         ConnectionAdapter adapter = new ConnectionAdapter(mConnectionsList);
         RecyclerView connections = v.findViewById(R.id.connectionsListContainer);
@@ -54,6 +55,9 @@ public class ConnectionsFragment extends Fragment {
         v.findViewById(R.id.connectionsListContainer);
 
         return v;
+    }
+    private void checkConnections() {
+        
     }
 
     // TODO: Rename method, update argument and hook method into UI event

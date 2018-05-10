@@ -10,6 +10,8 @@
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>
     <string name="keys_fragment_login_validation">loginValidationTag</string>
+  
+    <string name="keys_fragment_validation_info">ValidationInfoTag</string>
     <string name="keys_fragment_forgot_password">forgotPasswordTag</string>
     <string name="keys_fragment_reset_password">resetPasswordTag</string>
 
