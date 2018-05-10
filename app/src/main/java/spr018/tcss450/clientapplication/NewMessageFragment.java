@@ -82,7 +82,7 @@ public class NewMessageFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener.onNewChatDetach();
+        //mListener.onNewChatDetach(this);
         mListener = null;
     }
 
@@ -97,6 +97,6 @@ public class NewMessageFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onNewChatDetach();
+        void onNewChatDetach(Fragment fragment);
     }
 }

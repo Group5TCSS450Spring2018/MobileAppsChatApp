@@ -6,14 +6,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import spr018.tcss450.clientapplication.utility.Pages;
 
@@ -34,7 +37,10 @@ public class MainActivity extends AppCompatActivity
         SettingsFragment.OnFragmentInteractionListener,
         NewMessageFragment.OnFragmentInteractionListener {
 
+    /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
+
+    /*Floating action button in Main Activity*/
     private FloatingActionButton mFab;
 
     @Override
@@ -45,21 +51,21 @@ public class MainActivity extends AppCompatActivity
                 getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
         // make sure to set the app theme
         setTheme(mPrefs.getInt(
-            getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
+                getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
 
         setContentView(R.layout.activity_main);
 
         mFab = findViewById(R.id.fab);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
@@ -68,11 +74,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment fragment = fm.findFragmentById(R.id.mainFragmentContainer);
+            if (fragment != null) {
+                modifyFab(fragment);
+            }
         }
     }
 //
@@ -118,9 +129,8 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -134,7 +144,7 @@ public class MainActivity extends AppCompatActivity
             showLoginActivity();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -155,8 +165,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNewChatDetach() {
-        modifyFab(Pages.HOME);
+    public void onNewChatDetach(Fragment fragment) {
+
     }
 
     @Override
@@ -172,7 +182,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void settings_ChangeTheme(String styleID) {
-        Log.e("THEME CHOSEN", styleID + " IS THE THEME");
         int themeID = R.style.AppTheme; // default
         int themeID_no_actionbar = R.style.AppTheme_NoActionBar;
 
@@ -191,28 +200,34 @@ public class MainActivity extends AppCompatActivity
 
         setTheme(themeID_no_actionbar);
         recreate();
+
+        //Empties back stack because it doesn't work properly after recreate() is called.
+        FragmentManager fm = getSupportFragmentManager();
+        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            fm.popBackStack();
+        }
+        HomeFragment h = null;
+        modifyFab(h);
     }
 
     /* Helpers */
-    private void loadFragmentWithBackStack(Fragment frag, Pages page) {
+    private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
         FragmentTransaction ft = getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.mainFragmentContainer, frag)
-                .addToBackStack(null);
+                .replace(R.id.mainFragmentContainer, fragment, page.toString())
+                .addToBackStack(page.toString());
         ft.commit();
-
-        modifyFab(page);
-
+        modifyFab(fragment);
         setTitle(page.toString());
     }
 
-    private void loadFragmentNoBackStack(Fragment frag, Pages page) {
+    private void loadFragmentNoBackStack(Fragment fragment, Pages page) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.mainFragmentContainer, frag)
+                .replace(R.id.mainFragmentContainer, fragment)
                 .commit();
 
-        modifyFab(page);
+        modifyFab(fragment);
 
         setTitle(page.toString());
     }
@@ -231,40 +246,29 @@ public class MainActivity extends AppCompatActivity
         return v;
     }
 
-    private void modifyFab(Pages page) {
-
-        switch (page) {
-            case HOME:
-                mFab.show();
-                mFab.setOnClickListener(this::loadNewChat);
-                mFab.setImageResource(R.drawable.ic_fab_send);
-                break;
-            case CONNECTIONS:
-                mFab.show();
-                mFab.setOnClickListener(view -> {
-                    new AlertDialog.Builder(this)
-                            .setTitle("Add New Connection!")
-                            .setMessage("Attempted to add new connection! (Placeholder)")
-                            .setCancelable(false)
-                            .show();
-                });
-                mFab.setImageResource(R.drawable.ic_fab_add);
-                break;
-            case WEATHER:
-                mFab.hide();
-                break;
-            case SETTINGS:
-                mFab.hide();
-                break;
-            case NEWCHAT:
-                mFab.hide();
-                setTitle("Chat name");
-                break;
-            default:
-                Log.wtf("Impossible", "How did this happen?");
-                break;
+    private void modifyFab(@Nullable Fragment fragment) {
+        NavigationView nv = findViewById(R.id.nav_view);
+        if (fragment instanceof HomeFragment) {
+            Log.e("FAB", "HERE");
+            mFab.show();
+            mFab.setOnClickListener(this::loadNewChat);
+            mFab.setImageResource(R.drawable.ic_fab_send);
+            nv.getMenu().getItem(0).setChecked(true);
+        } else if (fragment instanceof ConnectionsFragment) {
+            mFab.show();
+            mFab.setOnClickListener(view -> Toast.makeText(getApplicationContext(), "Add new connection", Toast.LENGTH_SHORT).show());
+            mFab.setImageResource(R.drawable.ic_fab_add);
+            nv.getMenu().getItem(1).setChecked(true);
+        } else if (fragment instanceof WeatherFragment) {
+            mFab.hide();
+            nv.getMenu().getItem(2).setChecked(true);
+        } else if (fragment instanceof SettingsFragment) {
+            mFab.hide();
+            nv.getMenu().getItem(3).setChecked(true);
+        } else if (fragment instanceof NewMessageFragment) {
+            mFab.hide();
+        } else {
+            Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }
     }
-
-
 }
