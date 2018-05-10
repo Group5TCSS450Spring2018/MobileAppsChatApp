@@ -6,16 +6,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
 import spr018.tcss450.clientapplication.R;
 
-public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.ViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     private List<Connection> mConnections;
 
     // Provide a reference to the views for each data item
@@ -23,18 +20,18 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
     // you provide access to all the views for a data item in a view holder
     static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        private TextView mNameTextView;
         private TextView mUsernameTextView;
+        private TextView mRecentMessageTextView;
 
         ViewHolder(View v) {
             super(v);
-            mNameTextView = v.findViewById(R.id.connectionName);
-            mUsernameTextView = v.findViewById(R.id.connectionUsername);
+            mUsernameTextView = v.findViewById(R.id.chatUsername);
+            mRecentMessageTextView = v.findViewById(R.id.chatRecentMessage);
         }
     }
 
     // Parameter could be any type of collection. I'm using list for now. - Tuan
-    public ConnectionAdapter(List<Connection> connections) {
+    public ChatAdapter(List<Connection> connections) {
         mConnections = connections;
     }
 
@@ -45,7 +42,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
                                          int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View connectionView = inflater.inflate(R.layout.fragment_connections_list_item, parent, false);
+        View connectionView = inflater.inflate(R.layout.fragment_home_chat_list_item, parent, false);
         return new ViewHolder(connectionView);
     }
 
@@ -54,7 +51,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Connection connection = mConnections.get(position);
         holder.mUsernameTextView.setText(connection.getUsername());
-        holder.mNameTextView.setText(connection.getName());
+        holder.mRecentMessageTextView.setText(connection.getRecentMessage());
     }
 
 

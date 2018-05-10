@@ -2,12 +2,12 @@ package spr018.tcss450.clientapplication;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +37,7 @@ public class NewMessageFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_new_message, container, false);
@@ -45,12 +45,12 @@ public class NewMessageFragment extends Fragment {
         //TODO Remove this when there is a real list of connections
         List<Connection> bigList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Connection " + i);
+            Connection c = new Connection("Username " + i, "Name" + i);
             bigList.add(c);
         }
 
         ConnectionAdapter allAdapter = new ConnectionAdapter(bigList);
-        RecyclerView allConnections = v.findViewById(R.id.newChatConnectionsHolder);
+        RecyclerView allConnections = v.findViewById(R.id.newMessageConnectionsHolder);
         allConnections.setAdapter(allAdapter);
         allConnections.setLayoutManager(new LinearLayoutManager(getActivity()));
 
@@ -63,7 +63,7 @@ public class NewMessageFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_settings);
         item.setVisible(false);
-        item = menu.findItem(R.id.search);
+        item = menu.findItem(R.id.actionBarSearch);
         item.setVisible(true);
         super.onPrepareOptionsMenu(menu);
     }
@@ -82,7 +82,7 @@ public class NewMessageFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener.onNewChatDetach();
+        //mListener.onNewChatDetach(this);
         mListener = null;
     }
 
@@ -97,6 +97,6 @@ public class NewMessageFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onNewChatDetach();
+        void onNewChatDetach(Fragment fragment);
     }
 }
