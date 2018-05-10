@@ -17,15 +17,18 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Switch;
-import android.widget.Toast;
+
+import java.util.Objects;
 
 import spr018.tcss450.clientapplication.utility.Pages;
 
@@ -35,7 +38,8 @@ public class MainActivity extends AppCompatActivity
         ConnectionsFragment.OnFragmentInteractionListener,
         WeatherFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener,
-        NewMessageFragment.OnFragmentInteractionListener {
+        NewMessageFragment.OnFragmentInteractionListener,
+        NewConnectionFragment.OnFragmentInteractionListener {
 
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
@@ -68,8 +72,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-        loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
+        loadFragmentNoBackStack(new HomeFragment());
     }
 
     @Override
@@ -86,7 +89,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-//
+
 //    @Override
 //    public boolean onPrepareOptionsMenu(Menu menu) {
 //        MenuItem item = menu.findItem(R.id.search);
@@ -99,15 +102,15 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        MenuItem item = menu.findItem(R.id.search);
+        MenuItem item = menu.findItem(R.id.actionBarSearch);
         item.setVisible(false);
         //TODO Implement search
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
-                (SearchView) menu.findItem(R.id.search).getActionView();
+                (SearchView) menu.findItem(R.id.actionBarSearch).getActionView();
         searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+                Objects.requireNonNull(searchManager).getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
         return true;
     }
@@ -135,11 +138,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
+            loadFragmentWithBackStack(new HomeFragment(), Pages.HOME);
         } else if (id == R.id.nav_connections) {
-            loadFragmentNoBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
+            loadFragmentWithBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
         } else if (id == R.id.nav_weather) {
-            loadFragmentNoBackStack(new WeatherFragment(), Pages.WEATHER);
+            loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
             showLoginActivity();
         }
@@ -166,6 +169,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onNewChatDetach(Fragment fragment) {
+
+    }
+
+    @Override
+    public void onSearchAttempt(String username) {
 
     }
 
@@ -206,30 +214,26 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStack();
         }
-        HomeFragment h = null;
-        modifyFab(h);
+        modifyFab(null);
     }
 
     /* Helpers */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
-        FragmentTransaction ft = getSupportFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment, page.toString())
-                .addToBackStack(page.toString());
-        ft.commit();
+                .addToBackStack(page.toString())
+                .commit();
         modifyFab(fragment);
-        setTitle(page.toString());
     }
 
-    private void loadFragmentNoBackStack(Fragment fragment, Pages page) {
+    private void loadFragmentNoBackStack(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment)
                 .commit();
 
         modifyFab(fragment);
-
-        setTitle(page.toString());
     }
 
     private void showLoginActivity() {
@@ -241,32 +245,36 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    private View loadNewChat(View v) {
-        loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWCHAT);
-        return v;
-    }
-
     private void modifyFab(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
         if (fragment instanceof HomeFragment) {
-            Log.e("FAB", "HERE");
             mFab.show();
-            mFab.setOnClickListener(this::loadNewChat);
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
             mFab.setImageResource(R.drawable.ic_fab_send);
             nv.getMenu().getItem(0).setChecked(true);
+            setTitle(Pages.HOME.toString());
         } else if (fragment instanceof ConnectionsFragment) {
             mFab.show();
-            mFab.setOnClickListener(view -> Toast.makeText(getApplicationContext(), "Add new connection", Toast.LENGTH_SHORT).show());
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewConnectionFragment(), Pages.NEWCONNECTION));
             mFab.setImageResource(R.drawable.ic_fab_add);
             nv.getMenu().getItem(1).setChecked(true);
+            setTitle(Pages.CONNECTIONS.toString());
         } else if (fragment instanceof WeatherFragment) {
             mFab.hide();
             nv.getMenu().getItem(2).setChecked(true);
+            setTitle(Pages.WEATHER.toString());
         } else if (fragment instanceof SettingsFragment) {
             mFab.hide();
             nv.getMenu().getItem(3).setChecked(true);
+            setTitle(Pages.SETTINGS.toString());
         } else if (fragment instanceof NewMessageFragment) {
             mFab.hide();
+            nv.getMenu().getItem(0).setChecked(true);
+            setTitle(Pages.NEWMESSAGE.toString());
+        } else if (fragment instanceof NewConnectionFragment) {
+            mFab.hide();
+            nv.getMenu().getItem(1).setChecked(true);
+            setTitle(Pages.NEWCONNECTION.toString());
         } else {
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }

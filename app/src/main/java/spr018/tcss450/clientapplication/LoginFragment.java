@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.Objects;
+
 import spr018.tcss450.clientapplication.model.Credentials;
 
 
@@ -53,6 +55,8 @@ public class LoginFragment extends Fragment {
         login.setOnClickListener(this::handleLoginAttempt);
         Button register = v.findViewById(R.id.registerButton);
         register.setOnClickListener(view -> mListener.onRegisterClicked());
+        Button forgotPassword = v.findViewById(R.id.loginForgotPasswordButton);
+        forgotPassword.setOnClickListener(view -> mListener.onForgotPasswordClicked());
         return v;
     }
 
@@ -113,7 +117,7 @@ public class LoginFragment extends Fragment {
     /* EXPOSED API */
     /* *********** */
     public void setEnabledAllButtons(boolean state) {
-        getActivity().findViewById(R.id.loginButton).setEnabled(state);
+        Objects.requireNonNull(getActivity()).findViewById(R.id.loginButton).setEnabled(state);
         getActivity().findViewById(R.id.registerButton).setEnabled(state);
     }
 
@@ -125,7 +129,7 @@ public class LoginFragment extends Fragment {
     public void setError(String err) {
         //Log in unsuccessful for reason: err. Try again.
         //you may want to add error stuffs for the user here.
-        ((EditText) getView().findViewById(R.id.usernameText))
+        ((EditText) Objects.requireNonNull(getView()).findViewById(R.id.usernameText))
                 .setError(getString(R.string.error_empty));
     }
 
@@ -138,5 +142,6 @@ public class LoginFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onLoginAttempt(Credentials loginCredentials);
         void onRegisterClicked();
+        void onForgotPasswordClicked();
     }
 }
