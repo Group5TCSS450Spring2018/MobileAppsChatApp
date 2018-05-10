@@ -7,15 +7,20 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.model.ConnectionAdapter;
+import spr018.tcss450.clientapplication.model.Credentials;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
@@ -28,6 +33,7 @@ public class ConnectionsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private List<Connection> mConnectionsList;
+    Connection mConnections;
 
     public ConnectionsFragment() {
         // Required empty public constructor
@@ -57,7 +63,21 @@ public class ConnectionsFragment extends Fragment {
         return v;
     }
     private void checkConnections() {
-        
+        Uri uri = new Uri.Builder().scheme("https").
+                appendPath(getString(R.string.ep_base_url)).
+                appendPath(getString(R.string.ep_getConnections)).build();
+        //JSONObject msg =
+//        new SendPostAsyncTask.Builder(uri.toString(), msg).onPostExecute(this::handleViewConnections)
+//                .onCancelled(this::handleErrorsInTask).build().execute();
+    }
+    private void handleViewConnections(String results) {
+        Log.d("Results", "ss");
+    }
+    /**Handle errors that may ouccur during the async taks.
+     * @param result the error message provided from the async task
+     */
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNCT_TASK_ERROR", result);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
