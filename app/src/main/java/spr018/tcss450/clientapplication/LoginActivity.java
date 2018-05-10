@@ -113,7 +113,7 @@ public class LoginActivity extends AppCompatActivity
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_reset_password))
+                .appendPath(getString(R.string.ep_verify))
                 .build();
         JSONObject msg = new JSONObject();
         try {
@@ -136,7 +136,7 @@ public class LoginActivity extends AppCompatActivity
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_reset_password))
+                .appendPath(getString(R.string.ep_register))
                 .build();
         //build the JSONObject
         JSONObject msg = loginCredentials.asJSONObject();
