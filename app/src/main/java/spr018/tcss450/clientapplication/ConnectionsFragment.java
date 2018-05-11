@@ -1,6 +1,7 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -63,15 +66,33 @@ public class ConnectionsFragment extends Fragment {
         return v;
     }
     private void checkConnections() {
-        Uri uri = new Uri.Builder().scheme("https").
-                appendPath(getString(R.string.ep_base_url)).
-                appendPath(getString(R.string.ep_getConnections)).build();
-        //JSONObject msg =
-//        new SendPostAsyncTask.Builder(uri.toString(), msg).onPostExecute(this::handleViewConnections)
-//                .onCancelled(this::handleErrorsInTask).build().execute();
+        //send get connections the username.
+        Uri retrieve = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getConnections))
+                .appendQueryParameter("username", getString(R.string.keys_prefs_user_name))
+                .build();
+        Log.d("checkConnections", "inside");
+
     }
-    private void handleViewConnections(String results) {
-        Log.d("Results", "ss");
+    private void handleViewConnections(JSONObject results) {
+        if(results.has(getString(R.string.keys_json_contacts))) {
+            try{
+                JSONArray jContacts = results.getJSONArray(getString(R.string.keys_json_contacts));
+                mConnectionsList = new ArrayList<>();
+                for(int i =0; i<jContacts.length(); i++){
+                    JSONObject c = jContacts.getJSONObject(i);
+                    String username = c.get("username").toString();
+                    Connection u = new Connection("Username " + i, "Name" + i, i, "Email");
+                    mConnectionsList.add(u);
+                }
+
+            } catch(JSONException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
     }
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
