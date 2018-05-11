@@ -42,7 +42,7 @@ public class ConnectionsFragment extends Fragment {
 
         mConnectionsList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
+            Connection c = new Connection("Username " + i, "Name" + i, "Email");
             mConnectionsList.add(c);
         }
         checkConnections();

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -30,7 +31,7 @@ public class LoginActivity extends AppCompatActivity
         RegisterFragment.OnFragmentInteractionListener,
         LoginValidationFragment.OnFragmentInteractionListener,
         ForgotPasswordFragment.OnFragmentInteractionListener,
-        ResetPasswordFragment.OnFragmentInteractionListener{
+        ResetPasswordFragment.OnFragmentInteractionListener {
 
     /* Credentials for POST to webservice */
     private Credentials mCredentials;
@@ -168,8 +169,27 @@ public class LoginActivity extends AppCompatActivity
 
 
     @Override
-    public void onResetPasswordAttempt(Credentials credentials) {
+    public void onResetPasswordAttempt(Credentials credentials, int resetCode) {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_update_password))
+                .build();
 
+        JSONObject msg = new JSONObject();
+        try {
+            msg.put("verifyCode", resetCode);
+            msg.put("username", credentials.getUsername());
+            msg.put("newPassword", credentials.getPassword());
+        } catch (JSONException e) {
+            Log.wtf("VERIFICATION OBJECT", "Error creating JSON: " + e.getMessage());
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPreExecute(this::handleUpdatePasswordPre)
+                .onPostExecute(this::handleUpdatePasswordPost)
+                .onCancelled(this::handleUpdatePasswordError)
+                .build().execute();
     }
 
     /* *************** */
@@ -188,14 +208,13 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
-    private void saveUserInfo(int memberID) {
+    private void saveUserInfo() {
         //Save the username for later usage
         mPrefs.edit().putString(getString(R.string.keys_prefs_user_name),
                 mCredentials.getUsername()).apply();
         //save the users "want" to stay logged in
         mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in),
                 stayLoggedIn).apply();
-        mPrefs.edit().putInt(getString(R.string.keys_prefs_user_key), memberID).apply();
     }
 
     private void showVerificationPage() {
@@ -242,12 +261,11 @@ public class LoginActivity extends AppCompatActivity
             JSONObject resultsJSON = new JSONObject(result);
             boolean success = resultsJSON.getBoolean("success");
             boolean isVerified = resultsJSON.getBoolean("verify");
-            int memberID = resultsJSON.getInt("memberid");
             //boolean isVerified = false;
             if (success) {
                 checkStayLoggedIn();
                 if (isVerified) { // login completely successful
-                    saveUserInfo(memberID);
+                    saveUserInfo();
                     showMainActivity();
                 } else { // login was successful, but verification wasnt
                     // force verification
@@ -315,10 +333,9 @@ public class LoginActivity extends AppCompatActivity
         validationFragment.setEnabledAllButtons(true);
         try {
             JSONObject resultsJSON = new JSONObject(result);
-            int memberID = resultsJSON.getInt("memberid");
             boolean success = resultsJSON.getBoolean("success");
             if (success) {
-                saveUserInfo(memberID);
+                saveUserInfo();
                 showMainActivity();
                 Toast.makeText(this, "Verification successful!", Toast.LENGTH_SHORT).show();
 
@@ -363,6 +380,38 @@ public class LoginActivity extends AppCompatActivity
 
     private void handleSendValidationError(String result) {
         findViewById(R.id.forgotPasswordButton).setEnabled(true);
+        Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
+        Log.e("ASYNCT_TASK_ERROR", result);
+    }
+
+    private void handleUpdatePasswordPre() {
+        findViewById(R.id.resetPasswordButton).setEnabled(false);
+    }
+
+    private void handleUpdatePasswordPost(String result) {
+        findViewById(R.id.resetPasswordButton).setEnabled(true);
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if (success) {
+                FragmentManager fm = getSupportFragmentManager();
+                for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+                    fm.popBackStack();
+                }
+            } else {
+                ResetPasswordFragment fragment = (ResetPasswordFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.keys_fragment_reset_password));
+                fragment.setError();
+                Toast.makeText(getApplicationContext(), "Incorrect username or validation code", Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            Log.e("JSON_PARSE_ERROR", result
+                    + System.lineSeparator()
+                    + e.getMessage());
+        }
+    }
+
+    private void handleUpdatePasswordError(String result) {
+        findViewById(R.id.resetPasswordButton).setEnabled(true);
         Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
         Log.e("ASYNCT_TASK_ERROR", result);
     }

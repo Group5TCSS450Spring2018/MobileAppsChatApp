@@ -43,7 +43,7 @@ public class NewMessageFragment extends Fragment {
         //TODO Remove this when there is a real list of connections
         List<Connection> bigList = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
+            Connection c = new Connection("Username " + i, "Name" + i, "Email");
             bigList.add(c);
         }
 
