@@ -12,12 +12,10 @@ public class Connection implements Comparable<Connection> {
     private String mName;
     private String mRecentMessage;
     private String mEmail;
-    private int mMemberID;
 
-    public Connection(String username, String name, int memberID, String email) {
+    public Connection(String username, String name, String email) {
         mUserName = username;
         mName = name;
-        mMemberID = memberID;
         mEmail = email;
     }
 
@@ -35,10 +33,6 @@ public class Connection implements Comparable<Connection> {
 
     public String getRecentMessage() {
         return mRecentMessage;
-    }
-
-    public int getMemberID() {
-        return mMemberID;
     }
 
     public String getEmail() {
