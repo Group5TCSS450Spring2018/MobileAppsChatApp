@@ -49,11 +49,11 @@ public class ConnectionsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_connections, container, false);
 
 
-        mConnectionsList = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
-            mConnectionsList.add(c);
-        }
+//        mConnectionsList = new ArrayList<>();
+//        for (int i = 0; i < 20; i++) {
+//            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
+//            mConnectionsList.add(c);
+//        }
         checkConnections();
 
         ConnectionAdapter adapter = new ConnectionAdapter(mConnectionsList);
@@ -65,34 +65,52 @@ public class ConnectionsFragment extends Fragment {
 
         return v;
     }
+
     private void checkConnections() {
         //send get connections the username.
-        Uri retrieve = new Uri.Builder()
+        Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_getConnections))
-                .appendQueryParameter("username", getString(R.string.keys_prefs_user_name))
                 .build();
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put(getString(R.string.keys_prefs_user_name), "Username");
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleViewConnections)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
         Log.d("checkConnections", "inside");
 
     }
-    private void handleViewConnections(JSONObject results) {
-        if(results.has(getString(R.string.keys_json_contacts))) {
-            try{
-                JSONArray jContacts = results.getJSONArray(getString(R.string.keys_json_contacts));
-                mConnectionsList = new ArrayList<>();
-                for(int i =0; i<jContacts.length(); i++){
-                    JSONObject c = jContacts.getJSONObject(i);
-                    String username = c.get("username").toString();
-                    Connection u = new Connection("Username " + i, "Name" + i, i, "Email");
-                    mConnectionsList.add(u);
-                }
 
-            } catch(JSONException e) {
-                e.printStackTrace();
-                return;
+    private void handleViewConnections(String results) {
+        try{
+            JSONObject x = new JSONObject(results);
+            if(x.has(getString(R.string.keys_json_contacts))) {
+                try{
+                    JSONArray jContacts = x.getJSONArray(getString(R.string.keys_json_contacts));
+                    mConnectionsList = new ArrayList<>();
+                    for(int i =0; i<jContacts.length(); i++){
+                        JSONObject c = jContacts.getJSONObject(i);
+                        String username = c.get("username").toString();
+                        Connection u = new Connection("Username " + i, "Name" + i, i, "Email");
+                        mConnectionsList.add(u);
+                    }
+
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
         }
+
     }
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
@@ -100,6 +118,7 @@ public class ConnectionsFragment extends Fragment {
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
+
 
     private void onItemClicked(Connection connection) {
         mListener.onFriendConnectionClicked(connection);
