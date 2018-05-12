@@ -1,6 +1,7 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,7 +36,6 @@ public class ConnectionsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private List<Connection> mConnectionsList;
-    Connection mConnections;
 
     public ConnectionsFragment() {
         // Required empty public constructor
@@ -49,17 +49,15 @@ public class ConnectionsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_connections, container, false);
 
 
-//        mConnectionsList = new ArrayList<>();
+        mConnectionsList = new ArrayList<>();
 //        for (int i = 0; i < 20; i++) {
-//            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
+//            Connection c = new Connection("Username " + i, "Name" + i, "Email");
 //            mConnectionsList.add(c);
 //        }
-
         checkConnections();
-
         ConnectionAdapter adapter = new ConnectionAdapter(mConnectionsList);
         adapter.setOnItemClickListener(this::onItemClicked);
-        RecyclerView connections = v.findViewById(R.id.connectionsListContainer);
+        RecyclerView connections = (RecyclerView) v.findViewById(R.id.connectionsListContainer);
         connections.setAdapter(adapter);
         connections.setLayoutManager(new LinearLayoutManager(getActivity()));
         v.findViewById(R.id.connectionsListContainer);
@@ -67,16 +65,24 @@ public class ConnectionsFragment extends Fragment {
         return v;
     }
 
+
     private void checkConnections() {
         //send get connections the username.
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_getConnections))
                 .build();
+
         JSONObject msg = new JSONObject();
         try{
-            msg.put(getString(R.string.keys_prefs_user_name), "Username");
+            msg.put("username", u);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -84,33 +90,45 @@ public class ConnectionsFragment extends Fragment {
                 .onPostExecute(this::handleViewConnections)
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
-        Log.d("checkConnections", "inside");
 
     }
 
     private void handleViewConnections(String results) {
-        try{
+        Log.d("viewConnections", results);
+        try {
             JSONObject x = new JSONObject(results);
-            if(x.has(getString(R.string.keys_json_contacts))) {
-                try{
-                    JSONArray jContacts = x.getJSONArray(getString(R.string.keys_json_contacts));
-                    mConnectionsList = new ArrayList<>();
-                    for(int i =0; i<jContacts.length(); i++){
+//            Log.d("handleViewConnections", x.toString());
+            if(x.has("recieved_requests")) {
+                try {
+                    JSONArray jContacts = x.getJSONArray("recieved_requests");
+//                    Log.d("display the contacts", "length is: " + jContacts.length());
+
+                    for (int i = 0; i < jContacts.length(); i++) {
                         JSONObject c = jContacts.getJSONObject(i);
                         String username = c.get("username").toString();
-                        Connection u = new Connection("Username " + i, "Name" + i, i, "Email");
+                        String firstname = c.get("firstname").toString();
+                        String lastname = c.get("lastname").toString();
+                        String email = c.get("email").toString();
+                        Connection u = new Connection(username, firstname+" "+lastname, email);
                         mConnectionsList.add(u);
+                        Log.d("CONNECTIONSFRAG", username);
                     }
 
-                } catch(JSONException e) {
+
+                    //return;
+                } catch (JSONException e) {
                     e.printStackTrace();
                     return;
                 }
+                Log.d("size of mConnectionsList", ""+ mConnectionsList.size());
+                //return;
             }
+
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
+        return;
 
     }
     /**Handle errors that may ouccur during the async taks.

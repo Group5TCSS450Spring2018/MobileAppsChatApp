@@ -22,6 +22,7 @@ import spr018.tcss450.clientapplication.model.Credentials;
 public class ResetPasswordFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
+    private EditText mUsername;
     private EditText mCodeEditText;
     private EditText mPasswordEditText;
     private EditText mRePasswordEditText;
@@ -36,6 +37,8 @@ public class ResetPasswordFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_reset_password, container, false);
+        mUsername = v.findViewById(R.id.resetPasswordUsername);
+        mUsername.setOnFocusChangeListener(this::onUsernameFocusChange);
         mCodeEditText = v.findViewById(R.id.resetPasswordCode);
         mCodeEditText.setOnFocusChangeListener(this::onCodeFocusChange);
         mPasswordEditText = v.findViewById(R.id.resetPasswordPassword);
@@ -64,7 +67,20 @@ public class ResetPasswordFragment extends Fragment {
         mListener = null;
     }
 
+    public void setError() {
+        mUsername.setError("");
+        mCodeEditText.setError("");
+    }
+
     //Helper methods
+    private void onUsernameFocusChange(View view, boolean hasFocus) {
+        if (!hasFocus) {
+            if (mUsername.getText().toString().isEmpty()) {
+                mUsername.setError(getString(R.string.error_empty));
+            }
+        }
+    }
+
     private void onCodeFocusChange(View view, boolean hasFocus) {
         EditText codeText = (EditText) view;
         if (!hasFocus) {
@@ -116,14 +132,18 @@ public class ResetPasswordFragment extends Fragment {
     }
 
     private void onResetClicked(View button) {
+        onUsernameFocusChange(mUsername, false);
         onCodeFocusChange(mCodeEditText, false);
         onPasswordFocusChange(mPasswordEditText, false);
         onRePasswordFocusChange(mRePasswordEditText, false);
 
-        if (mCodeEditText.getError() == null
+        if (mUsername.getError() == null
+                && mCodeEditText.getError() == null
                 && mPasswordEditText.getError() == null
                 && mRePasswordEditText.getError() == null) {
-            mListener.onResetPasswordAttempt(null);
+            Credentials c = new Credentials.Builder(mUsername.getText().toString(), mPasswordEditText.getText()).build();
+            int resetCode = Integer.parseInt(mCodeEditText.getText().toString());
+            mListener.onResetPasswordAttempt(c, resetCode);
         }
 
     }
@@ -139,6 +159,6 @@ public class ResetPasswordFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onResetPasswordAttempt(Credentials credentials);
+        void onResetPasswordAttempt(Credentials credentials, int resetCode);
     }
 }

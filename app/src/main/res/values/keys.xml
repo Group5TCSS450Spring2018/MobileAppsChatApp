@@ -6,7 +6,6 @@
     <string name="keys_prefs_app_theme">current_app_theme</string>
     <string name="keys_prefs_app_theme_no_actionbar">current_app_theme_no_actionbar</string>
     <string name="keys_prefs_current_theme_pos">current_theme_pos</string>
-    <string name="keys_prefs_user_key">user_key</string>
 
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>

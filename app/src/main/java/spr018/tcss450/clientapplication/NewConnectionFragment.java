@@ -155,9 +155,8 @@ public class NewConnectionFragment extends Fragment {
                 for (int i = 0; i < arrayJSON.length(); i++) {
                     JSONObject connectionJSON = arrayJSON.getJSONObject(i);
                     String fullName = connectionJSON.getString("firstname") + " " + connectionJSON.getString("lastname");
-                    int memberID = connectionJSON.getInt("memberid");
                     String email = connectionJSON.getString("email");
-                    Connection c = new Connection(connectionJSON.getString("username"), fullName, memberID, email);
+                    Connection c = new Connection(connectionJSON.getString("username"), fullName, email);
                     mConnections.add(c);
                 }
                 mAdapter.notifyDataSetChanged();

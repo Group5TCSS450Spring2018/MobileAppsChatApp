@@ -17,7 +17,7 @@
 
     <string name="error_login_fail">Login unsuccessful</string>
 
-    <string name="error_verification_code">Must be 4 characters</string>
+    <string name="error_verification_code">Must be 4-digit long</string>
 
     <!-- Error Checking -->
     <string name="regex_non_alphanumeric" tools:ignore="TypographyDashes">[^a-zA-Z0-9]</string>
