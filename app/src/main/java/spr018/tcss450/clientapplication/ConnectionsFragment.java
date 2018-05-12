@@ -54,6 +54,7 @@ public class ConnectionsFragment extends Fragment {
 //            Connection c = new Connection("Username " + i, "Name" + i, i, "Email");
 //            mConnectionsList.add(c);
 //        }
+
         checkConnections();
 
         ConnectionAdapter adapter = new ConnectionAdapter(mConnectionsList);
