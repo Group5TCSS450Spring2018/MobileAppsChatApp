@@ -26,10 +26,14 @@ import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Objects;
 
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -186,11 +190,51 @@ public class MainActivity extends AppCompatActivity
         String username = connection.getUsername();
         String email = connection.getEmail();
         loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, false), Pages.PROFILE);
+        Log.d("searchedConnectionClicked", "1");
     }
 
     @Override
-    public void onAddNewConnectionAttempt() {
+    public void onAddNewConnectionAttempt(String mFullName, String mUserName, String mEmail, Boolean mFriend) {
+        Log.d("search connection clicked ", "2");
         Toast.makeText(getApplicationContext(), "Add me!", Toast.LENGTH_SHORT).show();
+        //send get connections the username.
+        SharedPreferences prefs =
+                getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_addConnection))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            Log.d("msg.put","");
+            msg.put("username_a", u); //pass in their username
+            msg.put("username_b", mUserName);
+
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleAddNewConnection)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+        Log.d("ADD NEW CONNECTION ATTEMPT", "username");
+    }
+    private void handleAddNewConnection(String results) {
+        //Log.d("result is ", results);
+        loadFragmentWithBackStack(new NewUserAddedFragment(), Pages.NEWUSERADDED);
+    }
+
+    /**Handle errors that may ouccur during the async taks.
+     * @param result the error message provided from the async task
+     */
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNCT_TASK_ERROR", result);
     }
 
     @Override
