@@ -12,5 +12,8 @@
     <string name="ep_conections">connections</string>
     <string name="ep_chat_all">all-chats</string>
     <string name="ep_chat">chat</string>
+    <string name = "ep_getConnectionRequests">getConnectionRequests</string>
     <string name="ep_getConnections">getConnections</string>
+    <string name="ep_addConnections">addConnections</string>
+
 </resources>
