@@ -1,25 +1,24 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.net.Credentials;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.Objects;
-
-import spr018.tcss450.clientapplication.model.Credentials;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
+ * {@link LoginValidationFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  *
  * @author Deepjot Kaur
@@ -27,16 +26,12 @@ import spr018.tcss450.clientapplication.model.Credentials;
  * @author Tenma Rollins
  * @author Tuan Dinh
  */
-public class LoginFragment extends Fragment {
+public class LoginValidationFragment extends Fragment {
 
-    /* Listener to be attached */
     private OnFragmentInteractionListener mListener;
 
-    /* Text Fields */
-    private EditText mUsername;
-    private EditText mPassword;
-
-    public LoginFragment() {
+    private EditText mCode;
+    public LoginValidationFragment() {
         // Required empty public constructor
     }
 
@@ -46,17 +41,14 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_login, container, false);
-        mUsername = v.findViewById(R.id.usernameText);
-        mUsername.setOnFocusChangeListener(this::onUsernameFocusChange);
-        mPassword = v.findViewById(R.id.passwordText);
-        mPassword.setOnFocusChangeListener(this::onPasswordFocusChange);
-        Button login = v.findViewById(R.id.loginButton);
-        login.setOnClickListener(this::handleLoginAttempt);
-        Button register = v.findViewById(R.id.registerButton);
-        register.setOnClickListener(view -> mListener.onRegisterClicked());
-        Button forgotPassword = v.findViewById(R.id.loginForgotPasswordButton);
-        forgotPassword.setOnClickListener(view -> mListener.onForgotPasswordClicked());
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_login_validation, container, false);
+
+        mCode = v.findViewById(R.id.validationNumberInput);
+        mCode.setOnFocusChangeListener(this::onCodeFocusChange);
+
+        v.findViewById(R.id.validationButton).setOnClickListener(this::onValidationButtonPressed);
+
         return v;
     }
 
@@ -77,48 +69,38 @@ public class LoginFragment extends Fragment {
         mListener = null;
     }
 
-
     /* **************** */
     /* PRIVATE HANDLERS */
     /* **************** */
-    private void onUsernameFocusChange(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            if (mUsername.getText().toString().isEmpty()) {
-                mUsername.setError(getString(R.string.error_empty));
+    private void onValidationButtonPressed(View v) {
+        if (mListener != null) {
+            // check for errors in input
+            onCodeFocusChange(null, false);
+
+            // if no errors, attempt to verify
+            if (mCode.getError() == null) {
+                int code = Integer.parseInt(mCode.getText().toString());
+                setEnabledAllButtons(false);
+                mListener.onValidationAttempt(code);
             }
         }
     }
 
-    private void onPasswordFocusChange(View v, boolean hasFocus) {
+    private void onCodeFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
-            if (mPassword.getText().toString().isEmpty()) {
-                mPassword.setError(getString(R.string.error_empty));
+            if (mCode.getText().toString().isEmpty()) {
+                mCode.setError(getString(R.string.error_empty));
+            } else if (mCode.getText().toString().length() != 4) {
+                mCode.setError(getString(R.string.error_verification_code));
             }
         }
     }
-
-    private void handleLoginAttempt(View v) {
-        //These two methods call are NECESSARY.
-        //They simulate the views losing focus.
-        onUsernameFocusChange(null, false);
-        onPasswordFocusChange(null, false);
-
-        if (mPassword.getError() == null && mUsername.getError() == null) {
-            Credentials loginCredentials = new Credentials.Builder(
-                    mUsername.getText().toString(), mPassword.getText())
-                    .build();
-            setEnabledAllButtons(false);
-            mListener.onLoginAttempt(loginCredentials);
-        }
-    }
-
 
     /* *********** */
     /* EXPOSED API */
     /* *********** */
     public void setEnabledAllButtons(boolean state) {
-        Objects.requireNonNull(getActivity()).findViewById(R.id.loginButton).setEnabled(state);
-        getActivity().findViewById(R.id.registerButton).setEnabled(state);
+        Objects.requireNonNull(getActivity()).findViewById(R.id.validationButton).setEnabled(state);
     }
 
     /**
@@ -129,7 +111,7 @@ public class LoginFragment extends Fragment {
     public void setError(String err) {
         //Log in unsuccessful for reason: err. Try again.
         //you may want to add error stuffs for the user here.
-        ((EditText) Objects.requireNonNull(getView()).findViewById(R.id.usernameText))
+        ((EditText) Objects.requireNonNull(getView()).findViewById(R.id.validationNumberInput))
                 .setError(getString(R.string.error_empty));
     }
 
@@ -138,10 +120,12 @@ public class LoginFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     **/
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
     public interface OnFragmentInteractionListener {
-        void onLoginAttempt(Credentials loginCredentials);
-        void onRegisterClicked();
-        void onForgotPasswordClicked();
+        void onValidationAttempt(int code);
     }
 }

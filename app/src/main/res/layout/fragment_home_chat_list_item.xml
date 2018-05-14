@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
-
-    <ImageView
-        android:id="@+id/chatIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center_vertical|start"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_placeholder_icon" />
+    android:orientation="vertical"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
 
     <TextView
-        android:id="@+id/chatTitle"
-        android:layout_width="wrap_content"
+        android:id="@+id/chatUsername"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|end"
-        android:paddingLeft="8dp"
-        android:paddingRight="16dp"
-        android:textAlignment="textEnd"
-        android:textSize="34dp" />
+        android:paddingEnd="16dp"
+        android:paddingStart="8dp"
+        android:textAlignment="viewStart"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/chatRecentMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingEnd="16dp"
+        android:paddingStart="8dp"
+        android:textAlignment="viewStart"
+        android:textSize="18sp" />
 </LinearLayout>

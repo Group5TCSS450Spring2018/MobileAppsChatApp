@@ -1,68 +1,42 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.ArrayList;
-
-import spr018.tcss450.clientapplication.model.ChatAdapter;
-import spr018.tcss450.clientapplication.model.Connection;
+import android.widget.Button;
+import android.widget.EditText;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
+ * {@link ForgotPasswordFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class HomeFragment extends Fragment {
+public class ForgotPasswordFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private ArrayList<Connection> mChatList;
-
-    public HomeFragment() {
+    private EditText mEmail;
+    public ForgotPasswordFragment() {
         // Required empty public constructor
     }
 
-    public interface OnSuccessFragmentInteractionListener { void onLogout();
-    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_home, container, false);
-
-        RecyclerView connections = v.findViewById(R.id.chatListContainer);
-
-        mChatList = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i, "Email");
-            c.setRecentMessage("Recent message");
-            mChatList.add(c);
-        }
-
-        ChatAdapter adapter = new ChatAdapter(mChatList);
-        connections.setAdapter(adapter);
-        connections.setLayoutManager(new LinearLayoutManager(getActivity()));
-        setHasOptionsMenu(true);
-
+        View v = inflater.inflate(R.layout.fragment_forgot_password, container, false);
+        Button send = v.findViewById(R.id.forgotPasswordButton);
+        send.setOnClickListener(this::onSendClicked);
+        mEmail = v.findViewById(R.id.forgotPasswordEmailText);
+        mEmail.setOnFocusChangeListener(this::onEmailFocusChange);
         return v;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onHomeInteraction(uri);
-        }
     }
 
     @Override
@@ -82,6 +56,30 @@ public class HomeFragment extends Fragment {
         mListener = null;
     }
 
+    //Helper method
+    private void onSendClicked(View button) {
+        onEmailFocusChange(mEmail, false);
+        if (mEmail.getError() == null) {
+            mListener.onSendResetCodeAttempt(mEmail.getText().toString());
+        }
+    }
+
+    private void onEmailFocusChange(View editText, boolean hasFocus) {
+        String email = mEmail.getText().toString();
+        if (!hasFocus) {
+            // must not be empty
+            if (email.isEmpty()) {
+                mEmail.setError(getString(R.string.error_empty));
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                mEmail.setError(getString(R.string.error_email_invalid));
+            }
+            if (email.length() > getResources().getInteger(R.integer.too_long_email)) {
+                mEmail.setError(getString(R.string.error_too_long_email));
+            }
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -93,9 +91,6 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onHomeInteraction(Uri uri);
+        void onSendResetCodeAttempt(String email);
     }
-
-
 }

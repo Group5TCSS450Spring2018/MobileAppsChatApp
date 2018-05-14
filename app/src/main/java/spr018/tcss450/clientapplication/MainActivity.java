@@ -6,23 +6,29 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Switch;
+import android.widget.Toast;
 
+import java.util.Objects;
+
+import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
 
 public class MainActivity extends AppCompatActivity
@@ -31,9 +37,14 @@ public class MainActivity extends AppCompatActivity
         ConnectionsFragment.OnFragmentInteractionListener,
         WeatherFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener,
-        NewMessageFragment.OnFragmentInteractionListener {
+        NewMessageFragment.OnFragmentInteractionListener,
+        NewConnectionFragment.OnFragmentInteractionListener,
+        ConnectionProfileFragment.OnFragmentInteractionListener {
 
+    /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
+
+    /*Floating action button in Main Activity*/
     private FloatingActionButton mFab;
 
     @Override
@@ -43,38 +54,42 @@ public class MainActivity extends AppCompatActivity
         mPrefs = getSharedPreferences(
                 getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
         // make sure to set the app theme
-//        setTheme(mPrefs.getInt(
-//            getString(R.string.keys_prefs_app_theme), R.style.AppTheme_NoActionBar));
+        setTheme(mPrefs.getInt(
+                getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
 
         setContentView(R.layout.activity_main);
 
         mFab = findViewById(R.id.fab);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-        loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
+        loadFragmentNoBackStack(new HomeFragment());
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment fragment = fm.findFragmentById(R.id.mainFragmentContainer);
+            if (fragment != null) {
+                updateFABandNV(fragment);
+            }
         }
     }
-//
+
 //    @Override
 //    public boolean onPrepareOptionsMenu(Menu menu) {
 //        MenuItem item = menu.findItem(R.id.search);
@@ -87,15 +102,15 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        MenuItem item = menu.findItem(R.id.search);
+        MenuItem item = menu.findItem(R.id.actionBarSearch);
         item.setVisible(false);
         //TODO Implement search
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
-                (SearchView) menu.findItem(R.id.search).getActionView();
+                (SearchView) menu.findItem(R.id.actionBarSearch).getActionView();
         searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+                Objects.requireNonNull(searchManager).getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
         return true;
     }
@@ -117,25 +132,22 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            loadFragmentNoBackStack(new HomeFragment(), Pages.HOME);
+            loadFragmentWithBackStack(new HomeFragment(), Pages.HOME);
         } else if (id == R.id.nav_connections) {
-            loadFragmentNoBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
+            loadFragmentWithBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
         } else if (id == R.id.nav_weather) {
-            loadFragmentNoBackStack(new WeatherFragment(), Pages.WEATHER);
-        } else if (id == R.id.nav_settings) {
-            loadFragmentNoBackStack(new SettingsFragment(), Pages.SETTINGS);
+            loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
             showLoginActivity();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -146,8 +158,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnectionsInteraction(Uri uri) {
-
+    public void onFriendConnectionClicked(Connection connection) {
+        String name = connection.getName();
+        String username = connection.getUsername();
+        String email = connection.getEmail();
+        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, true), Pages.PROFILE);
     }
 
     @Override
@@ -156,8 +171,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNewChatDetach() {
-        modifyFab(Pages.HOME);
+    public void onNewChatDetach(Fragment fragment) {
+
+    }
+
+    @Override
+    public void onSearchedConnectionClicked(Connection connection) {
+        InputMethodManager inputManager = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        assert inputManager != null;
+        inputManager.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+        String name = connection.getName();
+        String username = connection.getUsername();
+        String email = connection.getEmail();
+        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, false), Pages.PROFILE);
+    }
+
+    @Override
+    public void onAddNewConnectionAttempt() {
+        Toast.makeText(getApplicationContext(), "Add me!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -173,41 +206,50 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void settings_ChangeTheme(String styleID) {
-        Log.e("THEME CHOSEN", styleID + " IS THE THEME");
-        int themeID = R.style.AppTheme_NoActionBar; // default
+        int themeID = R.style.AppTheme; // default
+        int themeID_no_actionbar = R.style.AppTheme_NoActionBar;
 
         if (styleID.equals(getString(R.string.washedOutThemeName))) {
             themeID = R.style.AppTheme_WashedOut;
+            themeID_no_actionbar = R.style.AppTheme_WashedOut_NoActionBar;
         } else if (styleID.equals(getString(R.string.coralThemeName))) {
             themeID = R.style.AppTheme_Coral;
+            themeID_no_actionbar = R.style.AppTheme_Coral_NoActionBar;
         }
 
         mPrefs.edit().putInt(
                 getString(R.string.keys_prefs_app_theme), themeID).apply();
+        mPrefs.edit().putInt(
+                getString(R.string.keys_prefs_app_theme_no_actionbar), themeID_no_actionbar).apply();
+
+        setTheme(themeID_no_actionbar);
+        recreate();
+
+        //Empties back stack because it doesn't work properly after recreate() is called.
+        FragmentManager fm = getSupportFragmentManager();
+        for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            fm.popBackStack();
+        }
+        updateFABandNV(null);
     }
 
     /* Helpers */
-    private void loadFragmentWithBackStack(Fragment frag, Pages page) {
-        FragmentTransaction ft = getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.mainFragmentContainer, frag)
-                .addToBackStack(null);
-        ft.commit();
-
-        modifyFab(page);
-
-        setTitle(page.toString());
-    }
-
-    private void loadFragmentNoBackStack(Fragment frag, Pages page) {
+    private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.mainFragmentContainer, frag)
+                .replace(R.id.mainFragmentContainer, fragment, page.toString())
+                .addToBackStack(page.toString())
+                .commit();
+        updateFABandNV(fragment);
+    }
+
+    private void loadFragmentNoBackStack(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.mainFragmentContainer, fragment)
                 .commit();
 
-        modifyFab(page);
-
-        setTitle(page.toString());
+        updateFABandNV(fragment);
     }
 
     private void showLoginActivity() {
@@ -219,39 +261,41 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    private View loadNewChat(View v) {
-        loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWCHAT);
-        return v;
-    }
-
-    private void modifyFab(Pages page) {
-
-        switch (page) {
-            case HOME:
-                mFab.show();
-                mFab.setOnClickListener(this::loadNewChat);
-                mFab.setImageResource(R.drawable.ic_fab_send);
-                break;
-            case CONNECTIONS:
-                mFab.show();
-                mFab.setOnClickListener(null);
-                mFab.setImageResource(R.drawable.ic_fab_add);
-                break;
-            case WEATHER:
-                mFab.hide();
-                break;
-            case SETTINGS:
-                mFab.hide();
-                break;
-            case NEWCHAT:
-                mFab.hide();
-                setTitle("Chat name");
-                break;
-            default:
-                Log.wtf("Impossible", "How did this happen?");
-                break;
+    //Sets the Floating Action Button and NavigationView to the correct state.
+    private void updateFABandNV(@Nullable Fragment fragment) {
+        NavigationView nv = findViewById(R.id.nav_view);
+        if (fragment instanceof HomeFragment) {
+            mFab.show();
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
+            mFab.setImageResource(R.drawable.ic_fab_send);
+            nv.setCheckedItem(R.id.nav_home);
+            setTitle(Pages.HOME.toString());
+        } else if (fragment instanceof ConnectionsFragment) {
+            mFab.show();
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewConnectionFragment(), Pages.NEWCONNECTION));
+            mFab.setImageResource(R.drawable.ic_fab_add);
+            nv.setCheckedItem(R.id.nav_connections);
+            setTitle(Pages.CONNECTIONS.toString());
+        } else if (fragment instanceof WeatherFragment) {
+            mFab.hide();
+            nv.setCheckedItem(R.id.nav_weather);
+            setTitle(Pages.WEATHER.toString());
+        } else if (fragment instanceof SettingsFragment) {
+            mFab.hide();
+            setTitle(Pages.SETTINGS.toString());
+        } else if (fragment instanceof NewMessageFragment) {
+            mFab.hide();
+            nv.setCheckedItem(R.id.nav_home);
+            setTitle(Pages.NEWMESSAGE.toString());
+        } else if (fragment instanceof NewConnectionFragment) {
+            mFab.hide();
+            nv.setCheckedItem(R.id.nav_connections);
+            setTitle(Pages.NEWCONNECTION.toString());
+        } else if (fragment instanceof ConnectionProfileFragment) {
+            mFab.hide();
+            setTitle(Pages.PROFILE.toString());
+        } else {
+            Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }
     }
-
-
 }

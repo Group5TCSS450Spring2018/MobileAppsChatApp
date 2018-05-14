@@ -8,19 +8,29 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme_WashedOut" parent="AppTheme.NoActionBar">
+    <style name="AppTheme_WashedOut" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/washedOut_Primary</item>
         <item name="colorPrimaryDark">@color/washedOut_PrimaryDark</item>
         <item name="colorAccent">@color/washedOut_ColorAccent</item>
     </style>
 
-    <style name="AppTheme_Coral" parent="AppTheme.NoActionBar">
+    <style name="AppTheme_Coral" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/coral_Primary</item>
         <item name="colorPrimaryDark">@color/coral_PrimaryDark</item>
         <item name="colorAccent">@color/coral_ColorAccent</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme_WashedOut.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme_Coral.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
