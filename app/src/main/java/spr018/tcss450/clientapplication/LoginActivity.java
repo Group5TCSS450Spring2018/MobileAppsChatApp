@@ -212,6 +212,7 @@ public class LoginActivity extends AppCompatActivity
         //Save the username for later usage
         mPrefs.edit().putString(getString(R.string.keys_prefs_user_name),
                 mCredentials.getUsername()).apply();
+        Log.d("USERNAME IS: ", getString(R.string.keys_prefs_user_name));
         //save the users "want" to stay logged in
         mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in),
                 stayLoggedIn).apply();
