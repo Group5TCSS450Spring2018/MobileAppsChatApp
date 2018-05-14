@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 
 import spr018.tcss450.clientapplication.model.ChatAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
-import spr018.tcss450.clientapplication.model.ConnectionAdapter;
+import spr018.tcss450.clientapplication.model.RequestAdapter;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
@@ -35,13 +36,12 @@ public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private ArrayList<Connection> mChatList;
-    private  ArrayList<Connection> mRequestList;
-    ConnectionAdapter adapterRequests;
+    private ArrayList<Connection> mRequestList;
+    private RequestAdapter mRequestAdapter;
+    private Connection mConnection;
+
     public HomeFragment() {
         // Required empty public constructor
-    }
-
-    public interface OnSuccessFragmentInteractionListener { void onLogout();
     }
 
     @Override
@@ -51,7 +51,6 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
-        RecyclerView requests = v.findViewById(R.id.RequestListContainer);
         mChatList = new ArrayList<>();
         for (int i = 0; i < 1; i++) {
             Connection c = new Connection("Username " + i, "Name" + i, "Email");
@@ -65,19 +64,28 @@ public class HomeFragment extends Fragment {
         chats.setLayoutManager(new LinearLayoutManager(getActivity()));
         setHasOptionsMenu(true);
 
+        RecyclerView requests = v.findViewById(R.id.RequestListContainer);
         mRequestList = new ArrayList<>();
-        for (int i = 0; i < 1; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i, "Email");
-            //c.setRecentMessage("Recent message");
-            mRequestList.add(c);
-        }
-        getRequests();
-
-
-        adapterRequests = new ConnectionAdapter(mRequestList);
-        requests.setAdapter(adapterRequests);
+        mRequestAdapter = new RequestAdapter(mRequestList);
+        requests.setAdapter(mRequestAdapter);
         requests.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapterRequests.setOnItemClickListener(this::onRequestItemClicked);
+        mRequestAdapter.setOnItemClickListener(new RequestAdapter.OnItemClickListener() {
+            @Override
+            public void onAccept(Connection connection) {
+                acceptRequest(connection);
+            }
+
+            @Override
+            public void onDeny(Connection connection) {
+                denyRequest(connection);
+            }
+
+            @Override
+            public void onExpand(Connection connection) {
+                expand(connection);
+            }
+        });
+        getRequests();
         setHasOptionsMenu(true);
         return v;
     }
@@ -110,45 +118,36 @@ public class HomeFragment extends Fragment {
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
     }
+
     //Create a JSON object and get the connections requests to display.
     private void handleViewConnectionRequests(String results) {
-        Log.d("viewConnectionsRequests", results);
         try {
+            mRequestList.clear();
             JSONObject x = new JSONObject(results);
-//            Log.d("handleViewConnections", x.toString());
             if(x.has("recieved_requests")) {
                 try {
                     JSONArray jContacts = x.getJSONArray("recieved_requests");
-//                    Log.d("display the contacts", "length is: " + jContacts.length());
                     if(jContacts.length()==0){
-                        mRequestList.add(new Connection("No requests.","",""));
+                        mRequestList.add(null);
+                    } else {
+                        for (int i = 0; i < jContacts.length(); i++) {
+                            JSONObject c = jContacts.getJSONObject(i);
+                            String username = c.get("username").toString();
+                            String firstName = c.get("firstname").toString();
+                            String lastName = c.get("lastname").toString();
+                            Connection u = new Connection(username, firstName + " " + lastName, "");
+                            mRequestList.add(u);
+                        }
                     }
-                    for (int i = 0; i < jContacts.length(); i++) {
-                        JSONObject c = jContacts.getJSONObject(i);
-                        String username = c.get("username").toString();
-                        String firstname = c.get("firstname").toString();
-                        String lastname = c.get("lastname").toString();
-                        //String email = c.get("email").toString();
-                        Connection u = new Connection(username, firstname+" "+lastname, "");
-                        mRequestList.add(u);
-                        Log.d("CONNECTIONSFRAG", username);
-                    }
-
-
-                    //return;
+                    mRequestAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    return;
                 }
-                Log.d("size of mConnectionsList", ""+ mRequestList.size());
-                //return
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
-            return;
         }
-        adapterRequests.notifyDataSetChanged();
+        mRequestAdapter.notifyDataSetChanged();
     }
 
     /**Handle errors that may ouccur during the async taks.
@@ -158,12 +157,82 @@ public class HomeFragment extends Fragment {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
+    private void acceptRequest(Connection connection) {
+        mConnection = connection;
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onRequestItemClicked(Connection connection) {
-        if (mListener != null) {
-            mListener.onHomeInteraction(connection);
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_acceptConnection))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username_a", u);
+            msg.put("username_b", connection.getUsername());
+        } catch(JSONException e) {
+            e.printStackTrace();
         }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleAcceptDenyPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    private void denyRequest(Connection connection) {
+        mConnection = connection;
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
+        //TODO update endpoint
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_acceptConnection))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username_a", u);
+            msg.put("username_b", connection.getUsername());
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        Toast.makeText(getActivity().getApplicationContext(), "Awaiting decline endpoint. Change me in HomeFragment", Toast.LENGTH_SHORT).show();
+//        new SendPostAsyncTask.Builder(uri.toString(), msg)
+//                .onPostExecute(this::handleAcceptDenyPost)
+//                .onCancelled(this::handleErrorsInTask)
+//                .build().execute();
+    }
+
+    private void handleAcceptDenyPost(String result) {
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if (success) {
+                mRequestList.remove(mConnection);
+                if (mRequestList.isEmpty()) {
+                    mRequestList.add(null);
+                }
+                mRequestAdapter.notifyDataSetChanged();
+            } else {
+                Log.e("JSONOBJECT", result);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void expand(Connection connection) {
+        mListener.onExpandingRequestAttempt(connection);
     }
 
     @Override
@@ -194,8 +263,7 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onHomeInteraction(Connection connection);
+        void onExpandingRequestAttempt(Connection connection);
     }
 
 

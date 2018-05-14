@@ -158,10 +158,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onHomeInteraction(Connection connection) {
+    public void onExpandingRequestAttempt(Connection connection) {
         String name = connection.getName();
         String username = connection.getUsername();
-        loadFragmentWithBackStack(DisplayRequestFragment.newInstance(name, username), Pages.DISPLAYREQUEST);
+        String email = connection.getEmail();
+        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, ConnectionProfileFragment.PENDING), Pages.PROFILE);
     }
 
     @Override
@@ -169,9 +170,7 @@ public class MainActivity extends AppCompatActivity
         String name = connection.getName();
         String username = connection.getUsername();
         String email = connection.getEmail();
-        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, true), Pages.PROFILE);
-
-
+        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, ConnectionProfileFragment.FRIEND), Pages.PROFILE);
     }
 
 
@@ -197,52 +196,12 @@ public class MainActivity extends AppCompatActivity
         String name = connection.getName();
         String username = connection.getUsername();
         String email = connection.getEmail();
-        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, false), Pages.PROFILE);
-        Log.d("searchedConnectionClicked", "1");
+        loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, ConnectionProfileFragment.STRANGER), Pages.PROFILE);
     }
 
     @Override
-    public void onAddNewConnectionAttempt(String mFullName, String mUserName, String mEmail, Boolean mFriend) {
-        Log.d("search connection clicked ", "2");
-        Toast.makeText(getApplicationContext(), "Add me!", Toast.LENGTH_SHORT).show();
-        //send get connections the username.
-        SharedPreferences prefs =
-                getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+    public void onAddNewConnectionAttempt(String mFullName, String mUserName, String mEmail) {
 
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_addConnection))
-                .build();
-
-        JSONObject msg = new JSONObject();
-        try{
-            Log.d("msg.put","");
-            msg.put("username_a", u); //pass in their username
-            msg.put("username_b", mUserName);
-
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-        new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleAddNewConnection)
-                .onCancelled(this::handleErrorsInTask)
-                .build().execute();
-        Log.d("ADD NEW CONNECTION ATTEMPT", "username");
-    }
-    private void handleAddNewConnection(String results) {
-        //Log.d("result is ", results);
-        loadFragmentWithBackStack(new NewUserAddedFragment(), Pages.NEWUSERADDED);
-    }
-
-    /**Handle errors that may ouccur during the async taks.
-     * @param result the error message provided from the async task
-     */
-    private void handleErrorsInTask(String result) {
-        Log.e("ASYNCT_TASK_ERROR", result);
     }
 
     @Override
