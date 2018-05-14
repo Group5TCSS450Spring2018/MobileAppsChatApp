@@ -36,7 +36,7 @@ public class ConnectionsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private List<Connection> mConnectionsList;
-
+    private ConnectionAdapter adapter;
     public ConnectionsFragment() {
         // Required empty public constructor
     }
@@ -55,16 +55,25 @@ public class ConnectionsFragment extends Fragment {
 //            mConnectionsList.add(c);
 //        }
         checkConnections();
-        ConnectionAdapter adapter = new ConnectionAdapter(mConnectionsList);
-        adapter.setOnItemClickListener(this::onItemClicked);
+        Log.d("mConnectionsList size", ""+mConnectionsList.size());
+
+
+
         RecyclerView connections = (RecyclerView) v.findViewById(R.id.connectionsListContainer);
-        connections.setAdapter(adapter);
+
         connections.setLayoutManager(new LinearLayoutManager(getActivity()));
-        v.findViewById(R.id.connectionsListContainer);
+        adapter = new ConnectionAdapter(mConnectionsList);
+        adapter.setOnItemClickListener(this::onItemClicked);
+        connections.setAdapter(adapter);
+        //v.findViewById(R.id.connectionsListContainer);
 
         return v;
     }
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkConnections();
+    }
 
     private void checkConnections() {
         //send get connections the username.
@@ -115,14 +124,10 @@ public class ConnectionsFragment extends Fragment {
                             mConnectionsList.add(u);
                             Log.d("CONNECTIONSFRAG", username);
                         }
-                    }
-
-
-
-                    //return;
+                    }//return;
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    return;
+                    //return;
                 }
                 Log.d("size of mConnectionsList", ""+ mConnectionsList.size());
                 //return;
@@ -130,9 +135,9 @@ public class ConnectionsFragment extends Fragment {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            return;
+            //return;
         }
-        return;
+        adapter.notifyDataSetChanged();
 
     }
     /**Handle errors that may ouccur during the async taks.

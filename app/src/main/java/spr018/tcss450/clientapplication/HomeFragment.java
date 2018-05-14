@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 import spr018.tcss450.clientapplication.model.ChatAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
+import spr018.tcss450.clientapplication.model.ConnectionAdapter;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
@@ -35,7 +36,7 @@ public class HomeFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private ArrayList<Connection> mChatList;
     private  ArrayList<Connection> mRequestList;
-
+    ConnectionAdapter adapterRequests;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -73,12 +74,16 @@ public class HomeFragment extends Fragment {
         getRequests();
 
 
-        ChatAdapter adapterR = new ChatAdapter(mRequestList);
-        requests.setAdapter(adapterR);
+        adapterRequests = new ConnectionAdapter(mRequestList);
+        requests.setAdapter(adapterRequests);
         requests.setLayoutManager(new LinearLayoutManager(getActivity()));
+        adapterRequests.setOnItemClickListener(this::onRequestItemClicked);
         setHasOptionsMenu(true);
         return v;
     }
+
+
+
     //Get all requests from database and display.
     private void getRequests() {
         //send get connections the username.
@@ -136,14 +141,14 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 Log.d("size of mConnectionsList", ""+ mRequestList.size());
-                //return;
+                //return
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
-        return;
+        adapterRequests.notifyDataSetChanged();
     }
 
     /**Handle errors that may ouccur during the async taks.
@@ -155,9 +160,9 @@ public class HomeFragment extends Fragment {
 
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onRequestItemClicked(Connection connection) {
         if (mListener != null) {
-            mListener.onHomeInteraction(uri);
+            mListener.onHomeInteraction(connection);
         }
     }
 
@@ -190,7 +195,7 @@ public class HomeFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onHomeInteraction(Uri uri);
+        void onHomeInteraction(Connection connection);
     }
 
 

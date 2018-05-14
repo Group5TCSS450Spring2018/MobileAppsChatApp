@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -157,8 +158,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onHomeInteraction(Uri uri) {
-
+    public void onHomeInteraction(Connection connection) {
+        String name = connection.getName();
+        String username = connection.getUsername();
+        loadFragmentWithBackStack(DisplayRequestFragment.newInstance(name, username), Pages.DISPLAYREQUEST);
     }
 
     @Override
@@ -167,7 +170,12 @@ public class MainActivity extends AppCompatActivity
         String username = connection.getUsername();
         String email = connection.getEmail();
         loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, true), Pages.PROFILE);
+
+
     }
+
+
+
 
     @Override
     public void onWeatherInteraction(Uri uri) {
@@ -277,6 +285,10 @@ public class MainActivity extends AppCompatActivity
         updateFABandNV(null);
     }
 
+
+
+
+
     /* Helpers */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
         getSupportFragmentManager()
@@ -338,7 +350,11 @@ public class MainActivity extends AppCompatActivity
         } else if (fragment instanceof ConnectionProfileFragment) {
             mFab.hide();
             setTitle(Pages.PROFILE.toString());
-        } else {
+        } else if(fragment instanceof DisplayRequestFragment) {
+            mFab.hide();
+            setTitle(Pages.DISPLAYREQUEST.toString());
+        }
+        else {
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }
     }
