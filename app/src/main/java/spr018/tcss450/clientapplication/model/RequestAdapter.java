@@ -8,19 +8,21 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
-
 
 import java.util.List;
 
 import spr018.tcss450.clientapplication.R;
 
-public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.ViewHolder> {
+public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.ViewHolder> {
     private List<Connection> mConnections;
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener {
-        void onItemClick(Connection connection);
+        void onAccept(Connection connection);
+        void onDeny(Connection connection);
+        void onExpand(Connection connection);
     }
 
     // Provide a reference to the views for each data item
@@ -28,33 +30,38 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
     // you provide access to all the views for a data item in a view holder
     static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        private TextView mNameTextView;
         private TextView mUsernameTextView;
         private View mView;
 
         ViewHolder(View v) {
             super(v);
-            mNameTextView = v.findViewById(R.id.connectionName);
-            mUsernameTextView = v.findViewById(R.id.connectionUsername);
+            mUsernameTextView = v.findViewById(R.id.requestUsername);
             mView = v;
         }
 
         void bind(Connection connection, OnItemClickListener listener) {
+            ImageButton accept = mView.findViewById(R.id.requestAcceptButton);
+            ImageButton deny = mView.findViewById(R.id.requestDeclineButton);
+
+            //Modifies the view when the connection is null. Connection should be null when
+            //there is not any connections.
             if (connection == null) {
-                mUsernameTextView.setText("No Contacts");
+                mUsernameTextView.setText("No New Requests");
                 mUsernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 mUsernameTextView.setTypeface(null, Typeface.NORMAL);
                 mUsernameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-                mNameTextView.setVisibility(View.GONE);
+                accept.setVisibility(View.GONE);
+                deny.setVisibility(View.GONE);
             } else {
-                mView.setOnClickListener(view -> listener.onItemClick(connection));
+                accept.setOnClickListener(view -> listener.onAccept(connection));
+                deny.setOnClickListener(view -> listener.onDeny(connection));
+                mUsernameTextView.setOnClickListener(view -> listener.onExpand(connection));
             }
-
         }
     }
 
     // Parameter could be any type of collection. I'm using list for now. - Tuan
-    public ConnectionAdapter(List<Connection> connections) {
+    public RequestAdapter(List<Connection> connections) {
         mConnections = connections;
     }
 
@@ -65,7 +72,7 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
                                          int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View connectionView = inflater.inflate(R.layout.fragment_connections_list_item, parent, false);
+        View connectionView = inflater.inflate(R.layout.fragment_request, parent, false);
         return new ViewHolder(connectionView);
     }
 
@@ -75,9 +82,8 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
         Connection connection = mConnections.get(position);
         if (connection != null) {
             holder.mUsernameTextView.setText(connection.getUsername());
-            holder.mNameTextView.setText(connection.getName());
         }
-        holder.bind(mConnections.get(position), mListener);
+        holder.bind(connection, mListener);
     }
 
 

@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="ep_base_url">team5-chatapp-backend.herokuapp.com</string>
-    
+
     <string name="ep_login">login</string>
     <string name="ep_register">register</string>
     <string name="ep_verify">verify</string>
     <string name="ep_search_connection">searchConnections</string>
     <string name="ep_reset_password">resetPassword</string>
     <string name="ep_update_password">updatePassword</string>
-    <!-- TODO: RENAME ENDPOINTS WHEN IMPLEMENTED -->
-    <string name="ep_conections">connections</string>
-    <string name="ep_chat_all">all-chats</string>
-    <string name="ep_chat">chat</string>
-    <string name = "ep_getConnectionRequests">getConnectionRequests</string>
+    <string name="ep_getConnectionRequests">getConnectionRequests</string>
     <string name="ep_getConnections">getConnections</string>
     <string name="ep_addConnection">addConnection</string>
-    <string name = "ep_acceptConnection">acceptConnection</string>
-
+    <string name="ep_acceptConnection">acceptConnection</string>
+    <string name="ep_removeConnection">removeConnection</string>
+    <string name="ep_denyConnection">denyConnection</string>
 </resources>
