@@ -152,7 +152,7 @@ public class NewConnectionFragment extends Fragment {
             JSONArray arrayJSON = objectJSON.getJSONArray("message");
             if (success) {
                 mConnections.clear();
-                for (int i = 0; i < arrayJSON.length(); i++) {
+                for (int i = 0; i < arrayJSON.length(); i++ ) {
                     JSONObject connectionJSON = arrayJSON.getJSONObject(i);
                     String fullName = connectionJSON.getString("firstname") + " " + connectionJSON.getString("lastname");
                     String email = connectionJSON.getString("email");

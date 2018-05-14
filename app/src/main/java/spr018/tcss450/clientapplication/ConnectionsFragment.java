@@ -102,17 +102,21 @@ public class ConnectionsFragment extends Fragment {
                 try {
                     JSONArray jContacts = x.getJSONArray("recieved_requests");
 //                    Log.d("display the contacts", "length is: " + jContacts.length());
-
-                    for (int i = 0; i < jContacts.length(); i++) {
-                        JSONObject c = jContacts.getJSONObject(i);
-                        String username = c.get("username").toString();
-                        String firstname = c.get("firstname").toString();
-                        String lastname = c.get("lastname").toString();
-                        String email = c.get("email").toString();
-                        Connection u = new Connection(username, firstname+" "+lastname, email);
-                        mConnectionsList.add(u);
-                        Log.d("CONNECTIONSFRAG", username);
+                    if(jContacts.length() == 0) {
+                        mConnectionsList.add(new Connection("No Contacts", "", ""));
+                    } else {
+                        for (int i = 0; i < jContacts.length(); i++) {
+                            JSONObject c = jContacts.getJSONObject(i);
+                            String username = c.get("username").toString();
+                            String firstname = c.get("firstname").toString();
+                            String lastname = c.get("lastname").toString();
+                            //String email = c.get("email").toString();
+                            Connection u = new Connection(username, firstname+" "+lastname, "");
+                            mConnectionsList.add(u);
+                            Log.d("CONNECTIONSFRAG", username);
+                        }
                     }
+
 
 
                     //return;

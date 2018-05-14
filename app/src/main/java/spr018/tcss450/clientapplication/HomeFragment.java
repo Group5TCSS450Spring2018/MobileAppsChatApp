@@ -1,20 +1,27 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import spr018.tcss450.clientapplication.model.ChatAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
@@ -27,6 +34,7 @@ public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private ArrayList<Connection> mChatList;
+    private  ArrayList<Connection> mRequestList;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -41,22 +49,110 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
-        RecyclerView connections = v.findViewById(R.id.chatListContainer);
-
+        RecyclerView chats = v.findViewById(R.id.chatListContainer);
+        RecyclerView requests = v.findViewById(R.id.RequestListContainer);
         mChatList = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 1; i++) {
             Connection c = new Connection("Username " + i, "Name" + i, "Email");
             c.setRecentMessage("Recent message");
             mChatList.add(c);
         }
 
+
         ChatAdapter adapter = new ChatAdapter(mChatList);
-        connections.setAdapter(adapter);
-        connections.setLayoutManager(new LinearLayoutManager(getActivity()));
+        chats.setAdapter(adapter);
+        chats.setLayoutManager(new LinearLayoutManager(getActivity()));
         setHasOptionsMenu(true);
 
+        mRequestList = new ArrayList<>();
+        for (int i = 0; i < 1; i++) {
+            Connection c = new Connection("Username " + i, "Name" + i, "Email");
+            //c.setRecentMessage("Recent message");
+            mRequestList.add(c);
+        }
+        getRequests();
+
+
+        ChatAdapter adapterR = new ChatAdapter(mRequestList);
+        requests.setAdapter(adapterR);
+        requests.setLayoutManager(new LinearLayoutManager(getActivity()));
+        setHasOptionsMenu(true);
         return v;
     }
+    //Get all requests from database and display.
+    private void getRequests() {
+        //send get connections the username.
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getConnectionRequests))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username", u);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleViewConnectionRequests)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+    //Create a JSON object and get the connections requests to display.
+    private void handleViewConnectionRequests(String results) {
+        Log.d("viewConnectionsRequests", results);
+        try {
+            JSONObject x = new JSONObject(results);
+//            Log.d("handleViewConnections", x.toString());
+            if(x.has("recieved_requests")) {
+                try {
+                    JSONArray jContacts = x.getJSONArray("recieved_requests");
+//                    Log.d("display the contacts", "length is: " + jContacts.length());
+                    if(jContacts.length()==0){
+                        mRequestList.add(new Connection("No requests.","",""));
+                    }
+                    for (int i = 0; i < jContacts.length(); i++) {
+                        JSONObject c = jContacts.getJSONObject(i);
+                        String username = c.get("username").toString();
+                        String firstname = c.get("firstname").toString();
+                        String lastname = c.get("lastname").toString();
+                        //String email = c.get("email").toString();
+                        Connection u = new Connection(username, firstname+" "+lastname, "");
+                        mRequestList.add(u);
+                        Log.d("CONNECTIONSFRAG", username);
+                    }
+
+
+                    //return;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                Log.d("size of mConnectionsList", ""+ mRequestList.size());
+                //return;
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        return;
+    }
+
+    /**Handle errors that may ouccur during the async taks.
+     * @param result the error message provided from the async task
+     */
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNCT_TASK_ERROR", result);
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

@@ -93,10 +93,10 @@ public class ConnectionProfileFragment extends Fragment {
     }
 
     private void onAddButtonClicked(View button) {
-        mListener.onAddNewConnectionAttempt();
+        mListener.onAddNewConnectionAttempt(mFullName, mUsername, mEmail, mFriend);
     }
 
-    public interface OnFragmentInteractionListener {
-        void onAddNewConnectionAttempt();
+    public interface OnFragmentInteractionListener { //change to send bundle later.
+        void onAddNewConnectionAttempt(String mFullName, String mUsername, String mEmail,Boolean mFriend);
     }
 }
