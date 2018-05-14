@@ -157,6 +157,7 @@ public class ConnectionProfileFragment extends Fragment {
             if (success) {
                 mButton.setEnabled(false);
                 Toast.makeText(getActivity().getApplicationContext(), "Request sent", Toast.LENGTH_LONG).show();
+                mListener.onUpdateFragmentAttempt();
             } else {
                 Log.e("JSONOBJECT", result);
             }
@@ -200,6 +201,8 @@ public class ConnectionProfileFragment extends Fragment {
             if (success) {
                 mType = STRANGER;
                 setUpButtons();
+                Toast.makeText(getActivity().getApplicationContext(), "Connection removed", Toast.LENGTH_LONG).show();
+                mListener.onUpdateFragmentAttempt();
             } else {
                 Log.e("JSONOBJECT", result);
             }
@@ -243,6 +246,7 @@ public class ConnectionProfileFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "New connection added", Toast.LENGTH_LONG).show();
                 mType = FRIEND;
                 setUpButtons();
+                mListener.onUpdateFragmentAttempt();
             } else {
                 Log.e("JSONOBJECT", result);
             }
@@ -288,6 +292,7 @@ public class ConnectionProfileFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "Request removed", Toast.LENGTH_LONG).show();
                 mType = STRANGER;
                 setUpButtons();
+                mListener.onUpdateFragmentAttempt();
             } else {
                 Log.e("JSONOBJECT", result);
             }
@@ -301,6 +306,6 @@ public class ConnectionProfileFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener { //change to send bundle later.
-        void onAddNewConnectionAttempt(String mFullName, String mUsername, String mEmail);
+        void onUpdateFragmentAttempt();
     }
 }

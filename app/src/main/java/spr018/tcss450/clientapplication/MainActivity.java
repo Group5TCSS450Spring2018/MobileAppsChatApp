@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -200,8 +201,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onAddNewConnectionAttempt(String mFullName, String mUserName, String mEmail) {
-
+    public void onUpdateFragmentAttempt() {
+        Fragment frg = getSupportFragmentManager().findFragmentByTag(Pages.PROFILE.toString());
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.detach(frg);
+        ft.attach(frg);
+        ft.commit();
     }
 
     @Override
