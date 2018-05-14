@@ -138,7 +138,7 @@ public class ConnectionsFragment extends Fragment {
             //return;
         }
         adapter.notifyDataSetChanged();
-
+        return;
     }
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
