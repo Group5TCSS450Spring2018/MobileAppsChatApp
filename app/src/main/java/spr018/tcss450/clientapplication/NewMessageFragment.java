@@ -67,7 +67,7 @@ public class NewMessageFragment extends Fragment {
         return v;
     }
     private void openChat(View v){
-        
+
     }
 
     @Override

@@ -66,11 +66,12 @@ public class HomeFragment extends Fragment {
         setHasOptionsMenu(true);
 
         mRequestList = new ArrayList<>();
-        for (int i = 0; i < 1; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i, "Email");
-            //c.setRecentMessage("Recent message");
-            mRequestList.add(c);
-        }
+//        for (int i = 0; i < 1; i++) {
+//            Connection c = new Connection("Username " + i, "Name" + i, "Email");
+//            //c.setRecentMessage("Recent message");
+//            mRequestList.add(c);
+//        }
+
         getRequests();
 
 
@@ -112,6 +113,8 @@ public class HomeFragment extends Fragment {
     }
     //Create a JSON object and get the connections requests to display.
     private void handleViewConnectionRequests(String results) {
+        mRequestList.clear();
+        adapterRequests.notifyDataSetChanged();
         Log.d("viewConnectionsRequests", results);
         try {
             JSONObject x = new JSONObject(results);

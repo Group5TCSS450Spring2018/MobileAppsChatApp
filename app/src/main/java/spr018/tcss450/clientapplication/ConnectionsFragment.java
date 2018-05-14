@@ -54,6 +54,7 @@ public class ConnectionsFragment extends Fragment {
 //            Connection c = new Connection("Username " + i, "Name" + i, "Email");
 //            mConnectionsList.add(c);
 //        }
+        adapter = new ConnectionAdapter(mConnectionsList);
         checkConnections();
         Log.d("mConnectionsList size", ""+mConnectionsList.size());
 
@@ -62,7 +63,7 @@ public class ConnectionsFragment extends Fragment {
         RecyclerView connections = (RecyclerView) v.findViewById(R.id.connectionsListContainer);
 
         connections.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new ConnectionAdapter(mConnectionsList);
+
         adapter.setOnItemClickListener(this::onItemClicked);
         connections.setAdapter(adapter);
         //v.findViewById(R.id.connectionsListContainer);
@@ -77,6 +78,7 @@ public class ConnectionsFragment extends Fragment {
 
     private void checkConnections() {
         //send get connections the username.
+
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
@@ -103,6 +105,8 @@ public class ConnectionsFragment extends Fragment {
     }
 
     private void handleViewConnections(String results) {
+        adapter.notifyDataSetChanged();
+        mConnectionsList.clear();
         Log.d("viewConnections", results);
         try {
             JSONObject x = new JSONObject(results);
@@ -149,6 +153,7 @@ public class ConnectionsFragment extends Fragment {
 
 
     private void onItemClicked(Connection connection) {
+        adapter.notifyDataSetChanged();
         mListener.onFriendConnectionClicked(connection);
     }
 
