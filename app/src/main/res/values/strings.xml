@@ -38,6 +38,8 @@
 
     <string name="text_view_forgot_password">Please Enter Your Email</string>
     <string name="text_view_validation">Please Enter Your Validation Number:</string>
+    <string name="text_view_no_requests">No requests.</string>
+
     <string name="toast_server_down">Unable to connect to server. Please try again later.</string>
     <string name="defaultThemeName">Default</string>
     <string name="washedOutThemeName">Washed Out</string>
@@ -52,7 +54,4 @@
         <item>@string/washedOutThemeName</item>
         <item>@string/coralThemeName</item>
     </string-array>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
