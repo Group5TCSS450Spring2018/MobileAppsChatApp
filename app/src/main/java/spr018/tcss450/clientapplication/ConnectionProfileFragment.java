@@ -138,8 +138,8 @@ public class ConnectionProfileFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("username_a", u); //pass in their username
-            msg.put("username_b", mUsername);
+            msg.put("username_a", mUsername); //pass in their username
+            msg.put("username_b", u);
 
         } catch(JSONException e) {
             e.printStackTrace();
@@ -277,11 +277,10 @@ public class ConnectionProfileFragment extends Fragment {
             e.printStackTrace();
         }
 
-        Toast.makeText(getActivity().getApplicationContext(), "Awaiting endpoint. I'm in ConnectionProfileFragment", Toast.LENGTH_SHORT).show();
-//        new SendPostAsyncTask.Builder(uri.toString(), msg)
-//                .onPostExecute(this::handleDeclinePost)
-//                .onCancelled(this::handleError)
-//                .build().execute();
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleDeclinePost)
+                .onCancelled(this::handleError)
+                .build().execute();
     }
 
     private void handleDeclinePost(String result) {

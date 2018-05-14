@@ -135,7 +135,8 @@ public class HomeFragment extends Fragment {
                             String username = c.get("username").toString();
                             String firstName = c.get("firstname").toString();
                             String lastName = c.get("lastname").toString();
-                            Connection u = new Connection(username, firstName + " " + lastName, "");
+                            String email= c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
                             mRequestList.add(u);
                         }
                     }
@@ -192,11 +193,10 @@ public class HomeFragment extends Fragment {
                         Context.MODE_PRIVATE);
         String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
-        //TODO update endpoint
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_acceptConnection))
+                .appendPath(getString(R.string.ep_denyConnection))
                 .build();
 
         JSONObject msg = new JSONObject();
@@ -206,11 +206,11 @@ public class HomeFragment extends Fragment {
         } catch(JSONException e) {
             e.printStackTrace();
         }
-        Toast.makeText(getActivity().getApplicationContext(), "Awaiting decline endpoint. Change me in HomeFragment", Toast.LENGTH_SHORT).show();
-//        new SendPostAsyncTask.Builder(uri.toString(), msg)
-//                .onPostExecute(this::handleAcceptDenyPost)
-//                .onCancelled(this::handleErrorsInTask)
-//                .build().execute();
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleAcceptDenyPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
     }
 
     private void handleAcceptDenyPost(String result) {

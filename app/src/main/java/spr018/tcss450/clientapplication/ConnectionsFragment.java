@@ -108,7 +108,8 @@ public class ConnectionsFragment extends Fragment {
                             String username = c.getString("username");
                             String firstName = c.getString("firstname");
                             String lastName = c.getString("lastname");
-                            Connection u = new Connection(username, firstName + " " + lastName, "");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
                             mConnectionsList.add(u);
                             Log.d("CONNECTIONSFRAG", username);
                         }
