@@ -22,7 +22,6 @@ import java.util.List;
 
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.model.ConnectionAdapter;
-import spr018.tcss450.clientapplication.model.Credentials;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
@@ -36,7 +35,7 @@ public class ConnectionsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private List<Connection> mConnectionsList;
-    private ConnectionAdapter adapter;
+    private ConnectionAdapter mAdapter;
     public ConnectionsFragment() {
         // Required empty public constructor
     }
@@ -50,24 +49,14 @@ public class ConnectionsFragment extends Fragment {
 
 
         mConnectionsList = new ArrayList<>();
-//        for (int i = 0; i < 20; i++) {
-//            Connection c = new Connection("Username " + i, "Name" + i, "Email");
-//            mConnectionsList.add(c);
-//        }
-        adapter = new ConnectionAdapter(mConnectionsList);
-        checkConnections();
+
         Log.d("mConnectionsList size", ""+mConnectionsList.size());
-
-
-
-        RecyclerView connections = (RecyclerView) v.findViewById(R.id.connectionsListContainer);
-
+        RecyclerView connections = v.findViewById(R.id.connectionsListContainer);
         connections.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        adapter.setOnItemClickListener(this::onItemClicked);
-        connections.setAdapter(adapter);
-        //v.findViewById(R.id.connectionsListContainer);
-
+        mAdapter = new ConnectionAdapter(mConnectionsList);
+        mAdapter.setOnItemClickListener(this::onItemClicked);
+        connections.setAdapter(mAdapter);
+        checkConnections();
         return v;
     }
     @Override
@@ -78,7 +67,6 @@ public class ConnectionsFragment extends Fragment {
 
     private void checkConnections() {
         //send get connections the username.
-
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
@@ -105,30 +93,38 @@ public class ConnectionsFragment extends Fragment {
     }
 
     private void handleViewConnections(String results) {
-        adapter.notifyDataSetChanged();
-        mConnectionsList.clear();
-        Log.d("viewConnections", results);
         try {
-            JSONObject x = new JSONObject(results);
-//            Log.d("handleViewConnections", x.toString());
-            if(x.has("recieved_requests")) {
+            JSONObject resultJSON = new JSONObject(results);
+            if(resultJSON.has("connections_a")) {
                 try {
-                    JSONArray jContacts = x.getJSONArray("recieved_requests");
-//                    Log.d("display the contacts", "length is: " + jContacts.length());
-                    if(jContacts.length() == 0) {
-                        mConnectionsList.add(new Connection("No Contacts", "", ""));
+                    JSONArray aArray = resultJSON.getJSONArray("connections_a");
+                    JSONArray bArray = resultJSON.getJSONArray("connections_b");
+                    mConnectionsList.clear();
+                    if(aArray.length() == 0 && bArray.length() == 0) {
+                        mConnectionsList.add(null);
                     } else {
-                        for (int i = 0; i < jContacts.length(); i++) {
-                            JSONObject c = jContacts.getJSONObject(i);
-                            String username = c.get("username").toString();
-                            String firstname = c.get("firstname").toString();
-                            String lastname = c.get("lastname").toString();
-                            //String email = c.get("email").toString();
-                            Connection u = new Connection(username, firstname+" "+lastname, "");
+                        for (int i = 0; i < aArray.length(); i++) {
+                            JSONObject c = aArray.getJSONObject(i);
+                            String username = c.getString("username");
+                            String firstName = c.getString("firstname");
+                            String lastName = c.getString("lastname");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
                             mConnectionsList.add(u);
-                            Log.d("CONNECTIONSFRAG", username);
                         }
-                    }//return;
+
+                        for (int i = 0; i < bArray.length(); i++) {
+                            JSONObject c = bArray.getJSONObject(i);
+                            String username = c.getString("username");
+                            String firstName = c.getString("firstname");
+                            String lastName = c.getString("lastname");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
+                            mConnectionsList.add(u);
+                        }
+                        mAdapter.setOnItemClickListener(this::onItemClicked);
+                    }
+                    mAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //return;
@@ -138,11 +134,12 @@ public class ConnectionsFragment extends Fragment {
             }
 
         } catch (JSONException e) {
+            mConnectionsList.clear();
+            mAdapter.notifyDataSetChanged();
             e.printStackTrace();
             //return;
         }
-        adapter.notifyDataSetChanged();
-        return;
+
     }
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
@@ -151,9 +148,7 @@ public class ConnectionsFragment extends Fragment {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
-
     private void onItemClicked(Connection connection) {
-        adapter.notifyDataSetChanged();
         mListener.onFriendConnectionClicked(connection);
     }
 
