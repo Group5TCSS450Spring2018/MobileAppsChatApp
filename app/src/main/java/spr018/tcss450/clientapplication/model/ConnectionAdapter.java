@@ -49,7 +49,6 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
             } else {
                 mView.setOnClickListener(view -> listener.onItemClick(connection));
             }
-
         }
     }
 

@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity
         ConnectionsFragment.OnFragmentInteractionListener,
         WeatherFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener,
-        NewMessageFragment.OnFragmentInteractionListener,
         NewConnectionFragment.OnFragmentInteractionListener,
         ConnectionProfileFragment.OnFragmentInteractionListener {
 
@@ -96,31 +95,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-//    @Override
-//    public boolean onPrepareOptionsMenu(Menu menu) {
-//        MenuItem item = menu.findItem(R.id.search);
-//        item.setVisible(false);
-//        super.onPrepareOptionsMenu(menu);
-//        return true;
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
-        MenuItem item = menu.findItem(R.id.actionBarSearch);
-        item.setVisible(false);
-        //TODO Implement search
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.actionBarSearch).getActionView();
-        searchView.setSearchableInfo(
-                Objects.requireNonNull(searchManager).getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false);
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -159,6 +139,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onOpenChat(Connection  connection) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra(ChatActivity.CONNECTION_KEY, connection.getUsername());
+        startActivity(intent);
+
+    }
+
+    @Override
     public void onExpandingRequestAttempt(Connection connection) {
         String name = connection.getName();
         String username = connection.getUsername();
@@ -179,11 +168,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onWeatherInteraction(Uri uri) {
-
-    }
-
-    @Override
-    public void onNewChatDetach(Fragment fragment) {
 
     }
 
