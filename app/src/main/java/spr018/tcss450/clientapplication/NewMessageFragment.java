@@ -34,8 +34,6 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
  * @author Tuan Dinh
  */
 public class NewMessageFragment extends Fragment {
-
-    private OnFragmentInteractionListener mListener;
     private List<Connection> mConnectionsList;
     private ConnectionAdapter adapter;
     public NewMessageFragment() {
@@ -68,33 +66,6 @@ public class NewMessageFragment extends Fragment {
     }
     private void openChat(View v){
         
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_settings);
-        item.setVisible(false);
-        item = menu.findItem(R.id.actionBarSearch);
-        item.setVisible(true);
-        super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        //mListener.onNewChatDetach(this);
-        mListener = null;
     }
 
     private void checkConnections() {
@@ -167,19 +138,5 @@ public class NewMessageFragment extends Fragment {
      */
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        void onNewChatDetach(Fragment fragment);
     }
 }

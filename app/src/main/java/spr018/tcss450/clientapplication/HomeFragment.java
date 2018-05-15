@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +19,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import spr018.tcss450.clientapplication.model.ChatAdapter;
+import spr018.tcss450.clientapplication.model.ChatPreviewAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.model.RequestAdapter;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
@@ -38,6 +37,7 @@ public class HomeFragment extends Fragment {
     private ArrayList<Connection> mChatList;
     private ArrayList<Connection> mRequestList;
     private RequestAdapter mRequestAdapter;
+    private ChatPreviewAdapter mChatAdapter;
     private Connection mConnection;
 
     public HomeFragment() {
@@ -52,17 +52,13 @@ public class HomeFragment extends Fragment {
 
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
         mChatList = new ArrayList<>();
-        for (int i = 0; i < 1; i++) {
-            Connection c = new Connection("Username " + i, "Name" + i, "Email");
-            c.setRecentMessage("Recent message");
-            mChatList.add(c);
-        }
-
-
-        ChatAdapter adapter = new ChatAdapter(mChatList);
-        chats.setAdapter(adapter);
+        Connection c = new Connection("username", "name", "email");
+        c.setRecentMessage("Recent chat");
+        mChatList.add(c);
+        mChatAdapter = new ChatPreviewAdapter(mChatList);
+        chats.setAdapter(mChatAdapter);
         chats.setLayoutManager(new LinearLayoutManager(getActivity()));
-        setHasOptionsMenu(true);
+        mChatAdapter.setOnItemClickListener(this::onChatClicked);
 
         RecyclerView requests = v.findViewById(R.id.RequestListContainer);
         mRequestList = new ArrayList<>();
@@ -231,6 +227,10 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void onChatClicked(Connection connection) {
+        mListener.onOpenChat(connection);
+    }
+
     private void expand(Connection connection) {
         mListener.onExpandingRequestAttempt(connection);
     }
@@ -263,6 +263,7 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
+        void onOpenChat(Connection connection);
         void onExpandingRequestAttempt(Connection connection);
     }
 

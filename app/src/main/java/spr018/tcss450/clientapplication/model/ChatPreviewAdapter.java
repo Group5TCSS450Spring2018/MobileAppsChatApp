@@ -1,8 +1,10 @@
 package spr018.tcss450.clientapplication.model;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +14,13 @@ import java.util.List;
 
 import spr018.tcss450.clientapplication.R;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
+public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.ViewHolder> {
     private List<Connection> mConnections;
+    private OnItemClickListener mListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Connection connection);
+    }
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -22,16 +29,30 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         // each data item is just a string in this case
         private TextView mUsernameTextView;
         private TextView mRecentMessageTextView;
+        private View mView;
 
         ViewHolder(View v) {
             super(v);
+            mView = v;
             mUsernameTextView = v.findViewById(R.id.chatUsername);
             mRecentMessageTextView = v.findViewById(R.id.chatRecentMessage);
+        }
+
+        void bind(Connection connection, OnItemClickListener listener) {
+            if (connection == null) {
+                mUsernameTextView.setText("No Chats Open");
+                mUsernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                mUsernameTextView.setTypeface(null, Typeface.NORMAL);
+                mUsernameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                mRecentMessageTextView.setVisibility(View.GONE);
+            } else {
+                mView.setOnClickListener(view -> listener.onItemClick(connection));
+            }
         }
     }
 
     // Parameter could be any type of collection. I'm using list for now. - Tuan
-    public ChatAdapter(List<Connection> connections) {
+    public ChatPreviewAdapter(List<Connection> connections) {
         mConnections = connections;
     }
 
@@ -50,8 +71,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Connection connection = mConnections.get(position);
-        holder.mUsernameTextView.setText(connection.getUsername());
-        holder.mRecentMessageTextView.setText(connection.getRecentMessage());
+        if (connection != null) {
+            holder.mUsernameTextView.setText(connection.getUsername());
+            holder.mRecentMessageTextView.setText(connection.getRecentMessage());
+        }
+        holder.bind(mConnections.get(position), mListener);
     }
 
 
@@ -59,6 +83,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return mConnections.size();
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mListener = listener;
     }
 }
 
