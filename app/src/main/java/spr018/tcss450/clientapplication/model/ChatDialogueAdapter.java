@@ -29,7 +29,7 @@ public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapte
 
         ViewHolder(View v) {
             super(v);
-            mUsernameTextView = v.findViewById(R.id.chatUsername);
+            mUsernameTextView = v.findViewById(R.id.chatHolderUsername);
             mMessageTextView = v.findViewById(R.id.chatHolderMessage);
         }
 
