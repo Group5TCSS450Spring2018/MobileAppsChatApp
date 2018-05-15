@@ -39,6 +39,7 @@ public class HomeFragment extends Fragment {
     private RequestAdapter mRequestAdapter;
     private ChatPreviewAdapter mChatAdapter;
     private Connection mConnection;
+    private String mUsername;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -49,6 +50,12 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
+
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        mUsername = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
         mChatList = new ArrayList<>();
@@ -91,11 +98,6 @@ public class HomeFragment extends Fragment {
     //Get all requests from database and display.
     private void getRequests() {
         //send get connections the username.
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -105,7 +107,7 @@ public class HomeFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("username", u);
+            msg.put("username", mUsername);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -154,13 +156,27 @@ public class HomeFragment extends Fragment {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
+    private void getRecentChat() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getConnectionRequests))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username", mUsername);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleViewConnectionRequests)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
     private void acceptRequest(Connection connection) {
         mConnection = connection;
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -170,7 +186,7 @@ public class HomeFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("username_a", u);
+            msg.put("username_a", mUsername);
             msg.put("username_b", connection.getUsername());
         } catch(JSONException e) {
             e.printStackTrace();
@@ -183,11 +199,6 @@ public class HomeFragment extends Fragment {
 
     private void denyRequest(Connection connection) {
         mConnection = connection;
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -197,7 +208,7 @@ public class HomeFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("username_a", u);
+            msg.put("username_a", mUsername);
             msg.put("username_b", connection.getUsername());
         } catch(JSONException e) {
             e.printStackTrace();
@@ -228,8 +239,86 @@ public class HomeFragment extends Fragment {
     }
 
     private void onChatClicked(Connection connection) {
-        mListener.onOpenChat(connection);
+        mConnection = connection;
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getChatID))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username_a", connection.getUsername());
+            msg.put("username_b", mUsername);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleOpenPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
     }
+
+    private void handleOpenPost(String result) {
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if (success) {
+                mListener.onOpenChat(mConnection.getUsername(), resultJSON.getInt("chatid"));
+            } else {
+                JSONArray chatIDs = resultJSON.getJSONArray("chatid");
+                if (chatIDs.length() == 0) {
+                    openNewChat();
+                } else {
+                    Log.e("getChatID", resultJSON.getString("message"));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openNewChat() {
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_addChat))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        JSONArray members = new JSONArray();
+        members.put(mConnection.getUsername());
+        members.put(mUsername);
+        try{
+            msg.put("chatname", mConnection.getUsername() + " "+ mUsername);
+            msg.put("members", members);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleNewChatPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    private void handleNewChatPost(String result) {
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if (success) {
+                onChatClicked(null);
+            } else {
+                Log.e("ADDCHAT", resultJSON.getString("message"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     private void expand(Connection connection) {
         mListener.onExpandingRequestAttempt(connection);
@@ -263,7 +352,7 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onOpenChat(Connection connection);
+        void onOpenChat(String username, int chatID);
         void onExpandingRequestAttempt(Connection connection);
     }
 

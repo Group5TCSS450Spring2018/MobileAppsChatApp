@@ -14,4 +14,8 @@
     <string name="ep_acceptConnection">acceptConnection</string>
     <string name="ep_removeConnection">removeConnection</string>
     <string name="ep_denyConnection">denyConnection</string>
+    <string name="ep_sendMessage">sendMessages</string>
+    <string name="ep_getChatID">getChatID</string>
+    <string name="ep_addChat">addChat</string>
+    <string name="ep_getMessages">getMessages</string>
 </resources>
