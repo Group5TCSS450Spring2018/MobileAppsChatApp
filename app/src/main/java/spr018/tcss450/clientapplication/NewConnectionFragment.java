@@ -86,7 +86,7 @@ public class NewConnectionFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof NewMessageFragment.OnFragmentInteractionListener) {
+        if (context instanceof NewConnectionFragment.OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
