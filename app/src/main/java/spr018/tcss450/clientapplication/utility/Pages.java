@@ -10,8 +10,11 @@ public enum Pages {
     SETTINGS("Settings"),
     LOGIN("Login"),
     REGISTER("Register"),
-    NEWCHAT("New Chat");
-
+    NEWMESSAGE("Open new chat"),
+    NEWCONNECTION("Add new connection"),
+    PROFILE("Profile"),
+    NEWUSERADDED("New User Added"),
+    DISPLAYREQUEST("Display Request");
     private String title;
     Pages(String title) {
         this.title = title;

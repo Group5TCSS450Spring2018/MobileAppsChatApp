@@ -1,23 +1,28 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import spr018.tcss450.clientapplication.model.ChatViewItem;
+import spr018.tcss450.clientapplication.model.ChatPreviewAdapter;
+import spr018.tcss450.clientapplication.model.Connection;
+import spr018.tcss450.clientapplication.model.RequestAdapter;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
@@ -29,40 +34,205 @@ import spr018.tcss450.clientapplication.model.ChatViewItem;
 public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private ArrayList<ChatViewItem> mChatList;
+    private ArrayList<Connection> mChatList;
+    private ArrayList<Connection> mRequestList;
+    private RequestAdapter mRequestAdapter;
+    private ChatPreviewAdapter mChatAdapter;
+    private Connection mConnection;
 
     public HomeFragment() {
         // Required empty public constructor
     }
 
-    public interface OnSuccessFragmentInteractionListener { void onLogout();
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment\
+        // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
-        RecyclerView connections = v.findViewById(R.id.chatListContainer);
+        RecyclerView chats = v.findViewById(R.id.chatListContainer);
+        mChatList = new ArrayList<>();
+        Connection c = new Connection("username", "name", "email");
+        c.setRecentMessage("Recent chat");
+        mChatList.add(c);
+        mChatAdapter = new ChatPreviewAdapter(mChatList);
+        chats.setAdapter(mChatAdapter);
+        chats.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mChatAdapter.setOnItemClickListener(this::onChatClicked);
 
-        mChatList = ChatViewItem.populateChats(20    );
+        RecyclerView requests = v.findViewById(R.id.RequestListContainer);
+        mRequestList = new ArrayList<>();
+        mRequestAdapter = new RequestAdapter(mRequestList);
+        requests.setAdapter(mRequestAdapter);
+        requests.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRequestAdapter.setOnItemClickListener(new RequestAdapter.OnItemClickListener() {
+            @Override
+            public void onAccept(Connection connection) {
+                acceptRequest(connection);
+            }
 
-        ChatViewItemAdapter adapter = new ChatViewItemAdapter(mChatList);
+            @Override
+            public void onDeny(Connection connection) {
+                denyRequest(connection);
+            }
 
-        connections.setAdapter(adapter);
-        connections.setLayoutManager(new LinearLayoutManager(getActivity()));
-
+            @Override
+            public void onExpand(Connection connection) {
+                expand(connection);
+            }
+        });
+        getRequests();
         setHasOptionsMenu(true);
-
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onHomeInteraction(uri);
+
+
+    //Get all requests from database and display.
+    private void getRequests() {
+        //send get connections the username.
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getConnectionRequests))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username", u);
+        } catch(JSONException e) {
+            e.printStackTrace();
         }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleViewConnectionRequests)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    //Create a JSON object and get the connections requests to display.
+    private void handleViewConnectionRequests(String results) {
+        try {
+            mRequestList.clear();
+            JSONObject x = new JSONObject(results);
+            if(x.has("recieved_requests")) {
+                try {
+                    JSONArray jContacts = x.getJSONArray("recieved_requests");
+                    if(jContacts.length()==0){
+                        mRequestList.add(null);
+                    } else {
+                        for (int i = 0; i < jContacts.length(); i++) {
+                            JSONObject c = jContacts.getJSONObject(i);
+                            String username = c.get("username").toString();
+                            String firstName = c.get("firstname").toString();
+                            String lastName = c.get("lastname").toString();
+                            String email= c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
+                            mRequestList.add(u);
+                        }
+                    }
+                    mRequestAdapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mRequestAdapter.notifyDataSetChanged();
+    }
+
+    /**Handle errors that may ouccur during the async taks.
+     * @param result the error message provided from the async task
+     */
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNCT_TASK_ERROR", result);
+    }
+
+    private void acceptRequest(Connection connection) {
+        mConnection = connection;
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_acceptConnection))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username_a", u);
+            msg.put("username_b", connection.getUsername());
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleAcceptDenyPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    private void denyRequest(Connection connection) {
+        mConnection = connection;
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_denyConnection))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username_a", u);
+            msg.put("username_b", connection.getUsername());
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleAcceptDenyPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    private void handleAcceptDenyPost(String result) {
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if (success) {
+                mRequestList.remove(mConnection);
+                if (mRequestList.isEmpty()) {
+                    mRequestList.add(null);
+                }
+                mRequestAdapter.notifyDataSetChanged();
+            } else {
+                Log.e("JSONOBJECT", result);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void onChatClicked(Connection connection) {
+        mListener.onOpenChat(connection);
+    }
+
+    private void expand(Connection connection) {
+        mListener.onExpandingRequestAttempt(connection);
     }
 
     @Override
@@ -93,63 +263,9 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onHomeInteraction(Uri uri);
+        void onOpenChat(Connection connection);
+        void onExpandingRequestAttempt(Connection connection);
     }
 
-    private class ChatViewItemAdapter
-            extends RecyclerView.Adapter<ChatViewItemAdapter.ViewHolder> {
 
-        private ArrayList<ChatViewItem> mChats;
-
-        public ChatViewItemAdapter(ArrayList<ChatViewItem> list) {
-            this.mChats = list;
-        }
-
-        @NonNull
-        @Override
-        public ChatViewItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            Context context = parent.getContext();
-            LayoutInflater inflater = LayoutInflater.from(context);
-
-            View chatViewItem = inflater.inflate(R.layout.fragment_home_chat_list_item,
-                    parent, false);
-
-
-            ChatViewItemAdapter.ViewHolder viewHolder = new ChatViewItemAdapter.ViewHolder(chatViewItem);
-
-            return viewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ChatViewItemAdapter.ViewHolder holder, int position) {
-            ChatViewItem chat = mChats.get(position);
-
-            // Set item views based on your views and data model
-            TextView textView = holder.mChatTitle;
-            textView.setText(chat.getTitle());
-        }
-
-        @Override
-        public int getItemCount() {
-            return mChats.size();
-        }
-
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public ImageView mChatIcon;
-            public TextView mChatTitle;
-
-            // We also create a constructor that accepts the entire item row
-            // and does the view lookups to find each subview
-            public ViewHolder(View view) {
-                // Stores the itemView in a public final member variable that can be used
-                // to access the context from any ViewHolder instance.
-                super(view);
-
-                mChatIcon = view.findViewById(R.id.chatIcon);
-                mChatTitle = view.findViewById(R.id.chatTitle);
-            }
-        }
-    }
 }

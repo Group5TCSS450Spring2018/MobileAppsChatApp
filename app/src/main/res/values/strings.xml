@@ -20,19 +20,34 @@
     <string name="edit_text_username">Username</string>
     <string name="edit_text_password">Password</string>
     <string name="edit_text_re_password">Reenter password</string>
+    <string name="edit_text_verify">Verification Code</string>
+    <string name="edit_text_hint_chat">Type a message…</string>
+    <string name="edit_text_hint_menu_search">Search for username…</string>
 
     <string name="button_send">Send</string>
+    <string name="button_forgot_password">Forgot password?</string>
+    <string name="button_send_code">Send Verification Code</string>
+    <string name="button_validate">Validate</string>
+    <string name="button_reset_password">Reset Password</string>
 
     <string name="checkbox_stay_logged_in">Stay logged in</string>
     <string name="menu_search">Search</string>
-    <string name="menu_search_hint">Search for username...</string>
-
+    <string name="search_view_hint_new_connection">Name, username, or email</string>
     <string name="navigation_drawer_open">Navigation Drawer Opened</string>
     <string name="navigation_drawer_close">Navigation Drawer Closed</string>
 
+    <string name="text_view_forgot_password">Please Enter Your Email</string>
+    <string name="text_view_validation">Please Enter Your Validation Number:</string>
+    <string name="text_view_no_requests">No requests.</string>
+
+    <string name="toast_server_down">Unable to connect to server. Please try again later.</string>
     <string name="defaultThemeName">Default</string>
     <string name="washedOutThemeName">Washed Out</string>
     <string name="coralThemeName">Coral</string>
+
+    <string name="image_view_logo_description">Chat App</string>
+    <string name="image_button_search_description">Search</string>
+    <string name="image_button_connection_add">Add</string>
 
     <string-array name="settings_themes">
         <item>@string/defaultThemeName</item>

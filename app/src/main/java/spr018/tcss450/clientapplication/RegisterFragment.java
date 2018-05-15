@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,8 +110,6 @@ public class RegisterFragment extends Fragment {
             if (firstName.length() > getResources().getInteger(R.integer.too_long)) {
                 mFirstName.setError(getString(R.string.error_too_long));
             }
-        } else { // never set error until finished writing input and unfocused
-            mFirstName.setError(null);
         }
 
         canRegister = canRegister && mFirstName.getError() == null;
@@ -131,8 +130,6 @@ public class RegisterFragment extends Fragment {
             if (lastName.length() > getResources().getInteger(R.integer.too_long)) {
                 mLastName.setError(getString(R.string.error_too_long));
             }
-        } else { // never set error until finished writing input and unfocused
-            mLastName.setError(null);
         }
 
         canRegister = canRegister && mLastName.getError() == null;
@@ -146,23 +143,12 @@ public class RegisterFragment extends Fragment {
             if (email.isEmpty()) {
                 mEmail.setError(getString(R.string.error_empty));
             }
-            // must contain @
-            if (!email.contains("@")){
-                mEmail.setError(getString(R.string.error_email_invalid));
-            }
-            // must contain something to both sides of the @
-            if (Arrays.stream(email.split("@")).anyMatch(s -> s.isEmpty())) {
-                mEmail.setError(getString(R.string.error_email_invalid));
-            }
-            // must contain at least one . to the right of @
-            if (email.indexOf('@') > email.indexOf('.')) {
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 mEmail.setError(getString(R.string.error_email_invalid));
             }
             if (email.length() > getResources().getInteger(R.integer.too_long_email)) {
                 mEmail.setError(getString(R.string.error_too_long_email));
             }
-        } else {
-            mEmail.setError(null);
         }
 
         canRegister = canRegister && mEmail.getError() == null;
@@ -183,8 +169,6 @@ public class RegisterFragment extends Fragment {
             if (username.length() > getResources().getInteger(R.integer.too_long)) {
                 mUsername.setError(getString(R.string.error_too_long));
             }
-        } else {
-            mUsername.setError(null);
         }
 
         canRegister = canRegister && mUsername.getError() == null;
@@ -211,8 +195,6 @@ public class RegisterFragment extends Fragment {
             if (password.length() > getResources().getInteger(R.integer.too_long)) {
                 mPassword.setError(getString(R.string.error_too_long));
             }
-        } else {
-            mPassword.setError(null);
         }
 
         canRegister = canRegister && mPassword.getError() == null;
@@ -229,8 +211,6 @@ public class RegisterFragment extends Fragment {
             if (!rePassword.equals(mPassword.getText().toString())) {
                 mRePassword.setError(getString(R.string.error_password_not_match));
             }
-        } else {
-            mRePassword.setError(null);
         }
 
         canRegister = canRegister && mRePassword.getError() == null;
@@ -259,6 +239,7 @@ public class RegisterFragment extends Fragment {
                     .addLastName(lastName)
                     .addEmail(email)
                     .build();
+            setEnabledAllButtons(false);
             mListener.onRegisterAttempt(loginCredentials);
         }
     }
@@ -266,6 +247,11 @@ public class RegisterFragment extends Fragment {
     /* *********** */
     /* EXPOSED API */
     /* *********** */
+    public void setEnabledAllButtons(boolean state) {
+        getActivity().findViewById(R.id.newRegisterButton).setEnabled(state);
+    }
+
+
     /**
      * Allows an external source to set an error message on this fragment. This may
      * be needed if an Activity includes processing that could cause login to fail.

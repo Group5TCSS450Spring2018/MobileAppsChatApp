@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Error Messages -->
     <string name="error_empty">Cannot be empty</string>
     <string name="error_special_chars">Cannot contain non-alphanumeric characters</string>
@@ -17,8 +17,10 @@
 
     <string name="error_login_fail">Login unsuccessful</string>
 
+    <string name="error_verification_code">Must be 4-digit long</string>
+
     <!-- Error Checking -->
-    <string name="regex_non_alphanumeric">[^a-zA-Z0-9]</string>
+    <string name="regex_non_alphanumeric" tools:ignore="TypographyDashes">[^a-zA-Z0-9]</string>
     <integer name="password_minimum_length">6</integer>
     <integer name="too_long">32</integer>
     <integer name="too_long_email">48</integer>
