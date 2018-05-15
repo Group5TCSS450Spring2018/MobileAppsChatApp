@@ -93,25 +93,34 @@ public class ConnectionsFragment extends Fragment {
     }
 
     private void handleViewConnections(String results) {
-        Log.d("viewConnections", results);
         try {
-            JSONObject x = new JSONObject(results);
-            if(x.has("recieved_requests")) {
+            JSONObject resultJSON = new JSONObject(results);
+            if(resultJSON.has("connections_a")) {
                 try {
-                    JSONArray jContacts = x.getJSONArray("recieved_requests");
+                    JSONArray aArray = resultJSON.getJSONArray("connections_a");
+                    JSONArray bArray = resultJSON.getJSONArray("connections_b");
                     mConnectionsList.clear();
-                    if(jContacts.length() == 0) {
+                    if(aArray.length() == 0 && bArray.length() == 0) {
                         mConnectionsList.add(null);
                     } else {
-                        for (int i = 0; i < jContacts.length(); i++) {
-                            JSONObject c = jContacts.getJSONObject(i);
+                        for (int i = 0; i < aArray.length(); i++) {
+                            JSONObject c = aArray.getJSONObject(i);
                             String username = c.getString("username");
                             String firstName = c.getString("firstname");
                             String lastName = c.getString("lastname");
                             String email = c.getString("email");
                             Connection u = new Connection(username, firstName + " " + lastName, email);
                             mConnectionsList.add(u);
-                            Log.d("CONNECTIONSFRAG", username);
+                        }
+
+                        for (int i = 0; i < bArray.length(); i++) {
+                            JSONObject c = bArray.getJSONObject(i);
+                            String username = c.getString("username");
+                            String firstName = c.getString("firstname");
+                            String lastName = c.getString("lastname");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
+                            mConnectionsList.add(u);
                         }
                         mAdapter.setOnItemClickListener(this::onItemClicked);
                     }
