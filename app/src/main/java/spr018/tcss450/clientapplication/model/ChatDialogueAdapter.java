@@ -3,6 +3,7 @@ package spr018.tcss450.clientapplication.model;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +72,7 @@ public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatHolder chat = mChats.get(position);
+        Log.e("CHAT", "chat pos " + position + " LOADING WITH MESSAGE: " + mChats.get(position).mMessage);
         holder.mUsernameTextView.setText(chat.mUsername);
         holder.mMessageTextView.setText(chat.mMessage);
         holder.setAlignment(chat.mAlignment);
