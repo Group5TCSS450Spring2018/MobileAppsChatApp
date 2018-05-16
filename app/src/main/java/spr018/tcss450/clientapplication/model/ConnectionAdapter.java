@@ -1,12 +1,15 @@
 package spr018.tcss450.clientapplication.model;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
+
 
 import java.util.List;
 
@@ -14,18 +17,38 @@ import spr018.tcss450.clientapplication.R;
 
 public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.ViewHolder> {
     private List<Connection> mConnections;
+    private OnItemClickListener mListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Connection connection);
+    }
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView mNameTextView;
-        public ImageView mIconView;
-        public ViewHolder(View v) {
+        private TextView mNameTextView;
+        private TextView mUsernameTextView;
+        private View mView;
+
+        ViewHolder(View v) {
             super(v);
             mNameTextView = v.findViewById(R.id.connectionName);
-            mIconView = v.findViewById(R.id.connectionIcon);
+            mUsernameTextView = v.findViewById(R.id.connectionUsername);
+            mView = v;
+        }
+
+        void bind(Connection connection, OnItemClickListener listener) {
+            if (connection == null) {
+                mUsernameTextView.setText("No Contacts");
+                mUsernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                mUsernameTextView.setTypeface(null, Typeface.NORMAL);
+                mUsernameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                mNameTextView.setVisibility(View.GONE);
+            } else {
+                mView.setOnClickListener(view -> listener.onItemClick(connection));
+            }
         }
     }
 
@@ -35,21 +58,25 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
     }
 
     // Create new views (invoked by the layout manager)
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                         int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View connectionView = inflater.inflate(R.layout.fragment_connections_list_item, parent, false);
-        ViewHolder vh = new ViewHolder(connectionView);
-        return vh;
+        return new ViewHolder(connectionView);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Connection connection = mConnections.get(position);
-        holder.mNameTextView.setText(connection.getUsername());
+        if (connection != null) {
+            holder.mUsernameTextView.setText(connection.getUsername());
+            holder.mNameTextView.setText(connection.getName());
+        }
+        holder.bind(mConnections.get(position), mListener);
     }
 
 
@@ -57,6 +84,10 @@ public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.Vi
     @Override
     public int getItemCount() {
         return mConnections.size();
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mListener = listener;
     }
 }
 

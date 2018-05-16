@@ -3,6 +3,7 @@ package spr018.tcss450.clientapplication;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 public class SettingsFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private OnFragmentInteractionListener mListener;
+    private boolean firstOpen;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -34,6 +36,8 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_settings, container, false);
 
+        firstOpen = true;
+        Log.e("SETTINGS", "CREATE VIEW");
         Switch stayLogged = v.findViewById(R.id.stayLoggedInSwitch);
         stayLogged.setOnClickListener(this::onStayLoggedInToggle);
         stayLogged.setChecked(getActivity().getSharedPreferences(
@@ -75,6 +79,11 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
@@ -82,16 +91,19 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String theme = (String) parent.getAdapter().getItem(position);
+        if (!firstOpen) {
+            String theme = (String) parent.getAdapter().getItem(position);
 
-        getActivity().getSharedPreferences(
-                getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE)
-                .edit().putInt(getString(R.string.keys_prefs_current_theme_pos), position).apply();
+            getActivity().getSharedPreferences(
+                    getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE)
+                    .edit().putInt(getString(R.string.keys_prefs_current_theme_pos), position).apply();
 
-        if (theme != null && mListener != null) {
-            mListener.settings_ChangeTheme(theme);
+            if (theme != null && mListener != null) {
+                mListener.settings_ChangeTheme(theme);
+            }
+        } else {
+            firstOpen = false;
         }
-
     }
 
     @Override

@@ -1,66 +1,155 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import spr018.tcss450.clientapplication.model.ConnectionViewItem;
+import spr018.tcss450.clientapplication.model.Connection;
+import spr018.tcss450.clientapplication.model.ConnectionAdapter;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ConnectionsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
+ * @author Deepjot Kaur
+ * @author Daryan Hanshew
+ * @author Tenma Rollins
+ * @author Tuan Dinh
  */
 public class ConnectionsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private ArrayList<ConnectionViewItem> mConnectionsList;
-
+    private List<Connection> mConnectionsList;
+    private ConnectionAdapter mAdapter;
     public ConnectionsFragment() {
         // Required empty public constructor
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_connections, container, false);
 
+
+        mConnectionsList = new ArrayList<>();
+
+        Log.d("mConnectionsList size", ""+mConnectionsList.size());
         RecyclerView connections = v.findViewById(R.id.connectionsListContainer);
-
-        mConnectionsList = ConnectionViewItem.populateConnections(20    );
-
-        ConnectionViewItemAdapter adapter = new ConnectionViewItemAdapter(mConnectionsList);
-
-        connections.setAdapter(adapter);
         connections.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-
-
-        v.findViewById(R.id.connectionsListContainer);
-
+        mAdapter = new ConnectionAdapter(mConnectionsList);
+        mAdapter.setOnItemClickListener(this::onItemClicked);
+        connections.setAdapter(mAdapter);
+        checkConnections();
         return v;
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkConnections();
+    }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onConnectionsInteraction(uri);
+    private void checkConnections() {
+        //send get connections the username.
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getConnections))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username", u);
+        } catch(JSONException e) {
+            e.printStackTrace();
         }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleViewConnections)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+
+    }
+
+    private void handleViewConnections(String results) {
+        try {
+            JSONObject resultJSON = new JSONObject(results);
+            if(resultJSON.has("connections_a")) {
+                try {
+                    JSONArray aArray = resultJSON.getJSONArray("connections_a");
+                    JSONArray bArray = resultJSON.getJSONArray("connections_b");
+                    mConnectionsList.clear();
+                    if(aArray.length() == 0 && bArray.length() == 0) {
+                        mConnectionsList.add(null);
+                    } else {
+                        for (int i = 0; i < aArray.length(); i++) {
+                            JSONObject c = aArray.getJSONObject(i);
+                            String username = c.getString("username");
+                            String firstName = c.getString("firstname");
+                            String lastName = c.getString("lastname");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
+                            mConnectionsList.add(u);
+                        }
+
+                        for (int i = 0; i < bArray.length(); i++) {
+                            JSONObject c = bArray.getJSONObject(i);
+                            String username = c.getString("username");
+                            String firstName = c.getString("firstname");
+                            String lastName = c.getString("lastname");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
+                            mConnectionsList.add(u);
+                        }
+                        mAdapter.setOnItemClickListener(this::onItemClicked);
+                    }
+                    mAdapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    //return;
+                }
+                Log.d("size of mConnectionsList", ""+ mConnectionsList.size());
+                //return;
+            }
+
+        } catch (JSONException e) {
+            mConnectionsList.clear();
+            mAdapter.notifyDataSetChanged();
+            e.printStackTrace();
+            //return;
+        }
+
+    }
+    /**Handle errors that may ouccur during the async taks.
+     * @param result the error message provided from the async task
+     */
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNCT_TASK_ERROR", result);
+    }
+
+    private void onItemClicked(Connection connection) {
+        mListener.onFriendConnectionClicked(connection);
     }
 
     @Override
@@ -80,74 +169,7 @@ public class ConnectionsFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onConnectionsInteraction(Uri uri);
-    }
-
-    private class ConnectionViewItemAdapter
-            extends RecyclerView.Adapter<ConnectionViewItemAdapter.ViewHolder> {
-
-        private ArrayList<ConnectionViewItem> mConnections;
-
-        public ConnectionViewItemAdapter(ArrayList<ConnectionViewItem> list) {
-            this.mConnections = list;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            Context context = parent.getContext();
-            LayoutInflater inflater = LayoutInflater.from(context);
-
-            View connectionViewItem = inflater.inflate(R.layout.fragment_connections_list_item,
-                    parent, false);
-
-
-            ViewHolder viewHolder = new ViewHolder(connectionViewItem);
-
-            return viewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            ConnectionViewItem connection = mConnections.get(position);
-
-            // Set item views based on your views and data model
-            TextView textView = holder.mConnectionName;
-            textView.setText(connection.getName());
-        }
-
-        @Override
-        public int getItemCount() {
-            return mConnections.size();
-        }
-
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public ImageView mConnectionIcon;
-            public TextView mConnectionName;
-
-            // We also create a constructor that accepts the entire item row
-            // and does the view lookups to find each subview
-            public ViewHolder(View view) {
-                // Stores the itemView in a public final member variable that can be used
-                // to access the context from any ViewHolder instance.
-                super(view);
-
-                mConnectionIcon = view.findViewById(R.id.connectionIcon);
-                mConnectionName = view.findViewById(R.id.connectionName);
-            }
-        }
+        void onFriendConnectionClicked(Connection connection);
     }
 }
