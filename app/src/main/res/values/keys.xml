@@ -6,6 +6,7 @@
     <string name="keys_prefs_app_theme">current_app_theme</string>
     <string name="keys_prefs_app_theme_no_actionbar">current_app_theme_no_actionbar</string>
     <string name="keys_prefs_current_theme_pos">current_theme_pos</string>
+    <string name="keys_prefs_time_stamp">time_stamp</string>
 
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>
@@ -19,4 +20,10 @@
     <string name="keys_email_error">members_email_key</string>
 
     <string name="keys_json_contacts">contacts</string>
+    <string name="keys_json_username">username</string>
+    <string name="keys_json_message">message</string>
+    <string name="keys_json_timestamp">timestamp</string>
+    <string name="keys_json_chat_id">chatId</string>
+    <string name="keys_json_success_value_true">true</string>
+    <string name="keys_json_success">success</string>
 </resources>

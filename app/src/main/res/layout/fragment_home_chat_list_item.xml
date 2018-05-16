@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingEnd="16dp"
-        android:paddingStart="8dp"
+        android:paddingStart="0dp"
         android:textAlignment="viewStart"
         android:textSize="24sp"
         android:textStyle="bold" />
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingEnd="16dp"
-        android:paddingStart="8dp"
+        android:paddingStart="0dp"
         android:textAlignment="viewStart"
         android:textSize="18sp" />
 </LinearLayout>
