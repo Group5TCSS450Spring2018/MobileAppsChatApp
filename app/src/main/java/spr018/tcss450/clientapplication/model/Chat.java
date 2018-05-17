@@ -14,12 +14,14 @@ public class Chat implements Comparable<Chat> {
     private String mRecentMessage;
     private String mTimestamp;
     private int mChatId;
+    private String mUsername;
 
-    public Chat(String chatName, String chatRecentMessage, String timestamp, int chatID) {
+    public Chat(String chatName, String chatRecentMessage, String timestamp, int chatID, String username) {
         mName = chatName;
         mRecentMessage = chatRecentMessage;
         mTimestamp = timestamp;
         mChatId = chatID;
+        mUsername = username;
     }
 
     public String getName() {
@@ -37,6 +39,8 @@ public class Chat implements Comparable<Chat> {
     public int getChatID() {
         return mChatId;
     }
+
+    public String getUsername(){ return mUsername;}
 
     public void setName(String name) {
         mName = name;
