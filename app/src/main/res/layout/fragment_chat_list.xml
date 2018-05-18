@@ -7,8 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".ConnectionsFragment">
 
-    <!-- TODO: UPDATE LAYOUT -->
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/chatListContainer"
         android:layout_width="0dp"
