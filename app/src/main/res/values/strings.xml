@@ -49,9 +49,14 @@
     <string name="image_button_search_description">Search</string>
     <string name="image_button_connection_add">Add</string>
 
+    <string name="tab_current">Current</string>
+
     <string-array name="settings_themes">
         <item>@string/defaultThemeName</item>
         <item>@string/washedOutThemeName</item>
         <item>@string/coralThemeName</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

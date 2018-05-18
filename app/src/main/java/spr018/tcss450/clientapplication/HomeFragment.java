@@ -18,7 +18,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.ChatPreviewAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.model.RequestAdapter;
@@ -34,11 +36,13 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private ArrayList<Connection> mChatList;
+    private ArrayList<Chat> mChatList;
     private ArrayList<Connection> mRequestList;
     private RequestAdapter mRequestAdapter;
     private ChatPreviewAdapter mChatAdapter;
     private Connection mConnection;
+    private String mUsername;
+    private SharedPreferences mPrefs;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -50,11 +54,14 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
+        mPrefs =
+                getActivity().getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
+
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
         mChatList = new ArrayList<>();
-        Connection c = new Connection("username", "name", "email");
-        c.setRecentMessage("Recent chat");
-        mChatList.add(c);
         mChatAdapter = new ChatPreviewAdapter(mChatList);
         chats.setAdapter(mChatAdapter);
         chats.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -81,6 +88,7 @@ public class HomeFragment extends Fragment {
                 expand(connection);
             }
         });
+        getRecentChat();
         getRequests();
         setHasOptionsMenu(true);
         return v;
@@ -91,11 +99,6 @@ public class HomeFragment extends Fragment {
     //Get all requests from database and display.
     private void getRequests() {
         //send get connections the username.
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -105,7 +108,7 @@ public class HomeFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("username", u);
+            msg.put("username", mUsername);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -154,13 +157,64 @@ public class HomeFragment extends Fragment {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
+    private void getRecentChat() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getRecentChats))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username", mUsername);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleRecentChats)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    //Create a JSON object and get the connections requests to display.
+    private void handleRecentChats(String results) {
+        try {
+            mChatList.clear();
+            JSONObject x = new JSONObject(results);
+            if(x.has("message")) {
+                try {
+                    JSONArray jContacts = x.getJSONArray("message");
+                    if(jContacts.length()==0){
+                        mChatList.add(null);
+                    } else {
+                        HashMap<Integer, Chat> recentMessages = new HashMap<Integer, Chat>();
+                        for (int i = 0; i < jContacts.length(); i++) {
+                            JSONObject c = jContacts.getJSONObject(i);
+                            Chat chat = new Chat(c.getString("name"),
+                                    c.getString("message"),
+                                    c.getString("timestamp"),
+                                    c.getInt("chatid"));
+                            recentMessages.put(chat.getChatID(), chat);
+                        }
+
+                        for (int key : recentMessages.keySet()) {
+                            mChatList.add(recentMessages.get(key));
+                        }
+                    }
+                    mChatAdapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mChatAdapter.notifyDataSetChanged();
+    }
+
+
     private void acceptRequest(Connection connection) {
         mConnection = connection;
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -170,7 +224,7 @@ public class HomeFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("username_a", u);
+            msg.put("username_a", mUsername);
             msg.put("username_b", connection.getUsername());
         } catch(JSONException e) {
             e.printStackTrace();
@@ -183,11 +237,6 @@ public class HomeFragment extends Fragment {
 
     private void denyRequest(Connection connection) {
         mConnection = connection;
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -197,7 +246,7 @@ public class HomeFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("username_a", u);
+            msg.put("username_a", mUsername);
             msg.put("username_b", connection.getUsername());
         } catch(JSONException e) {
             e.printStackTrace();
@@ -227,9 +276,10 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void onChatClicked(Connection connection) {
-        mListener.onOpenChat(connection);
+    private void onChatClicked(Chat chat) {
+        mListener.onOpenChat(mUsername, chat.getChatID());
     }
+
 
     private void expand(Connection connection) {
         mListener.onExpandingRequestAttempt(connection);
@@ -263,7 +313,7 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onOpenChat(Connection connection);
+        void onOpenChat(String username, int chatID);
         void onExpandingRequestAttempt(Connection connection);
     }
 

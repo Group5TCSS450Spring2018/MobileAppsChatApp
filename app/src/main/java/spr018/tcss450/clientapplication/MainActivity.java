@@ -1,6 +1,5 @@
 package spr018.tcss450.clientapplication;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,24 +17,17 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
-import android.widget.Toast;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Objects;
 
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
-import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -139,12 +131,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onOpenChat(Connection  connection) {
+    public void onOpenChat(String username, int chatID) {
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.putExtra(ChatActivity.CONNECTION_KEY, connection.getUsername());
+        intent.putExtra(ChatActivity.CONNECTION_USERNAME, username);
+        intent.putExtra(ChatActivity.CHAT_ID, chatID);
         startActivity(intent);
-
     }
 
     @Override
@@ -191,6 +182,11 @@ public class MainActivity extends AppCompatActivity
         ft.detach(frg);
         ft.attach(frg);
         ft.commit();
+    }
+
+    @Override
+    public void onOpenChatAttempt(String username, int chatID) {
+        onOpenChat(username, chatID);
     }
 
     @Override
