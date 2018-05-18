@@ -88,13 +88,33 @@ public class HomeFragment extends Fragment {
                 expand(connection);
             }
         });
+        getCurrentWeather();
         getRecentChat();
         getRequests();
         setHasOptionsMenu(true);
         return v;
     }
+    private void getCurrentWeather(){
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_currentWeather))
+                .build();
 
-
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("location", "98031");
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleHomeCurrentWeather)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+    private void handleHomeCurrentWeather(String results){
+        Log.d("CURRENT","");
+    }
 
     //Get all requests from database and display.
     private void getRequests() {
