@@ -11,6 +11,7 @@
     <string name="ep_getConnectionRequests">getConnectionRequests</string>
     <string name="ep_getRecentChats">recentSent</string>
     <string name="ep_getChats">getChats</string>
+    <string name="ep_everyChatParticipant">everyChatParticipant</string>
     <string name="ep_getConnections">getConnections</string>
     <string name="ep_addConnection">addConnection</string>
     <string name="ep_acceptConnection">acceptConnection</string>

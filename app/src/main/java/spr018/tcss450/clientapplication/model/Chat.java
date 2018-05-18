@@ -3,6 +3,7 @@ package spr018.tcss450.clientapplication.model;
 import android.support.annotation.NonNull;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * This custom connection class hold is used to hold all the information
@@ -11,13 +12,22 @@ import java.sql.Timestamp;
 public class Chat implements Comparable<Chat> {
 
     private String mName;
-    private String mRecentMessage;
+    private List<String> mMembers;
     private String mTimestamp;
     private int mChatId;
 
-    public Chat(String chatName, String chatRecentMessage, String timestamp, int chatID) {
+    private String mRecentMessage;
+
+    public Chat(String chatName, List<String> members, String timestamp, int chatID) {
         mName = chatName;
-        mRecentMessage = chatRecentMessage;
+        mMembers = members;
+        mTimestamp = timestamp;
+        mChatId = chatID;
+    }
+
+    public Chat(String chatName, String recentMessage, String timestamp, int chatID) {
+        mName = chatName;
+        mRecentMessage = recentMessage;
         mTimestamp = timestamp;
         mChatId = chatID;
     }
@@ -26,8 +36,8 @@ public class Chat implements Comparable<Chat> {
         return mName;
     }
 
-    public String getRecentMessage() {
-        return mRecentMessage;
+    public List<String> getMembers() {
+        return mMembers;
     }
 
     public String getTimestamp() {
@@ -38,12 +48,18 @@ public class Chat implements Comparable<Chat> {
         return mChatId;
     }
 
+    public String getRecentMessage() { return mRecentMessage; }
+
     public void setName(String name) {
         mName = name;
     }
 
-    public void setRecentMessage(String recentMessage) {
-        mRecentMessage = mRecentMessage;
+    public void addMember(String member) {
+        mMembers.add(member);
+    }
+
+    public void removeMember(String member) {
+        mMembers.remove(member);
     }
 
     public void setTimestamp(String timestamp) {
@@ -52,6 +68,10 @@ public class Chat implements Comparable<Chat> {
 
     public void setChatID(int chatID) {
         mChatId = chatID;
+    }
+
+    public  void setRecentMessage(String recentMessage) {
+        mRecentMessage = recentMessage;
     }
 
     @Override

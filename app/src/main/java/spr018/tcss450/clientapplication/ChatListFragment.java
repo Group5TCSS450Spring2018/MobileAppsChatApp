@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import spr018.tcss450.clientapplication.model.Chat;
@@ -78,7 +79,7 @@ public class ChatListFragment extends Fragment {
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_getChats))
+                .appendPath(getString(R.string.ep_everyChatParticipant))
                 .build();
 
         JSONObject msg = new JSONObject();
@@ -97,18 +98,27 @@ public class ChatListFragment extends Fragment {
     private void handleViewConnections(String results) {
         try {
             JSONObject resultJSON = new JSONObject(results);
-            if(resultJSON.has("recieved_requests")) {
+            if(!resultJSON.has("error")) {
                 try {
-                    JSONArray chatList = resultJSON.getJSONArray("recieved_requests");
+                    JSONArray chatList = resultJSON.getJSONArray("message");
                     mChatList.clear();
                     if(chatList.length() == 0) {
                         mChatList.add(null);
                     } else {
+                        HashMap<Integer, Chat> chats = new HashMap<Integer, Chat>();
                         for (int i = 0; i < chatList.length(); i++) {
                             JSONObject c = chatList.getJSONObject(i);
-                            /* TODO: FIX THIS BY GETTING ENDPOINT TO RETURN MORE INFO */
-                            Chat chat = new Chat(c.getString("name"), "", "", 0);
-                            mChatList.add(chat);
+                            if (chats.get(c.getInt("chatid")) != null) {
+                                chats.get(c.getInt("chatid")).addMember(c.getString("username"));
+                            } else {
+                                Chat chat = new Chat(c.getString("name"), new ArrayList<String>() , "", c.getInt("chatid"));
+                                chat.addMember(c.getString("username"));
+                                chats.put(c.getInt("chatid"), chat);
+                            }
+                        }
+
+                        for (Integer key : chats.keySet()) {
+                            mChatList.add(chats.get(key));
                         }
 
                         /* TODO: FIX THIS BY FORMATTING TIMESTAMP CORRECTLY */

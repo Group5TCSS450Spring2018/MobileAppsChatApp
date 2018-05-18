@@ -274,9 +274,9 @@ public class MainActivity extends AppCompatActivity
     private void updateFABandNV(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
         if (fragment instanceof HomeFragment) {
-            mFab.hide();
-//            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
-//            mFab.setImageResource(R.drawable.ic_fab_send);
+
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
+            mFab.setImageResource(R.drawable.ic_fab_send);
             nv.setCheckedItem(R.id.nav_home);
             setTitle(Pages.HOME.toString());
         } else if (fragment instanceof ConnectionsFragment) {

@@ -10,8 +10,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -35,7 +33,10 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
  */
 public class NewMessageFragment extends Fragment {
     private List<Connection> mConnectionsList;
-    private ConnectionAdapter adapter;
+    private ConnectionAdapter mAdapter;
+
+    private OnFragmentInteractionListener mListener;
+
     public NewMessageFragment() {
         // Required empty public constructor
     }
@@ -47,18 +48,15 @@ public class NewMessageFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_new_message, container, false);
 
-        //TODO Remove this when there is a real list of connections
         mConnectionsList = new ArrayList<>();
-//        for (int i = 0; i < 20; i++) {
-//            Connection c = new Connection("Username " + i, "Name" + i, "Email");
-//            bigList.add(c);
-//        }
-        checkConnections();
-        adapter = new ConnectionAdapter(mConnectionsList);
+
+        mAdapter = new ConnectionAdapter(mConnectionsList);
         RecyclerView allConnections = v.findViewById(R.id.newMessageConnectionsHolder);
-        allConnections.setAdapter(adapter);
+        allConnections.setAdapter(mAdapter);
         allConnections.setOnClickListener(this::openChat);
         allConnections.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        checkConnections();
 
         setHasOptionsMenu(true);
 
@@ -96,28 +94,38 @@ public class NewMessageFragment extends Fragment {
     }
 
     private void handleViewConnections(String results) {
-        Log.d("viewConnections", results);
         try {
-            JSONObject x = new JSONObject(results);
-//            Log.d("handleViewConnections", x.toString());
-            if(x.has("recieved_requests")) {
+            JSONObject resultJSON = new JSONObject(results);
+            if(resultJSON.has("connections_a")) {
                 try {
-                    JSONArray jContacts = x.getJSONArray("recieved_requests");
-//                    Log.d("display the contacts", "length is: " + jContacts.length());
-                    if(jContacts.length() == 0) {
-                        mConnectionsList.add(new Connection("No Contacts", "", ""));
+                    JSONArray aArray = resultJSON.getJSONArray("connections_a");
+                    JSONArray bArray = resultJSON.getJSONArray("connections_b");
+                    mConnectionsList.clear();
+                    if(aArray.length() == 0 && bArray.length() == 0) {
+                        mConnectionsList.add(null);
                     } else {
-                        for (int i = 0; i < jContacts.length(); i++) {
-                            JSONObject c = jContacts.getJSONObject(i);
-                            String username = c.get("username").toString();
-                            String firstname = c.get("firstname").toString();
-                            String lastname = c.get("lastname").toString();
-                            //String email = c.get("email").toString();
-                            Connection u = new Connection(username, firstname+" "+lastname, "");
+                        for (int i = 0; i < aArray.length(); i++) {
+                            JSONObject c = aArray.getJSONObject(i);
+                            String username = c.getString("username");
+                            String firstName = c.getString("firstname");
+                            String lastName = c.getString("lastname");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
                             mConnectionsList.add(u);
-                            Log.d("CONNECTIONSFRAG", username);
                         }
-                    }//return;
+
+                        for (int i = 0; i < bArray.length(); i++) {
+                            JSONObject c = bArray.getJSONObject(i);
+                            String username = c.getString("username");
+                            String firstName = c.getString("firstname");
+                            String lastName = c.getString("lastname");
+                            String email = c.getString("email");
+                            Connection u = new Connection(username, firstName + " " + lastName, email);
+                            mConnectionsList.add(u);
+                        }
+                        mAdapter.setOnItemClickListener(this::onChatMemberSelected);
+                    }
+                    mAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //return;
@@ -127,16 +135,43 @@ public class NewMessageFragment extends Fragment {
             }
 
         } catch (JSONException e) {
+            mConnectionsList.clear();
+            mAdapter.notifyDataSetChanged();
             e.printStackTrace();
             //return;
         }
-        adapter.notifyDataSetChanged();
-        return;
+
     }
+
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
      */
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
+    }
+
+    private void onChatMemberSelected(Connection connection) {
+        // TODO: IMPLEMENT THIS
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface OnFragmentInteractionListener {
+        void onChatCreation(Connection connection);
     }
 }

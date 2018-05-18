@@ -72,8 +72,19 @@ public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Chat chat = mChats.get(position);
         if (chat != null) {
-            holder.mChatRecentNameTextView.setText("Chat: " + chat.getName());
-            holder.mRecentMessageTextView.setText("Message: " + chat.getRecentMessage());
+            if (chat.getMembers() != null) {
+                holder.mChatRecentNameTextView.setText("Chat: " + chat.getName());
+                String users = "";
+                for (String user : chat.getMembers()) {
+                    users += user + ", ";
+                }
+                users.substring(0, users.length() - 2);
+                holder.mRecentMessageTextView.setText("Members: " + users);
+            } else {
+
+                holder.mChatRecentNameTextView.setText("Chat: " + chat.getName());
+                holder.mRecentMessageTextView.setText("Message: " + chat.getRecentMessage());
+            }
         }
         holder.bind(mChats.get(position), mListener);
     }
