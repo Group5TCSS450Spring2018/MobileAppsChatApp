@@ -74,6 +74,7 @@ public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.
         if (chat != null) {
             holder.mChatRecentNameTextView.setText(chat.getName());
             holder.mRecentMessageTextView.setText(chat.getUsername() + " : "+ chat.getRecentMessage());
+
         }
         holder.bind(mChats.get(position), mListener);
     }

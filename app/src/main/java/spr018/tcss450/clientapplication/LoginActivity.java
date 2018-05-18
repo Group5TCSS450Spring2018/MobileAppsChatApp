@@ -167,6 +167,26 @@ public class LoginActivity extends AppCompatActivity
                 .build().execute();
     }
 
+    @Override
+    public void onResendCodeAttempt() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_resendCode))
+                .build();
+        JSONObject msg = new JSONObject();
+        try {
+            msg.put("username", mCredentials.getUsername());
+        } catch (JSONException e) {
+            Log.wtf("VERIFICATION OBJECT", "Error creating JSON: " + e.getMessage());
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPreExecute(this::handleResendCodePre)
+                .onPostExecute(this::handleResendCodePost)
+                .onCancelled(this::handleResendCodeError)
+                .build().execute();
+
+    }
 
     @Override
     public void onResetPasswordAttempt(Credentials credentials, int resetCode) {
@@ -383,6 +403,32 @@ public class LoginActivity extends AppCompatActivity
         findViewById(R.id.forgotPasswordButton).setEnabled(true);
         Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
         Log.e("ASYNCT_TASK_ERROR", result);
+    }
+
+    private void handleResendCodePre() {
+        findViewById(R.id.validationResendButton).setEnabled(false);
+    }
+
+    private void handleResendCodePost(String result) {
+        findViewById(R.id.validationResendButton).setEnabled(true);
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if(success) {
+                Toast.makeText(getApplicationContext(), "Please check your email for new verification code.", Toast.LENGTH_LONG).show();
+            } else {
+                Log.e("RESEND CODE", resultJSON.getString("message"));
+                Toast.makeText(getApplicationContext(), "Unable to resend verification code. Please try again later.", Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleResendCodeError(String result) {
+        findViewById(R.id.validationResendButton).setEnabled(true);
+        Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
+        Log.e("RESEND CODE ASYNCT_TASK_ERROR", result);
     }
 
     private void handleUpdatePasswordPre() {

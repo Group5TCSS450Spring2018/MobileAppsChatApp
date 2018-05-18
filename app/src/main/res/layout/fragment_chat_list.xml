@@ -8,7 +8,7 @@
     tools:context=".ConnectionsFragment">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/connectionsListContainer"
+        android:id="@+id/chatListContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="16dp"

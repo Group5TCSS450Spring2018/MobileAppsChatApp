@@ -10,6 +10,8 @@
     <string name="ep_update_password">updatePassword</string>
     <string name="ep_getConnectionRequests">getConnectionRequests</string>
     <string name="ep_getRecentChats">recentSent</string>
+    <string name="ep_getChats">getChats</string>
+    <string name="ep_everyChatParticipant">everyChatParticipant</string>
     <string name="ep_getConnections">getConnections</string>
     <string name="ep_addConnection">addConnection</string>
     <string name="ep_acceptConnection">acceptConnection</string>
@@ -19,4 +21,5 @@
     <string name="ep_getChatID">getChatId</string>
     <string name="ep_addChat">addChat</string>
     <string name="ep_getMessages">getMessages</string>
+    <string name="ep_resendCode">resendCode</string>
 </resources>

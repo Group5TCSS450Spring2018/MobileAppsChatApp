@@ -130,7 +130,8 @@ public class LoginFragment extends Fragment {
         //Log in unsuccessful for reason: err. Try again.
         //you may want to add error stuffs for the user here.
         ((EditText) Objects.requireNonNull(getView()).findViewById(R.id.usernameText))
-                .setError(getString(R.string.error_empty));
+                .setError(err);
+        ((EditText)getView().findViewById(R.id.passwordText)).setError(err);
     }
 
     /**

@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import spr018.tcss450.clientapplication.model.Chat;
@@ -201,6 +202,13 @@ public class HomeFragment extends Fragment {
                         for (int key : recentMessages.keySet()) {
                             mChatList.add(recentMessages.get(key));
                         }
+                        /* TODO: FIX THIS BY FORMATTING TIMESTAMP CORRECTLY */
+//                        Collections.sort(mChatList);
+//                        // ensure that there is never more than 10 recent chats displayed
+//                        while(mChatList.size() > 10) {
+//                            mChatList.remove(mChatList.size() - 1);
+//                        }
+
                     }
                     mChatAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
