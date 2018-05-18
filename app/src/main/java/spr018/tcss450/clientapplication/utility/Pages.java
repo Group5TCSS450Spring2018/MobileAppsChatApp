@@ -15,7 +15,8 @@ public enum Pages {
     PROFILE("Profile"),
     NEWUSERADDED("New User Added"),
     DISPLAYREQUEST("Display Request"),
-    CHAT("Chat");
+    CHAT("Chat"),
+    CHATLIST("Chat List");
     private String title;
     Pages(String title) {
         this.title = title;
