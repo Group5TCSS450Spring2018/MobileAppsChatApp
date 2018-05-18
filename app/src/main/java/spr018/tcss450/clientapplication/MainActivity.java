@@ -26,6 +26,7 @@ import android.widget.Switch;
 
 import java.util.Objects;
 
+import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
 
@@ -36,7 +37,8 @@ public class MainActivity extends AppCompatActivity
         WeatherFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener,
         NewConnectionFragment.OnFragmentInteractionListener,
-        ConnectionProfileFragment.OnFragmentInteractionListener {
+        ConnectionProfileFragment.OnFragmentInteractionListener,
+        ChatListFragment.OnFragmentInteractionListener {
 
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
@@ -117,6 +119,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_home) {
             loadFragmentWithBackStack(new HomeFragment(), Pages.HOME);
+        } else if (id == R.id.nav_chat_list) {
+            loadFragmentWithBackStack(new ChatListFragment(), Pages.CHATLIST);
         } else if (id == R.id.nav_connections) {
             loadFragmentWithBackStack(new ConnectionsFragment(), Pages.CONNECTIONS);
         } else if (id == R.id.nav_weather) {
@@ -187,6 +191,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onOpenChatAttempt(String username, int chatID) {
         onOpenChat(username, chatID);
+    }
+
+    @Override
+    public void onChatListSelection(Chat chat) {
+        onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chat.getChatID());
     }
 
     @Override
@@ -265,9 +274,9 @@ public class MainActivity extends AppCompatActivity
     private void updateFABandNV(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
         if (fragment instanceof HomeFragment) {
-            mFab.show();
-            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
-            mFab.setImageResource(R.drawable.ic_fab_send);
+            mFab.hide();
+//            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
+//            mFab.setImageResource(R.drawable.ic_fab_send);
             nv.setCheckedItem(R.id.nav_home);
             setTitle(Pages.HOME.toString());
         } else if (fragment instanceof ConnectionsFragment) {
@@ -297,6 +306,10 @@ public class MainActivity extends AppCompatActivity
         } else if(fragment instanceof DisplayRequestFragment) {
             mFab.hide();
             setTitle(Pages.DISPLAYREQUEST.toString());
+        } else if (fragment instanceof  ChatListFragment) {
+            mFab.hide();
+            nv.setCheckedItem(R.id.nav_chat_list);
+            setTitle(Pages.CHATLIST.toString());
         }
         else {
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
