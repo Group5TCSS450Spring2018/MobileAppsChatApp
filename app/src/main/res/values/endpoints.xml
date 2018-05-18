@@ -21,4 +21,5 @@
     <string name="ep_getChatID">getChatId</string>
     <string name="ep_addChat">addChat</string>
     <string name="ep_getMessages">getMessages</string>
+    <string name="ep_resendCode">resendCode</string>
 </resources>

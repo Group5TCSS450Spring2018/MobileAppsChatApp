@@ -48,7 +48,7 @@ public class LoginValidationFragment extends Fragment {
         mCode.setOnFocusChangeListener(this::onCodeFocusChange);
 
         v.findViewById(R.id.validationButton).setOnClickListener(this::onValidationButtonPressed);
-
+        v.findViewById(R.id.validationResendButton).setOnClickListener(this::onResendPressed);
         return v;
     }
 
@@ -96,6 +96,10 @@ public class LoginValidationFragment extends Fragment {
         }
     }
 
+    private void onResendPressed(View button) {
+        mListener.onResendCodeAttempt();
+    }
+
     /* *********** */
     /* EXPOSED API */
     /* *********** */
@@ -127,5 +131,6 @@ public class LoginValidationFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         void onValidationAttempt(int code);
+        void onResendCodeAttempt();
     }
 }
