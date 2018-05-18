@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.ChatPreviewAdapter;
@@ -56,7 +57,7 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         mPrefs =
-                getActivity().getSharedPreferences(
+                Objects.requireNonNull(getActivity()).getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
         mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
@@ -188,8 +189,8 @@ public class HomeFragment extends Fragment {
                     if(jContacts.length()==0){
                         mChatList.add(null);
                     } else {
-                        HashMap<Integer, Chat> recentMessages = new HashMap<Integer, Chat>();
-                        for (int i = 0; i < jContacts.length(); i++) {
+                        HashMap<Integer, Chat> recentMessages = new HashMap<>();
+                        for (int i = jContacts.length() - 1; i >= 0; i--) {
                             JSONObject c = jContacts.getJSONObject(i);
                             Chat chat = new Chat(c.getString("name"),
                                     c.getString("message"),
