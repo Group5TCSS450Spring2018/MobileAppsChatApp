@@ -194,7 +194,8 @@ public class HomeFragment extends Fragment {
                             Chat chat = new Chat(c.getString("name"),
                                     c.getString("message"),
                                     c.getString("timestamp"),
-                                    c.getInt("chatid"));
+                                    c.getInt("chatid"),
+                                    c.getString("username"));
                             recentMessages.put(chat.getChatID(), chat);
                         }
 
