@@ -15,11 +15,11 @@ import java.util.List;
 import spr018.tcss450.clientapplication.R;
 
 public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.ViewHolder> {
-    private List<Chat> mChats;
+    private List<Connection> mConnections;
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener {
-        void onItemClick(Chat chat);
+        void onItemClick(Connection connection);
     }
 
     // Provide a reference to the views for each data item
@@ -27,33 +27,33 @@ public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.
     // you provide access to all the views for a data item in a view holder
     static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        private TextView mChatRecentNameTextView;
+        private TextView mUsernameTextView;
         private TextView mRecentMessageTextView;
         private View mView;
 
         ViewHolder(View v) {
             super(v);
             mView = v;
-            mChatRecentNameTextView = v.findViewById(R.id.chatRecentName);
+            mUsernameTextView = v.findViewById(R.id.chatUsername);
             mRecentMessageTextView = v.findViewById(R.id.chatRecentMessage);
         }
 
-        void bind(Chat chat, OnItemClickListener listener) {
-            if (chat == null) {
-                mChatRecentNameTextView.setText("No Chats Open");
-                mChatRecentNameTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                mChatRecentNameTextView.setTypeface(null, Typeface.NORMAL);
-                mChatRecentNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        void bind(Connection connection, OnItemClickListener listener) {
+            if (connection == null) {
+                mUsernameTextView.setText("No Chats Open");
+                mUsernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                mUsernameTextView.setTypeface(null, Typeface.NORMAL);
+                mUsernameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 mRecentMessageTextView.setVisibility(View.GONE);
             } else {
-                mView.setOnClickListener(view -> listener.onItemClick(chat));
+                mView.setOnClickListener(view -> listener.onItemClick(connection));
             }
         }
     }
 
     // Parameter could be any type of collection. I'm using list for now. - Tuan
-    public ChatPreviewAdapter(List<Chat> chats) {
-        mChats = chats;
+    public ChatPreviewAdapter(List<Connection> connections) {
+        mConnections = connections;
     }
 
     // Create new views (invoked by the layout manager)
@@ -70,19 +70,19 @@ public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Chat chat = mChats.get(position);
-        if (chat != null) {
-            holder.mChatRecentNameTextView.setText(chat.getName());
-            holder.mRecentMessageTextView.setText(chat.getUsername() + " : "+ chat.getRecentMessage());
+        Connection connection = mConnections.get(position);
+        if (connection != null) {
+            holder.mUsernameTextView.setText(connection.getUsername());
+            holder.mRecentMessageTextView.setText(connection.getRecentMessage());
         }
-        holder.bind(mChats.get(position), mListener);
+        holder.bind(mConnections.get(position), mListener);
     }
 
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mChats.size();
+        return mConnections.size();
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {

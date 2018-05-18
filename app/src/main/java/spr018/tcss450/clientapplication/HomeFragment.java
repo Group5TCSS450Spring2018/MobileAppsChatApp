@@ -18,9 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.ChatPreviewAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.model.RequestAdapter;
@@ -36,13 +34,12 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 public class HomeFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-    private ArrayList<Chat> mChatList;
+    private ArrayList<Connection> mChatList;
     private ArrayList<Connection> mRequestList;
     private RequestAdapter mRequestAdapter;
     private ChatPreviewAdapter mChatAdapter;
     private Connection mConnection;
     private String mUsername;
-    private SharedPreferences mPrefs;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -54,14 +51,17 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
-        mPrefs =
+        SharedPreferences prefs =
                 getActivity().getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
-        mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
+        mUsername = prefs.getString(getString(R.string.keys_prefs_user_name), "");
 
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
         mChatList = new ArrayList<>();
+        Connection c = new Connection("username", "name", "email");
+        c.setRecentMessage("Recent chat");
+        mChatList.add(c);
         mChatAdapter = new ChatPreviewAdapter(mChatList);
         chats.setAdapter(mChatAdapter);
         chats.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -88,7 +88,6 @@ public class HomeFragment extends Fragment {
                 expand(connection);
             }
         });
-        getRecentChat();
         getRequests();
         setHasOptionsMenu(true);
         return v;
@@ -161,7 +160,7 @@ public class HomeFragment extends Fragment {
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_getRecentChats))
+                .appendPath(getString(R.string.ep_getConnectionRequests))
                 .build();
 
         JSONObject msg = new JSONObject();
@@ -171,48 +170,10 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
         new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleRecentChats)
+                .onPostExecute(this::handleViewConnectionRequests)
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
     }
-
-    //Create a JSON object and get the connections requests to display.
-    private void handleRecentChats(String results) {
-        try {
-            mChatList.clear();
-            JSONObject x = new JSONObject(results);
-            if(x.has("message")) {
-                try {
-                    JSONArray jContacts = x.getJSONArray("message");
-                    if(jContacts.length()==0){
-                        mChatList.add(null);
-                    } else {
-                        HashMap<Integer, Chat> recentMessages = new HashMap<Integer, Chat>();
-                        for (int i = 0; i < jContacts.length(); i++) {
-                            JSONObject c = jContacts.getJSONObject(i);
-                            Chat chat = new Chat(c.getString("name"),
-                                    c.getString("message"),
-                                    c.getString("timestamp"),
-                                    c.getInt("chatid"),
-                                    c.getString("username"));
-                            recentMessages.put(chat.getChatID(), chat);
-                        }
-
-                        for (int key : recentMessages.keySet()) {
-                            mChatList.add(recentMessages.get(key));
-                        }
-                    }
-                    mChatAdapter.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mChatAdapter.notifyDataSetChanged();
-    }
-
 
     private void acceptRequest(Connection connection) {
         mConnection = connection;
@@ -277,9 +238,86 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void onChatClicked(Chat chat) {
-        mListener.onOpenChat(mUsername, chat.getChatID());
+    private void onChatClicked(Connection connection) {
+        mConnection = connection;
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getChatID))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("username_a", connection.getUsername());
+            msg.put("username_b", mUsername);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleOpenPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
     }
+
+    private void handleOpenPost(String result) {
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if (success) {
+                mListener.onOpenChat(mConnection.getUsername(), resultJSON.getInt("chatid"));
+            } else {
+                JSONArray chatIDs = resultJSON.getJSONArray("chatid");
+                if (chatIDs.length() == 0) {
+                    openNewChat();
+                } else {
+                    Log.e("getChatID", resultJSON.getString("message"));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openNewChat() {
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_addChat))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        JSONArray members = new JSONArray();
+        members.put(mConnection.getUsername());
+        members.put(mUsername);
+        try{
+            msg.put("chatname", mConnection.getUsername() + " "+ mUsername);
+            msg.put("members", members);
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleNewChatPost)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    private void handleNewChatPost(String result) {
+        try {
+            JSONObject resultJSON = new JSONObject(result);
+            boolean success = resultJSON.getBoolean("success");
+            if (success) {
+                onChatClicked(null);
+            } else {
+                Log.e("ADDCHAT", resultJSON.getString("message"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     private void expand(Connection connection) {

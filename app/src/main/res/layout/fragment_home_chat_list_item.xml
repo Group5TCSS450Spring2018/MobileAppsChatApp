@@ -7,13 +7,13 @@
     android:paddingTop="10dp">
 
     <TextView
-        android:id="@+id/chatRecentName"
+        android:id="@+id/chatUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingEnd="16dp"
         android:paddingStart="0dp"
         android:textAlignment="viewStart"
-        android:textSize="18sp"
+        android:textSize="24sp"
         android:textStyle="bold" />
 
     <TextView
@@ -23,6 +23,5 @@
         android:paddingEnd="16dp"
         android:paddingStart="0dp"
         android:textAlignment="viewStart"
-        android:textSize="14sp" />
-
+        android:textSize="18sp" />
 </LinearLayout>

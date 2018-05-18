@@ -85,8 +85,8 @@ public class ChatFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_chat, container, false);
 
         RecyclerView recyclerView = v.findViewById(R.id.chatRecylerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
         recyclerView.setAdapter(mAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         ImageView sendButton = v.findViewById(R.id.chatSendButton);
         sendButton.setOnClickListener(this::sendMessage);
         //Objects.requireNonNull(getActivity().getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
