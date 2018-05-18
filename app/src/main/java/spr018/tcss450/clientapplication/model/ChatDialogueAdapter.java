@@ -79,7 +79,6 @@ public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatHolder chat = mChats.get(position);
-        Log.e("CHAT", "NAME" + chat.mUsername + " | MESSAGE: " + chat.mMessage + " | ALIGNMENT: " + chat.mAlignment);
         holder.setAlignment(chat.mAlignment);
         holder.mUsernameTextView.setText(chat.mUsername);
         holder.mMessageTextView.setText(chat.mMessage);

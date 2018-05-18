@@ -203,12 +203,11 @@ public class HomeFragment extends Fragment {
                         for (int key : recentMessages.keySet()) {
                             mChatList.add(recentMessages.get(key));
                         }
-                        /* TODO: FIX THIS BY FORMATTING TIMESTAMP CORRECTLY */
-//                        Collections.sort(mChatList);
-//                        // ensure that there is never more than 10 recent chats displayed
-//                        while(mChatList.size() > 10) {
-//                            mChatList.remove(mChatList.size() - 1);
-//                        }
+                        Collections.sort(mChatList);
+                        // ensure that there is never more than 10 recent chats displayed
+                        while(mChatList.size() > 10) {
+                            mChatList.remove(mChatList.size() - 1);
+                        }
 
                     }
                     mChatAdapter.notifyDataSetChanged();
