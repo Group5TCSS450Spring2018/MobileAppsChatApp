@@ -303,9 +303,6 @@ public class MainActivity extends AppCompatActivity
         } else if (fragment instanceof ConnectionProfileFragment) {
             mFab.hide();
             setTitle(Pages.PROFILE.toString());
-        } else if(fragment instanceof DisplayRequestFragment) {
-            mFab.hide();
-            setTitle(Pages.DISPLAYREQUEST.toString());
         } else if (fragment instanceof  ChatListFragment) {
             mFab.hide();
             nv.setCheckedItem(R.id.nav_chat_list);
