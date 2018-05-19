@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -22,6 +24,7 @@ public class TabWeatherFragment extends Fragment {
     private String mTabName;
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
+    private HorizontalScrollView m24HoursWidget;
     public TabWeatherFragment() {
         // Required empty public constructor
     }
@@ -41,7 +44,9 @@ public class TabWeatherFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_tab_weather, container, false);
         mLocationWidget = v.findViewById(R.id.locationText);
         mWeatherWidget = v.findViewById(R.id.currentWeather);
+        m24HoursWidget = v.findViewById(R.id.hourly);
         getCurrentWeather();
+        getHourlyWeather();
         return v;
     }
 
@@ -76,11 +81,11 @@ public class TabWeatherFragment extends Fragment {
             e.printStackTrace();
         }
         new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleHomeCurrentWeather)
+                .onPostExecute(this::handleCurrentWeather)
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
     }
-    private void handleHomeCurrentWeather(String results){
+    private void handleCurrentWeather(String results){
         Log.d("CURRENT", results);
         String[] weather = results.split(":");
         Log.d("CURRENT", ""+ weather[1].split(",")[0]);
@@ -92,6 +97,29 @@ public class TabWeatherFragment extends Fragment {
         /*
         get temp that is passed back and then setText of weatherTextview.*/
     }
+
+    private void getHourlyWeather() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_hourlyWeather))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("location", "98031");
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleHourlyWeather)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+    private void handleHourlyWeather(String results){
+
+    }
+
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
      */
