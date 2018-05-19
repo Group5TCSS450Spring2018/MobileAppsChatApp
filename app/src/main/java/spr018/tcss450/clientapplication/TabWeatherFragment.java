@@ -1,21 +1,18 @@
 package spr018.tcss450.clientapplication;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import spr018.tcss450.clientapplication.model.ChatDialogueAdapter;
-
-import static spr018.tcss450.clientapplication.ChatActivity.CHAT_ID;
-import static spr018.tcss450.clientapplication.ChatActivity.CONNECTION_USERNAME;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 public class TabWeatherFragment extends Fragment {
@@ -23,6 +20,8 @@ public class TabWeatherFragment extends Fragment {
     public static final String TAB_NAME = "Tab name";
 
     private String mTabName;
+    private TextView mWeatherWidget;
+    private TextView mLocationWidget;
     public TabWeatherFragment() {
         // Required empty public constructor
     }
@@ -39,7 +38,11 @@ public class TabWeatherFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tab_weather, container, false);
+        View v = inflater.inflate(R.layout.fragment_tab_weather, container, false);
+        mLocationWidget = v.findViewById(R.id.locationText);
+        mWeatherWidget = v.findViewById(R.id.currentWeather);
+        getCurrentWeather();
+        return v;
     }
 
 //    @Override
@@ -58,6 +61,43 @@ public class TabWeatherFragment extends Fragment {
 //        super.onDetach();
 //        mListener = null;
 //    }
+
+    private void getCurrentWeather() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_currentWeather))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("location", "98031");
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleHomeCurrentWeather)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+    private void handleHomeCurrentWeather(String results){
+        Log.d("CURRENT", results);
+        String[] weather = results.split(":");
+        Log.d("CURRENT", ""+ weather[1].split(",")[0]);
+        mWeatherWidget.setText(weather[1].split(",")[0]+ "F");
+
+        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
+
+
+        /*
+        get temp that is passed back and then setText of weatherTextview.*/
+    }
+    /**Handle errors that may ouccur during the async taks.
+     * @param result the error message provided from the async task
+     */
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNCT_TASK_ERROR", result);
+    }
 
     public String getTabName() {
         return mTabName;
