@@ -30,8 +30,10 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 public class ChatActivity extends AppCompatActivity {
     public static final String CONNECTION_USERNAME = "username";
     public static final String CHAT_ID = "chatID";
-    private String mTheirUsername;
+    public static final String CHAT_NAME ="chatName";
+    //private String mTheirUsername;
     private String mUsername;
+    private String mChatName;
     private int mChatID;
 
     @Override
@@ -39,13 +41,14 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Bundle bundle = getIntent().getExtras();
-        mTheirUsername = bundle.getString(CONNECTION_USERNAME);
+        mUsername = bundle.getString(CONNECTION_USERNAME);
         mChatID = bundle.getInt(CHAT_ID);
+        mChatName = bundle.getString(CHAT_NAME);
         if (findViewById(R.id.chatActivity) != null) {
-            setTitle(mTheirUsername);
+            setTitle("\"" + mChatName + "\"" + " - " + mUsername);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.chatActivity,
-                            ChatFragment.newInstance(mTheirUsername, mChatID),
+                            ChatFragment.newInstance(mUsername, mChatID),
                             Pages.CHAT.toString())
                     .commit();
         }
