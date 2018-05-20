@@ -47,7 +47,7 @@ public class WeatherFragment extends Fragment {
         WeatherCollectionPagerAdapter mWeatherPagerAdapter =
                 new WeatherCollectionPagerAdapter(getChildFragmentManager(), mWeatherTabs, mTabNames);
         addTab(new TabWeatherFragment(), "Current");
-        //addTab(new TabWeatherFragment(), "Saved");
+        addTab(new TabWeatherFragment(), "Saved");
         ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
         mViewPager.setAdapter(mWeatherPagerAdapter);
         return view;

@@ -7,18 +7,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.DayOfWeek;
-
-import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
@@ -48,10 +43,10 @@ public class TabWeatherFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_tab_weather, container, false);
-        mLocationWidget = v.findViewById(R.id.locationText);
-        mWeatherWidget = v.findViewById(R.id.currentWeather);
-        m24HoursWidget = v.findViewById(R.id.horizontal);
-        m10DayWidget = v.findViewById(R.id.tenforecast);
+        mLocationWidget = v.findViewById(R.id.weatherTabCurrentLocation);
+        mWeatherWidget = v.findViewById(R.id.weatherTabCurrentTemp);
+        m24HoursWidget = v.findViewById(R.id.weatherTabHourlyContainer);
+        m10DayWidget = v.findViewById(R.id.weatherTabDailyContainer);
         getCurrentWeather();
         getHourlyWeather();
         get10DayWeather();
@@ -181,25 +176,37 @@ public class TabWeatherFragment extends Fragment {
     private void handleHourlyWeather(String results){
         Log.d("TAB WEATHER FRAG",results); //displays in console. timearray and temparray
         try{
-            JSONObject R = new JSONObject(results);
-            if(R.has("timearray") &&R.has("temparray")) {
+            JSONObject resultJSON = new JSONObject(results);
+            if(resultJSON.has("timearray") &&resultJSON.has("temparray")) {
                 Log.d("TAB WEATHER FRAG", "has.");
                 try {
-                    JSONArray time = R.getJSONArray("timearray");
-                    JSONArray temp = R.getJSONArray("temparray");
+                    JSONArray time = resultJSON.getJSONArray("timearray");
+                    JSONArray temp = resultJSON.getJSONArray("temparray");
                     if(time.length() == 0 && temp.length() == 0) {
 
                     } else {
                         for (int i = 0; i < time.length(); i++) {
-                            TextView hourly = new TextView(getContext());
-                            TextView tempreture = new TextView(getContext());
-                            //hourly.setText(time.get(i).toString());
-                            tempreture.setText(temp.get(i).toString()+ "F \n" + time.get(i).toString());
-                            //hourly.setTextSize(24);
-                            tempreture.setTextSize(30);
-                            m24HoursWidget.addView(tempreture);
-                            m24HoursWidget.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-                            m24HoursWidget.getShowDividers();
+
+                            LinearLayout verticalHolder = new LinearLayout(getActivity());
+                            verticalHolder.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            verticalHolder.setOrientation(LinearLayout.VERTICAL);
+
+                            LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            textLayout.setMargins(10,10,10,10);
+                            TextView hour = new TextView(getActivity());
+                            hour.setText(time.get(i).toString());
+                            hour.setTextSize(15);
+                            hour.setLayoutParams(textLayout);
+                            verticalHolder.addView(hour);
+                            TextView temperature = new TextView(getActivity());
+                            temperature.setText(temp.get(i).toString());
+                            temperature.setTextSize(15);
+                            temperature.setLayoutParams(textLayout);
+
+                            verticalHolder.removeAllViews();
+                            verticalHolder.addView(hour);
+                            verticalHolder.addView(temperature);
+                            m24HoursWidget.addView(verticalHolder);
                         }
 
 
