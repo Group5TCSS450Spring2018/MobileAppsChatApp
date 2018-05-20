@@ -8,13 +8,12 @@
     tools:context=".TabWeatherFragment">
 
     <TextView
-        android:id="@+id/currentWeather"
+        android:id="@+id/weatherTabCurrentTemp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="TextView"
         android:textAlignment="center"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -23,54 +22,55 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/locationText"
+        android:id="@+id/weatherTabCurrentLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/currentWeather" />
+        app:layout_constraintTop_toBottomOf="@+id/weatherTabCurrentTemp" />
 
     <HorizontalScrollView
-        android:id="@+id/horizontalScrollView2"
-        android:layout_width="302dp"
-        android:layout_height="86dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:id="@+id/weatherTabHourlyScrollView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="36dp"
+        android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.511"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationText">
+        app:layout_constraintTop_toBottomOf="@+id/weatherTabCurrentLocation">
 
         <LinearLayout
-            android:id="@+id/horizontal"
+            android:id="@+id/weatherTabHourlyContainer"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:divider="?android:listDivider"
             android:orientation="horizontal"
-            android:showDividers="middle"></LinearLayout>
+            android:showDividers="middle" />
     </HorizontalScrollView>
 
     <ScrollView
+        android:id="@+id/weatherTabDailyScrollView"
         android:layout_width="300dp"
         android:layout_height="229dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.511"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView2"
+        app:layout_constraintTop_toBottomOf="@+id/weatherTabHourlyScrollView"
         app:layout_constraintVertical_bias="0.333">
 
         <LinearLayout
-            android:id="@+id/tenforecast"
+            android:id="@+id/weatherTabDailyContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
