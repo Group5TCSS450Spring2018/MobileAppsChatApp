@@ -7,35 +7,22 @@
     android:layout_height="match_parent"
     tools:context=".WeatherFragment">
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/weatherTabLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tabMode="scrollable">
-
-    </android.support.design.widget.TabLayout>
-
     <android.support.v4.view.ViewPager
         android:id="@+id/weatherTabPager"
-        android:layout_width="381dp"
-        android:layout_height="460dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/weatherTabLayout"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textView15"
+        <android.support.v4.view.PagerTitleStrip
+            android:id="@+id/pager_title_strip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView"
-            tools:layout_editor_absoluteX="3dp"
-            tools:layout_editor_absoluteY="48dp" />
+            android:layout_gravity="top"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp" />
     </android.support.v4.view.ViewPager>
 
 </android.support.constraint.ConstraintLayout>
