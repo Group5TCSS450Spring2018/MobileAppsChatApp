@@ -8,12 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.DayOfWeek;
+
+import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
@@ -24,7 +29,8 @@ public class TabWeatherFragment extends Fragment {
     private String mTabName;
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
-    private HorizontalScrollView m24HoursWidget;
+    private LinearLayout m24HoursWidget;
+    private LinearLayout m10DayWidget;
     public TabWeatherFragment() {
         // Required empty public constructor
     }
@@ -44,9 +50,11 @@ public class TabWeatherFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_tab_weather, container, false);
         mLocationWidget = v.findViewById(R.id.locationText);
         mWeatherWidget = v.findViewById(R.id.currentWeather);
-        m24HoursWidget = v.findViewById(R.id.hourly);
+        m24HoursWidget = v.findViewById(R.id.horizontal);
+        m10DayWidget = v.findViewById(R.id.tenforecast);
         getCurrentWeather();
         getHourlyWeather();
+        get10DayWeather();
         return v;
     }
 
@@ -98,6 +106,60 @@ public class TabWeatherFragment extends Fragment {
         get temp that is passed back and then setText of weatherTextview.*/
     }
 
+    private void get10DayWeather(){
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_forecast10Weather))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("location", "98031");
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("TAB WEATHER", "GET10 DAY");
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handle10DayWeather)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+    private void handle10DayWeather(String r) {
+        Log.d("TAB WEATHER", "10 days" + r);
+        try {
+            JSONObject R = new JSONObject(r);
+            if (R.has("datearray")&& R.has("temparray")) {
+                Log.d("TAB WEATHER FRAG", "has.");
+                try {
+                    JSONArray date = R.getJSONArray("datearray");
+                    JSONArray temp = R.getJSONArray("temparray");
+                    if (date.length() == 0 && temp.length() == 0) {
+
+                    } else {
+                        for (int i = 0; i < date.length(); i++) {
+                            TextView tempreture = new TextView(getContext());
+                            String[] dates = date.get(i).toString().split("on");
+                            tempreture.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F");
+
+                            tempreture.setTextSize(30);
+                            m10DayWidget.addView(tempreture);
+
+
+                        }
+
+
+                    }
+                } catch (JSONException e) {
+
+                }
+
+            }
+
+        } catch (JSONException e){
+
+        }
+    }
     private void getHourlyWeather() {
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -117,7 +179,40 @@ public class TabWeatherFragment extends Fragment {
                 .build().execute();
     }
     private void handleHourlyWeather(String results){
+        Log.d("TAB WEATHER FRAG",results); //displays in console. timearray and temparray
+        try{
+            JSONObject R = new JSONObject(results);
+            if(R.has("timearray") &&R.has("temparray")) {
+                Log.d("TAB WEATHER FRAG", "has.");
+                try {
+                    JSONArray time = R.getJSONArray("timearray");
+                    JSONArray temp = R.getJSONArray("temparray");
+                    if(time.length() == 0 && temp.length() == 0) {
 
+                    } else {
+                        for (int i = 0; i < time.length(); i++) {
+                            TextView hourly = new TextView(getContext());
+                            TextView tempreture = new TextView(getContext());
+                            //hourly.setText(time.get(i).toString());
+                            tempreture.setText(temp.get(i).toString()+ "F \n" + time.get(i).toString());
+                            //hourly.setTextSize(24);
+                            tempreture.setTextSize(30);
+                            m24HoursWidget.addView(tempreture);
+                            m24HoursWidget.setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
+                            m24HoursWidget.getShowDividers();
+                        }
+
+
+
+                    }
+                } catch (JSONException e) {
+
+                }
+            }
+
+        } catch (JSONException e) {
+
+        }
     }
 
     /**Handle errors that may ouccur during the async taks.

@@ -24,4 +24,6 @@
     <string name="ep_resendCode">resendCode</string>
     <string name="ep_currentWeather">currentWeather</string>
     <string name = "ep_hourlyWeather">hourlyWeather</string>
+    <string name = "ep_forecast10Weather">forecast10Weather</string>
+
 </resources>
