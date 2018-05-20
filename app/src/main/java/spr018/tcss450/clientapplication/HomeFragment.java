@@ -286,7 +286,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void onChatClicked(Chat chat) {
-        mListener.onOpenChat(mUsername, chat.getChatID());
+        mListener.onOpenChat(mUsername, chat.getChatID(), chat.getName());
     }
 
 
@@ -322,7 +322,7 @@ public class HomeFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onOpenChat(String username, int chatID);
+        void onOpenChat(String username, int chatID, String chatname);
         void onExpandingRequestAttempt(Connection connection);
     }
 

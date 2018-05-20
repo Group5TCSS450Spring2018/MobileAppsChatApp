@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
 
+import java.util.List;
 import java.util.Objects;
 
 import spr018.tcss450.clientapplication.model.Chat;
@@ -38,7 +39,8 @@ public class MainActivity extends AppCompatActivity
         SettingsFragment.OnFragmentInteractionListener,
         NewConnectionFragment.OnFragmentInteractionListener,
         ConnectionProfileFragment.OnFragmentInteractionListener,
-        ChatListFragment.OnFragmentInteractionListener {
+        ChatListFragment.OnFragmentInteractionListener,
+        NewMessageFragment.OnFragmentInteractionListener {
 
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
@@ -135,10 +137,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onOpenChat(String username, int chatID) {
+    public void onOpenChat(String username, int chatID, String chatname) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.CONNECTION_USERNAME, username);
         intent.putExtra(ChatActivity.CHAT_ID, chatID);
+        intent.putExtra(ChatActivity.CHAT_NAME, chatname);
         startActivity(intent);
     }
 
@@ -158,8 +161,10 @@ public class MainActivity extends AppCompatActivity
         loadFragmentWithBackStack(ConnectionProfileFragment.newInstance(name, username, email, ConnectionProfileFragment.FRIEND), Pages.PROFILE);
     }
 
-
-
+    @Override
+    public void onChatCreation(int chatid, String chatName) {
+        onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chatid, chatName);
+    }
 
     @Override
     public void onWeatherInteraction(Uri uri) {
@@ -189,13 +194,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onOpenChatAttempt(String username, int chatID) {
-        onOpenChat(username, chatID);
+    public void onOpenChatAttempt(String username, int chatID, String chatname) {
+        onOpenChat(username, chatID, chatname);
     }
 
     @Override
     public void onChatListSelection(Chat chat) {
-        onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chat.getChatID());
+        onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chat.getChatID(), chat.getName());
     }
 
     @Override
@@ -239,9 +244,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
-
     /* Helpers */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
         getSupportFragmentManager()
@@ -274,7 +276,7 @@ public class MainActivity extends AppCompatActivity
     private void updateFABandNV(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
         if (fragment instanceof HomeFragment) {
-
+            mFab.show();
             mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
             mFab.setImageResource(R.drawable.ic_fab_send);
             nv.setCheckedItem(R.id.nav_home);

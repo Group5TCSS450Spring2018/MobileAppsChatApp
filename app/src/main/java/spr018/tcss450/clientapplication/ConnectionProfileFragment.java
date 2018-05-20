@@ -338,7 +338,9 @@ public class ConnectionProfileFragment extends Fragment {
             JSONObject resultJSON = new JSONObject(result);
             boolean success = resultJSON.getBoolean("success");
             if (success) {
-                mListener.onOpenChatAttempt(mUsername, resultJSON.getInt("chatid"));
+                mListener.onOpenChatAttempt(mUsername,
+                        resultJSON.getInt("chatid"),
+                        resultJSON.getString("name"));
             } else {
                 JSONArray chatIDs = resultJSON.getJSONArray("chatid");
                 if (chatIDs.length() == 0) {
@@ -370,7 +372,7 @@ public class ConnectionProfileFragment extends Fragment {
         members.put(u);
         members.put(mUsername);
         try{
-            msg.put("chatname", u + " "+ mUsername);
+            msg.put("chatname", u + " chat with " + mUsername);
             msg.put("members", members);
         } catch(JSONException e) {
             e.printStackTrace();
@@ -402,6 +404,6 @@ public class ConnectionProfileFragment extends Fragment {
 
     public interface OnFragmentInteractionListener { //change to send bundle later.
         void onUpdateFragmentAttempt();
-        void onOpenChatAttempt(String username, int chatID);
+        void onOpenChatAttempt(String username, int chatID, String chatname);
     }
 }

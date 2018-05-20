@@ -81,7 +81,7 @@ public class WeatherFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+        //  TODO: Update argument type and name
         void onWeatherInteraction(Uri uri);
     }
 }
