@@ -61,6 +61,7 @@ public class HomeFragment extends Fragment{
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private static final String TAG = "MyHomeFragment";
+    private String mCurrentLocation;
 
 
 
@@ -89,7 +90,10 @@ public class HomeFragment extends Fragment{
         chats.setAdapter(mChatAdapter);
         chats.setLayoutManager(new LinearLayoutManager(getActivity()));
         mChatAdapter.setOnItemClickListener(this::onChatClicked);
-
+        if(getArguments()!=null){
+//            mCurrentLocation = getArguments().getString("latlng");
+//            Log.d("MAIN", "latlng"+ mCurrentLocation);
+        }
         RecyclerView requests = v.findViewById(R.id.RequestListContainer);
         mRequestList = new ArrayList<>();
         mRequestAdapter = new RequestAdapter(mRequestList);

@@ -1,5 +1,8 @@
 package spr018.tcss450.clientapplication;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -16,6 +20,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.DayOfWeek;
 
 import spr018.tcss450.clientapplication.model.Connection;
@@ -137,8 +145,11 @@ public class TabWeatherFragment extends Fragment {
                     if (date.length() == 0 && temp.length() == 0) {
 
                     } else {
+
+
                         for (int i = 0; i < date.length(); i++) {
                             TextView tempreture = new TextView(getContext());
+
                             String[] dates = date.get(i).toString().split("on");
                             tempreture.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F");
 
@@ -160,6 +171,7 @@ public class TabWeatherFragment extends Fragment {
 
         }
     }
+
     private void getHourlyWeather() {
         Uri uri = new Uri.Builder()
                 .scheme("https")
