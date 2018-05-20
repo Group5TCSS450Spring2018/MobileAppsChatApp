@@ -19,22 +19,32 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 public class TabWeatherFragment extends Fragment {
 
-    public static final String TAB_NAME = "Tab name";
-
-    private String mTabName;
+    public static final String LOCATION = "Location";
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private LinearLayout m24HoursWidget;
     private LinearLayout m10DayWidget;
+    private String mLocation;
+
     public TabWeatherFragment() {
         // Required empty public constructor
+    }
+
+    //Static method to create a new fragment with the specified parameters,
+    //Can pass anything here, JSON, String, Coordinate.
+    public static TabWeatherFragment newInstance(String location) {
+        TabWeatherFragment fragment = new TabWeatherFragment();
+        Bundle args = new Bundle();
+        args.putString(LOCATION, location);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mTabName = getArguments().getString(TAB_NAME);
+            mLocation = getArguments().getString(LOCATION);
         }
     }
 
@@ -133,12 +143,12 @@ public class TabWeatherFragment extends Fragment {
 
                     } else {
                         for (int i = 0; i < date.length(); i++) {
-                            TextView tempreture = new TextView(getContext());
+                            TextView temperature = new TextView(getContext());
                             String[] dates = date.get(i).toString().split("on");
-                            tempreture.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F");
+                            temperature.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F");
 
-                            tempreture.setTextSize(30);
-                            m10DayWidget.addView(tempreture);
+                            temperature.setTextSize(30);
+                            m10DayWidget.addView(temperature);
 
 
                         }
@@ -191,19 +201,20 @@ public class TabWeatherFragment extends Fragment {
                             verticalHolder.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                             verticalHolder.setOrientation(LinearLayout.VERTICAL);
 
+                            //Margins for the TextView.
                             LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                             textLayout.setMargins(10,10,10,10);
+
                             TextView hour = new TextView(getActivity());
                             hour.setText(time.get(i).toString());
                             hour.setTextSize(15);
                             hour.setLayoutParams(textLayout);
-                            verticalHolder.addView(hour);
+
                             TextView temperature = new TextView(getActivity());
                             temperature.setText(temp.get(i).toString());
                             temperature.setTextSize(15);
                             temperature.setLayoutParams(textLayout);
 
-                            verticalHolder.removeAllViews();
                             verticalHolder.addView(hour);
                             verticalHolder.addView(temperature);
                             m24HoursWidget.addView(verticalHolder);
@@ -227,10 +238,6 @@ public class TabWeatherFragment extends Fragment {
      */
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
-    }
-
-    public String getTabName() {
-        return mTabName;
     }
 
 //    public interface OnFragmentInteractionListener {
