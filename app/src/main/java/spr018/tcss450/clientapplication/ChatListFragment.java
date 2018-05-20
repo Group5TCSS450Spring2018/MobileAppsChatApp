@@ -18,26 +18,28 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
+import spr018.tcss450.clientapplication.model.Chat;
+import spr018.tcss450.clientapplication.model.ChatPreviewAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.model.ConnectionAdapter;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
- * @author Deepjot Kaur
- * @author Daryan Hanshew
- * @author Tenma Rollins
- * @author Tuan Dinh
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link ChatListFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
  */
-public class NewMessageFragment extends Fragment {
-    private List<Connection> mConnectionsList;
-    private ConnectionAdapter mAdapter;
-
+public class ChatListFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
-
-    public NewMessageFragment() {
+    private List<Chat> mChatList;
+    private ChatPreviewAdapter mAdapter;
+    public ChatListFragment() {
         // Required empty public constructor
     }
 
@@ -46,27 +48,27 @@ public class NewMessageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_new_message, container, false);
+        View v = inflater.inflate(R.layout.fragment_chat_list, container, false);
 
-        mConnectionsList = new ArrayList<>();
 
-        mAdapter = new ConnectionAdapter(mConnectionsList);
-        RecyclerView allConnections = v.findViewById(R.id.newMessageConnectionsHolder);
-        allConnections.setAdapter(mAdapter);
-        allConnections.setOnClickListener(this::openChat);
-        allConnections.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mChatList = new ArrayList<>();
 
-        checkConnections();
-
-        setHasOptionsMenu(true);
-
+        Log.d("mChatList size", "" +  mChatList.size());
+        RecyclerView chats = v.findViewById(R.id.chatListContainer);
+        chats.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mAdapter = new ChatPreviewAdapter(mChatList);
+        mAdapter.setOnItemClickListener(this::onItemClicked);
+        chats.setAdapter(mAdapter);
+        checkChats();
         return v;
     }
-    private void openChat(View v){
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkChats();
     }
 
-    private void checkConnections() {
+    private void checkChats() {
         //send get connections the username.
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
@@ -77,7 +79,7 @@ public class NewMessageFragment extends Fragment {
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_getConnections))
+                .appendPath(getString(R.string.ep_everyChatParticipant))
                 .build();
 
         JSONObject msg = new JSONObject();
@@ -96,53 +98,51 @@ public class NewMessageFragment extends Fragment {
     private void handleViewConnections(String results) {
         try {
             JSONObject resultJSON = new JSONObject(results);
-            if(resultJSON.has("connections_a")) {
+            if(!resultJSON.has("error")) {
                 try {
-                    JSONArray aArray = resultJSON.getJSONArray("connections_a");
-                    JSONArray bArray = resultJSON.getJSONArray("connections_b");
-                    mConnectionsList.clear();
-                    if(aArray.length() == 0 && bArray.length() == 0) {
-                        mConnectionsList.add(null);
+                    JSONArray chatList = resultJSON.getJSONArray("message");
+                    mChatList.clear();
+                    if(chatList.length() == 0) {
+                        mChatList.add(null);
                     } else {
-                        for (int i = 0; i < aArray.length(); i++) {
-                            JSONObject c = aArray.getJSONObject(i);
-                            String username = c.getString("username");
-                            String firstName = c.getString("firstname");
-                            String lastName = c.getString("lastname");
-                            String email = c.getString("email");
-                            Connection u = new Connection(username, firstName + " " + lastName, email);
-                            mConnectionsList.add(u);
+                        HashMap<Integer, Chat> chats = new HashMap<Integer, Chat>();
+                        for (int i = 0; i < chatList.length(); i++) {
+                            JSONObject c = chatList.getJSONObject(i);
+                            if (chats.get(c.getInt("chatid")) != null) {
+                                chats.get(c.getInt("chatid")).addMember(c.getString("username"));
+                            } else {
+                                Chat chat = new Chat(c.getString("name"), new ArrayList<String>() , "", c.getInt("chatid"));
+                                chat.addMember(c.getString("username"));
+                                chats.put(c.getInt("chatid"), chat);
+                            }
                         }
 
-                        for (int i = 0; i < bArray.length(); i++) {
-                            JSONObject c = bArray.getJSONObject(i);
-                            String username = c.getString("username");
-                            String firstName = c.getString("firstname");
-                            String lastName = c.getString("lastname");
-                            String email = c.getString("email");
-                            Connection u = new Connection(username, firstName + " " + lastName, email);
-                            mConnectionsList.add(u);
+                        for (Integer key : chats.keySet()) {
+                            mChatList.add(chats.get(key));
                         }
-                        mAdapter.setOnItemClickListener(this::onChatMemberSelected);
+
+                        /* TODO: FIX THIS BY FORMATTING TIMESTAMP CORRECTLY */
+                        //Collections.sort(mChatList);
+
+                        mAdapter.setOnItemClickListener(this::onItemClicked);
                     }
                     mAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                     //return;
                 }
-                Log.d("size of mConnectionsList", ""+ mConnectionsList.size());
+                Log.d("size of mChatsList", ""+ mChatList.size());
                 //return;
             }
 
         } catch (JSONException e) {
-            mConnectionsList.clear();
+            mChatList.clear();
             mAdapter.notifyDataSetChanged();
             e.printStackTrace();
             //return;
         }
 
     }
-
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
      */
@@ -150,8 +150,8 @@ public class NewMessageFragment extends Fragment {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
-    private void onChatMemberSelected(Connection connection) {
-        // TODO: IMPLEMENT THIS
+    private void onItemClicked(Chat chat) {
+        mListener.onChatListSelection(chat);
     }
 
     @Override
@@ -171,7 +171,18 @@ public class NewMessageFragment extends Fragment {
         mListener = null;
     }
 
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
     public interface OnFragmentInteractionListener {
-        void onChatCreation(Connection connection);
+        // TODO: Update argument type and name
+        void onChatListSelection(Chat chat);
     }
 }

@@ -38,6 +38,9 @@ public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapte
             if (alignment == DISPLAY_RIGHT) {
                 mUsernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
                 mMessageTextView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+            } else {
+                mUsernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                mMessageTextView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             }
         }
     }
@@ -50,6 +53,10 @@ public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapte
             mUsername = username;
             mMessage = message;
             mAlignment = alignment;
+        }
+
+        public String getMessage() {
+            return mMessage;
         }
     }
 
@@ -72,10 +79,9 @@ public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatHolder chat = mChats.get(position);
-        Log.e("CHAT", "chat pos " + position + " LOADING WITH MESSAGE: " + mChats.get(position).mMessage);
+        holder.setAlignment(chat.mAlignment);
         holder.mUsernameTextView.setText(chat.mUsername);
         holder.mMessageTextView.setText(chat.mMessage);
-        holder.setAlignment(chat.mAlignment);
     }
 
 
