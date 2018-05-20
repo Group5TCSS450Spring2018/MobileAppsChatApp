@@ -1,10 +1,15 @@
 package spr018.tcss450.clientapplication;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +17,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApi;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +48,7 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
  * {@link HomeFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment{
 
     private OnFragmentInteractionListener mListener;
     private ArrayList<Chat> mChatList;
@@ -45,6 +58,13 @@ public class HomeFragment extends Fragment {
     private Connection mConnection;
     private String mUsername;
     private SharedPreferences mPrefs;
+    private TextView mWeatherWidget;
+    private TextView mLocationWidget;
+    private static final String TAG = "MyHomeFragment";
+
+
+
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -55,7 +75,8 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-
+        mWeatherWidget = v.findViewById(R.id.weatherText);
+        mLocationWidget = v.findViewById(R.id.locationText);
         mPrefs =
                 Objects.requireNonNull(getActivity()).getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
@@ -90,13 +111,45 @@ public class HomeFragment extends Fragment {
                 expand(connection);
             }
         });
+
+
+
+        getCurrentWeather();
         getRecentChat();
         getRequests();
         setHasOptionsMenu(true);
         return v;
     }
+    private void getCurrentWeather(){
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_currentWeather))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            msg.put("location", "98031");
+        } catch(JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleHomeCurrentWeather)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+    private void handleHomeCurrentWeather(String results){
+        Log.d("CURRENT", results);
+        String[] weather = results.split(":");
+        Log.d("CURRENT", ""+ weather[1].split(",")[0]);
+        mWeatherWidget.setText(weather[1].split(",")[0]+ "F");
+
+        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
 
 
+        /*
+        get temp that is passed back and then setText of weatherTextview.*/
+    }
 
     //Get all requests from database and display.
     private void getRequests() {
@@ -158,6 +211,10 @@ public class HomeFragment extends Fragment {
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
+
+
+
+
 
     private void getRecentChat() {
         Uri uri = new Uri.Builder()
@@ -325,6 +382,9 @@ public class HomeFragment extends Fragment {
         void onOpenChat(String username, int chatID, String chatname);
         void onExpandingRequestAttempt(Connection connection);
     }
+
+
+
 
 
 }

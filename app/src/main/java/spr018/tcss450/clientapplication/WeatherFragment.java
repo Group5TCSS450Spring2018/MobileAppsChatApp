@@ -6,15 +6,20 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import spr018.tcss450.clientapplication.model.WeatherCollectionPagerAdapter;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
@@ -42,11 +47,13 @@ public class WeatherFragment extends Fragment {
         WeatherCollectionPagerAdapter mWeatherPagerAdapter =
                 new WeatherCollectionPagerAdapter(getChildFragmentManager(), mWeatherTabs, mTabNames);
         addTab(new TabWeatherFragment(), "Current");
-        addTab(new TabWeatherFragment(), "Saved");
+        //addTab(new TabWeatherFragment(), "Saved");
         ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
         mViewPager.setAdapter(mWeatherPagerAdapter);
         return view;
     }
+
+
 
     @Override
     public void onAttach(Context context) {

@@ -22,4 +22,6 @@
     <string name="ep_addChat">addChat</string>
     <string name="ep_getMessages">getMessages</string>
     <string name="ep_resendCode">resendCode</string>
+    <string name="ep_currentWeather">currentWeather</string>
+    <string name = "ep_hourlyWeather">hourlyWeather</string>
 </resources>

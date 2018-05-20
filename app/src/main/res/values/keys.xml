@@ -19,11 +19,12 @@
     <string name="keys_username_error">members_username_key</string>
     <string name="keys_email_error">members_email_key</string>
 
-    <string name="keys_json_contacts">contacts</string>
     <string name="keys_json_username">username</string>
     <string name="keys_json_message">message</string>
-    <string name="keys_json_timestamp">timestamp</string>
     <string name="keys_json_chat_id">chatId</string>
+
+    <string name="keys_json_contacts">contacts</string>
+    <string name="keys_json_timestamp">timestamp</string>
     <string name="keys_json_success_value_true">true</string>
     <string name="keys_json_success">success</string>
 </resources>
