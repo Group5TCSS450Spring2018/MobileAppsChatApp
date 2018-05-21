@@ -33,6 +33,7 @@ public class WeatherFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private List<TabWeatherFragment> mWeatherTabs;
     private List<String> mTabNames;
+    private WeatherCollectionPagerAdapter mWeatherPagerAdapter;
     public WeatherFragment() {
         // Required empty public constructor
     }
@@ -42,15 +43,27 @@ public class WeatherFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_weather, container, false);
+
         mWeatherTabs = new ArrayList<>();
         mTabNames = new ArrayList<>();
-        WeatherCollectionPagerAdapter mWeatherPagerAdapter =
+        mWeatherPagerAdapter =
                 new WeatherCollectionPagerAdapter(getChildFragmentManager(), mWeatherTabs, mTabNames);
-        addTab(TabWeatherFragment.newInstance("Seattle"), "Current");
-        addTab(TabWeatherFragment.newInstance("Tacoma"), "Saved");
+        addTab(TabWeatherFragment.newInstance("98031"), "Current");
+        addTab(TabWeatherFragment.newInstance("10001"), "Saved");
+
         ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
         mViewPager.setAdapter(mWeatherPagerAdapter);
+        mWeatherPagerAdapter.notifyDataSetChanged();
         return view;
+    }
+
+
+
+    /**Handle errors that may ouccur during the async taks.
+     * @param result the error message provided from the async task
+     */
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNCT_TASK_ERROR", result);
     }
 
 
@@ -75,6 +88,7 @@ public class WeatherFragment extends Fragment {
     private void addTab(TabWeatherFragment fragment, String name) {
         mWeatherTabs.add(fragment);
         mTabNames.add(name);
+        mWeatherPagerAdapter.notifyDataSetChanged();
     }
 
     /**
