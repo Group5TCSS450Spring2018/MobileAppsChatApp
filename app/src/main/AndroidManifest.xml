@@ -4,7 +4,7 @@
     package="spr018.tcss450.clientapplication">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
@@ -29,15 +29,21 @@
             android:name=".MainActivity"
             android:label="Chat Application TCSS 450"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
-        </activity>
-        <activity android:name=".ChatActivity"
+            android:windowSoftInputMode="adjustPan"></activity>
+        <activity
+            android:name=".ChatActivity"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="spr018.tcss450.clientapplication.MainActivity" />
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity android:name=".MapActivity"></activity>
     </application>
 
 </manifest>

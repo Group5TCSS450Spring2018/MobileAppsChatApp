@@ -1,14 +1,18 @@
 package spr018.tcss450.clientapplication;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -24,12 +28,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+
 import java.util.List;
 import java.util.Objects;
 
 import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -40,13 +50,33 @@ public class MainActivity extends AppCompatActivity
         NewConnectionFragment.OnFragmentInteractionListener,
         ConnectionProfileFragment.OnFragmentInteractionListener,
         ChatListFragment.OnFragmentInteractionListener,
-        NewMessageFragment.OnFragmentInteractionListener {
+        NewMessageFragment.OnFragmentInteractionListener,GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
 
     /*Floating action button in Main Activity*/
     private FloatingActionButton mFab;
+    private static final String TAG = "MyLocationsActivity";
+    /**
+     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
+     */
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+
+    /**
+     * The fastest rate for active location updates. Exact. Updates will never be more frequent
+     * than this value.
+     */
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
+    private GoogleApiClient mGoogleApiClient;
+    private static final int MY_PERMISSIONS_LOCATIONS = 814;
+    private LocationRequest mLocationRequest;
+    private Location mCurrentLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +85,19 @@ public class MainActivity extends AppCompatActivity
         mPrefs = getSharedPreferences(
                 getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
         // make sure to set the app theme
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        //Log.d("MAIN",mCurrentLocation.getLatitude()+"");
         setTheme(mPrefs.getInt(
                 getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
 
@@ -74,7 +117,49 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         loadFragmentNoBackStack(new HomeFragment());
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
+                            , Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_LOCATIONS);
+        }
+
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_LOCATIONS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // locations-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d("PERMISSION DENIED.", "");
+
+                    //Shut down the app. In production release, you would let the user
+                    //know why the app is shutting down…maybe ask for permission again?
+                    finishAndRemoveTask();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -246,6 +331,13 @@ public class MainActivity extends AppCompatActivity
 
     /* Helpers */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
+        if(fragment instanceof HomeFragment) {
+            Log.d("MAIN", "HOME2");
+            Bundle b = new Bundle();
+//            String latlng = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
+//            b.putString("latlng", latlng);
+//            fragment.setArguments(b);
+        }
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment, page.toString())
@@ -255,6 +347,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadFragmentNoBackStack(Fragment fragment) {
+        if(fragment instanceof HomeFragment) {
+            Log.d("MAIN", "HOME");
+            Bundle b = new Bundle();
+//            Log.d("MAIN",mCurrentLocation.getLatitude()+"");
+//            String latlng = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
+//            b.putString("latlng", latlng);
+//            fragment.setArguments(b);
+        }
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment)
@@ -314,4 +414,99 @@ public class MainActivity extends AppCompatActivity
             Log.wtf("Main Activity", "YOU SHOULD NOT SEE THIS");
         }
     }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (mCurrentLocation == null) {
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED
+                    &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                mCurrentLocation =
+                        LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+                if (mCurrentLocation != null) {
+                    Log.d(TAG, "on connected"+mCurrentLocation.toString());
+                }
+                startLocationUpdates();
+            }
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " +
+                connectionResult.getErrorCode());
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        Log.d(TAG, mCurrentLocation.toString());
+
+    }
+    /**
+     * Requests location updates from the FusedLocationApi.
+     */
+    protected void startLocationUpdates() {
+        // The final argument to {@code requestLocationUpdates()} is a LocationListener
+        // (http://developer.android.com/reference/com/google/android/gms/location/LocationListener.html).
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+            Log.d(TAG, mCurrentLocation.toString());
+        }
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    protected void stopLocationUpdates() {
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+
+        // The final argument to {@code requestLocationUpdates()} is a LocationListener
+        // (http://developer.android.com/reference/com/google/android/gms/location/LocationListener.html).
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopLocationUpdates();
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected())
+            mGoogleApiClient.disconnect();
+    }
+
+    protected void onStart() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+        super.onStart();
+    }
+
+    protected void onStop() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
 }
