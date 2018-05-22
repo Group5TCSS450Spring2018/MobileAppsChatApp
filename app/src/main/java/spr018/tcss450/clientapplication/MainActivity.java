@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
         //Log.d("MAIN",mCurrentLocation.getLatitude()+"");
         setTheme(mPrefs.getInt(
                 getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
