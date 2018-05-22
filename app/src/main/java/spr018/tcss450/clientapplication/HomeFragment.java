@@ -1,13 +1,19 @@
 package spr018.tcss450.clientapplication;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,6 +22,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,8 +51,24 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
  * {@link HomeFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class HomeFragment extends Fragment{
-    public static final String COORDINATES = "coordinates";
+public class HomeFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
+
+    /**
+     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
+     */
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 100000;
+
+    /**
+     * The fastest rate for active location updates. Exact. Updates will never be more frequent
+     * than this value.
+     */
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
+    private static final int MY_PERMISSIONS_LOCATIONS = 814;
+    private static final String HOME_LOCATION = "HOME LOCATION";
     private OnFragmentInteractionListener mListener;
     private ArrayList<Chat> mChatList;
     private ArrayList<Connection> mRequestList;
@@ -52,16 +80,45 @@ public class HomeFragment extends Fragment{
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private ImageView mImage;
-    private static final String TAG = "MyHomeFragment";
-    private String mCurrentLocation;
-
-
-
-
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mCurrentLocation;
 
     public HomeFragment() {
         // Required empty public constructor
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
+                            , Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_LOCATIONS);
+        }
+    }
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -82,10 +139,6 @@ public class HomeFragment extends Fragment{
         chats.setAdapter(mChatAdapter);
         chats.setLayoutManager(new LinearLayoutManager(getActivity()));
         mChatAdapter.setOnItemClickListener(this::onChatClicked);
-        if(getArguments()!=null){
-//            mCurrentLocation = getArguments().getString("latlng");
-//            Log.d("MAIN", "latlng"+ mCurrentLocation);
-        }
         RecyclerView requests = v.findViewById(R.id.RequestListContainer);
         mRequestList = new ArrayList<>();
         mRequestAdapter = new RequestAdapter(mRequestList);
@@ -108,23 +161,43 @@ public class HomeFragment extends Fragment{
             }
         });
 
-
-
-        getCurrentWeather();
         getRecentChat();
         getRequests();
         setHasOptionsMenu(true);
         return v;
     }
+
+    @Override
+    public void onStart() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+        super.onStart();
+    }
+    @Override
+    public void onStop() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopLocationUpdates();
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected())
+            mGoogleApiClient.disconnect();
+    }
+
     private void getCurrentWeather(){
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_currentWeather))
                 .build();
-        String coordinates = getArguments().getString(COORDINATES);
         JSONObject msg = new JSONObject();
-        Log.e("COORDINATES", coordinates);
+        String coordinates = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
         try{
             msg.put("location", coordinates);
         } catch(JSONException e) {
@@ -135,30 +208,33 @@ public class HomeFragment extends Fragment{
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
     }
+
     private void handleHomeCurrentWeather(String results){
         try {
-            JSONObject res = new JSONObject(results);
-            if (res.has("array")) {
-                Log.d("TAB WEATHER FRAG", "has.");
+            JSONObject resultJSON = new JSONObject(results);
+            if (resultJSON.has("array")) {
                 try {
-                    JSONArray arrayJ = res.getJSONArray("array");
+                    JSONArray arrayJ = resultJSON.getJSONArray("array");
                     if (arrayJ.length() == 0 ) {
-
+                        Log.e("WEATHER POST", "EMPTY ARRAY");
                     } else {
                         mWeatherWidget.setText(arrayJ.get(0).toString());
                         mLocationWidget.setText(arrayJ.get(1).toString());
                         //getIcon(arrayJ.get(2));
                         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
                         mImage.setImageBitmap(icon);
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.detach(this).attach(this).commit();
                     }
                 } catch (JSONException e) {
-
+                    Log.e("WEATHER POST", e.toString());
                 }
-
+            } else {
+                Log.e("WEATHER POST", "NO ARRAY");
             }
 
         } catch (JSONException e){
-
+            Log.e("WEATHER POST", e.toString());
         }
 
         /*
@@ -225,10 +301,6 @@ public class HomeFragment extends Fragment{
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
-
-
-
-
 
     private void getRecentChat() {
         Uri uri = new Uri.Builder()
@@ -382,6 +454,88 @@ public class HomeFragment extends Fragment{
         mListener = null;
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        // If the initial location was never previously requested, we use
+        // FusedLocationApi.getLastLocation() to get it. If it was previously requested, we store
+        // its value in the Bundle and check for it in onCreate(). We
+        // do not request it again unless the user specifically requests location updates by pressing
+        // the Start Updates button.
+        //
+        // Because we cache the value of the initial location in the Bundle, it means that if the
+        // user launches the activity,
+        // moves to a new location, and then changes the device orientation, the original location
+        // is displayed as the activity is re-created.
+
+        if (mCurrentLocation == null) {
+
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED
+                    &&
+                    ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                mCurrentLocation =
+                        LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+                if (mCurrentLocation != null) {
+                    Log.i(HOME_LOCATION, mCurrentLocation.toString());
+                }
+                startLocationUpdates();
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
+        Log.i(HOME_LOCATION, "Connection suspended");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(HOME_LOCATION, "Connection failed: ConnectionResult.getErrorCode() = " +
+                connectionResult.getErrorCode());
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        Log.i(HOME_LOCATION, location.getLatitude() + ", " + location.getLongitude());
+        //Update the weather.
+        getCurrentWeather();
+    }
+
+    /**
+     * Requests location updates from the FusedLocationApi.
+     */
+    protected void startLocationUpdates() {
+        // The final argument to {@code requestLocationUpdates()} is a LocationListener
+        // (http://developer.android.com/reference/com/google/android/gms/location/LocationListener.html).
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
+        }
+    }
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    protected void stopLocationUpdates() {
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+
+        // The final argument to {@code requestLocationUpdates()} is a LocationListener
+        // (http://developer.android.com/reference/com/google/android/gms/location/LocationListener.html).
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -460,8 +614,4 @@ public class HomeFragment extends Fragment{
         }
         return b;
     }
-
-
-
-
 }

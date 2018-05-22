@@ -71,7 +71,7 @@ public class ChatFragment extends Fragment {
             mChatID = getArguments().getInt(CHAT_ID);
             SharedPreferences prefs =
                     Objects.requireNonNull(getActivity()).getSharedPreferences(
-                            getString(R.string.keys_shared_prefs),
+                            getString(R.string.keys_shared_prefs) + mChatID,
                             Context.MODE_PRIVATE);
             mUsername = prefs.getString(getString(R.string.keys_prefs_user_name), "");
             mChatDialogue = new ArrayList<>();
@@ -91,7 +91,6 @@ public class ChatFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
         ImageView sendButton = v.findViewById(R.id.chatSendButton);
         sendButton.setOnClickListener(this::sendMessage);
-        //Objects.requireNonNull(getActivity().getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         return v;
     }
 
@@ -236,7 +235,7 @@ public class ChatFragment extends Fragment {
                         Context.MODE_PRIVATE);
         // Save the most recent message timestamp
         prefs.edit().putString(
-                getString(R.string.keys_prefs_time_stamp),
+                getString(R.string.keys_prefs_time_stamp) + mChatID,
                 latestMessage)
                 .apply();
     }
