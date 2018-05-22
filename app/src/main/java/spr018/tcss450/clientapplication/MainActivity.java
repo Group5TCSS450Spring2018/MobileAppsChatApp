@@ -1,6 +1,8 @@
 package spr018.tcss450.clientapplication;
 
 import android.Manifest;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -27,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -52,12 +56,18 @@ public class MainActivity extends AppCompatActivity
         ChatListFragment.OnFragmentInteractionListener,
         NewMessageFragment.OnFragmentInteractionListener {
 
+
+
+    public static boolean isInApp ;
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
 
     /*Floating action button in Main Activity*/
     private FloatingActionButton mFab;
 
+    private SharedPreferences mSharedPreferences;
+
+    private SharedPreferences.Editor mEditor;
     private static final int MY_PERMISSIONS_LOCATIONS = 814;
 
     @Override
@@ -87,6 +97,21 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadFragmentNoBackStack(new HomeFragment());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isInApp = true;
+        NotificationIntentService.stopServiceAlarm(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isInApp = false;
+        NotificationIntentService.startServiceAlarm(this, false);
+
     }
 
     @Override
@@ -172,6 +197,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_weather) {
             loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
+            NotificationIntentService.stopServiceAlarm(this);
+            mEditor.putBoolean(getString(R.string.keys_sp_on), false);
+            mEditor.apply();
             showLoginActivity();
         }
 
@@ -286,7 +314,6 @@ public class MainActivity extends AppCompatActivity
         }
         updateFABandNV(null);
     }
-
 
     /* Helpers */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
