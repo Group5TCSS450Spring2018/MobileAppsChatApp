@@ -1,11 +1,15 @@
 package spr018.tcss450.clientapplication;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -136,7 +140,7 @@ public class HomeFragment extends Fragment{
         Log.d("CURRENT", ""+ weather[1].split(",")[0]);
         mWeatherWidget.setText(weather[1].split(",")[0]+ "F");
 
-        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
+//        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
 
 
         /*
@@ -203,8 +207,6 @@ public class HomeFragment extends Fragment{
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
-
-
 
 
 

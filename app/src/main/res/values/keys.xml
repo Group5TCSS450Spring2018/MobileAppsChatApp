@@ -27,4 +27,9 @@
     <string name="keys_json_timestamp">timestamp</string>
     <string name="keys_json_success_value_true">true</string>
     <string name="keys_json_success">success</string>
+
+    <!--<string name="keys_shared_prefs">serviceslab.SHAREDPREFS</string>-->
+    <string name="keys_sp_on">true</string>
+    <string name="keys_is_foreground">FOREGROUND</string>
+    <string name="keys_extra_results">results</string>
 </resources>
