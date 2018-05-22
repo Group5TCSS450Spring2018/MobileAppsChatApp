@@ -13,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -42,6 +41,7 @@ import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.ChatPreviewAdapter;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.model.RequestAdapter;
+import spr018.tcss450.clientapplication.utility.ListenManager;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
@@ -67,6 +67,8 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
+    public static final int UPDATE_REQUESTS = 60000;
+
     private static final int MY_PERMISSIONS_LOCATIONS = 814;
     private static final String HOME_LOCATION = "HOME LOCATION";
     private OnFragmentInteractionListener mListener;
@@ -83,6 +85,8 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private Location mCurrentLocation;
+    private ListenManager mRequestListen;
+    private ListenManager mWeatherListen;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -105,7 +109,6 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
 
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -161,8 +164,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
             }
         });
 
-        getRecentChat();
-        getRequests();
+
         setHasOptionsMenu(true);
         return v;
     }
@@ -172,12 +174,33 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
+
+        getRecentChat();
+        getRequests();
         super.onStart();
     }
+
+    @Override
+    public void onResume() {
+        if (mWeatherListen != null) {
+            mWeatherListen.startListening();
+        }
+        if (mRequestListen != null) {
+            mRequestListen.startListening();
+        }
+        super.onResume();
+    }
+
     @Override
     public void onStop() {
         if (mGoogleApiClient != null) {
             mGoogleApiClient.disconnect();
+        }
+        if (mWeatherListen != null) {
+            mWeatherListen.stopListening();
+        }
+        if (mRequestListen != null) {
+            mRequestListen.stopListening();
         }
         super.onStop();
     }
@@ -190,112 +213,106 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
             mGoogleApiClient.disconnect();
     }
 
-    private void getCurrentWeather(){
+    private void getCurrentWeather() {
+        String coordinates = mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude();
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_currentWeather))
+                .appendQueryParameter("location", coordinates)
                 .build();
-        JSONObject msg = new JSONObject();
-        String coordinates = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
-        try{
-            msg.put("location", coordinates);
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-        new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleHomeCurrentWeather)
-                .onCancelled(this::handleErrorsInTask)
-                .build().execute();
+        mWeatherListen = new ListenManager.Builder(uri.toString(),
+                this::handleHomeCurrentWeather)
+                .setExceptionHandler(this::handleWeatherError)
+                .setDelay((int) UPDATE_INTERVAL_IN_MILLISECONDS)
+                .build();
     }
 
-    private void handleHomeCurrentWeather(String results){
+    private void handleHomeCurrentWeather(JSONObject resultJSON) {
+        final String[] currentWeather;
         try {
-            JSONObject resultJSON = new JSONObject(results);
-            if (resultJSON.has("array")) {
-                try {
-                    JSONArray arrayJ = resultJSON.getJSONArray("array");
-                    if (arrayJ.length() == 0 ) {
-                        Log.e("WEATHER POST", "EMPTY ARRAY");
-                    } else {
-                        mWeatherWidget.setText(arrayJ.get(0).toString());
-                        mLocationWidget.setText(arrayJ.get(1).toString());
-                        //getIcon(arrayJ.get(2));
-                        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
-                        mImage.setImageBitmap(icon);
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.detach(this).attach(this).commit();
-                    }
-                } catch (JSONException e) {
-                    Log.e("WEATHER POST", e.toString());
-                }
-            } else {
-                Log.e("WEATHER POST", "NO ARRAY");
+            JSONArray arrayJ = resultJSON.getJSONArray("array");
+            currentWeather = new String[arrayJ.length()];
+            for (int i = 0; i < currentWeather.length; i++) {
+                currentWeather[i] = arrayJ.getString(i);
             }
-
-        } catch (JSONException e){
-            Log.e("WEATHER POST", e.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
         }
+
+        Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
+            mWeatherWidget.setText(currentWeather[0]);
+            mLocationWidget.setText(currentWeather[1]);
+            Bitmap icon = getIconBitmap(currentWeather[2]);
+            mImage.setImageBitmap(icon);
+        });
+
 
         /*
         get temp that is passed back and then setText of weatherTextview.*/
     }
 
+    private void handleWeatherError(final Exception e) {
+        Log.e("HOME WEATHER", e.getMessage());
+    }
+
+
     //Get all requests from database and display.
     private void getRequests() {
         //send get connections the username.
-
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_getConnectionRequests))
+                .appendQueryParameter("username", mUsername)
                 .build();
 
-        JSONObject msg = new JSONObject();
-        try{
-            msg.put("username", mUsername);
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-        new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleViewConnectionRequests)
-                .onCancelled(this::handleErrorsInTask)
-                .build().execute();
+        mRequestListen = new ListenManager.Builder(uri.toString(),
+                this::handleViewConnectionRequests)
+                .setExceptionHandler(this::handleRequestError)
+                .setDelay(UPDATE_REQUESTS)
+                .build();
     }
 
     //Create a JSON object and get the connections requests to display.
-    private void handleViewConnectionRequests(String results) {
+    private void handleViewConnectionRequests(JSONObject resultJSON) {
+        final Connection[] connections;
         try {
-            mRequestList.clear();
-            JSONObject x = new JSONObject(results);
-            if(x.has("recieved_requests")) {
-                try {
-                    JSONArray jContacts = x.getJSONArray("recieved_requests");
-                    if(jContacts.length()==0){
-                        mRequestList.add(null);
-                    } else {
-                        for (int i = 0; i < jContacts.length(); i++) {
-                            JSONObject c = jContacts.getJSONObject(i);
-                            String username = c.get("username").toString();
-                            String firstName = c.get("firstname").toString();
-                            String lastName = c.get("lastname").toString();
-                            String email= c.getString("email");
-                            Connection u = new Connection(username, firstName + " " + lastName, email);
-                            mRequestList.add(u);
-                        }
-                    }
-                    mRequestAdapter.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            JSONArray jContacts = resultJSON.getJSONArray("recieved_requests");
+            connections = new Connection[jContacts.length()];
+            for (int i = 0; i < jContacts.length(); i++) {
+                JSONObject c = jContacts.getJSONObject(i);
+                String username = c.getString("username");
+                String firstName = c.getString("firstname");
+                String lastName = c.getString("lastname");
+                String email = c.getString("email");
+                Connection connection = new Connection(username, firstName + " " + lastName, email);
+                connections[i] = connection;
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            return;
         }
-        mRequestAdapter.notifyDataSetChanged();
+
+        Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
+            mRequestList.clear();
+            if (connections.length > 0) {
+                Collections.addAll(mRequestList, connections);
+            } else {
+                mRequestList.add(null);
+            }
+            mRequestAdapter.notifyDataSetChanged();
+        });
     }
 
-    /**Handle errors that may ouccur during the async taks.
+    private void handleRequestError(final Exception e) {
+        Log.e("HOME REQUEST", e.getMessage());
+    }
+
+    /**
+     * Handle errors that may ouccur during the async taks.
+     *
      * @param result the error message provided from the async task
      */
     private void handleErrorsInTask(String result) {
@@ -310,9 +327,9 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build();
 
         JSONObject msg = new JSONObject();
-        try{
+        try {
             msg.put("username", mUsername);
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         new SendPostAsyncTask.Builder(uri.toString(), msg)
@@ -326,10 +343,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         try {
             mChatList.clear();
             JSONObject x = new JSONObject(results);
-            if(x.has("message")) {
+            if (x.has("message")) {
                 try {
                     JSONArray jContacts = x.getJSONArray("message");
-                    if(jContacts.length()==0){
+                    if (jContacts.length() == 0) {
                         mChatList.add(null);
                     } else {
                         HashMap<Integer, Chat> recentMessages = new HashMap<>();
@@ -348,7 +365,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                         }
                         Collections.sort(mChatList);
                         // ensure that there is never more than 10 recent chats displayed
-                        while(mChatList.size() > 10) {
+                        while (mChatList.size() > 10) {
                             mChatList.remove(mChatList.size() - 1);
                         }
 
@@ -375,10 +392,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build();
 
         JSONObject msg = new JSONObject();
-        try{
+        try {
             msg.put("username_a", mUsername);
             msg.put("username_b", connection.getUsername());
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         new SendPostAsyncTask.Builder(uri.toString(), msg)
@@ -397,10 +414,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build();
 
         JSONObject msg = new JSONObject();
-        try{
+        try {
             msg.put("username_a", mUsername);
             msg.put("username_b", connection.getUsername());
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -504,6 +521,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         Log.i(HOME_LOCATION, location.getLatitude() + ", " + location.getLongitude());
         //Update the weather.
         getCurrentWeather();
+        mWeatherListen.startListening();
     }
 
     /**
@@ -548,6 +566,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
      */
     public interface OnFragmentInteractionListener {
         void onOpenChat(String username, int chatID, String chatname);
+
         void onExpandingRequestAttempt(Connection connection);
     }
 
