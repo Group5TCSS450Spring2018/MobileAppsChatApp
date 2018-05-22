@@ -40,7 +40,7 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
  * to handle interaction events.
  */
 public class HomeFragment extends Fragment{
-
+    public static final String COORDINATES = "coordinates";
     private OnFragmentInteractionListener mListener;
     private ArrayList<Chat> mChatList;
     private ArrayList<Connection> mRequestList;
@@ -122,10 +122,11 @@ public class HomeFragment extends Fragment{
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_currentWeather))
                 .build();
-
+        String coordinates = getArguments().getString(COORDINATES);
         JSONObject msg = new JSONObject();
+        Log.e("COORDINATES", coordinates);
         try{
-            msg.put("location", "98031");
+            msg.put("location", coordinates);
         } catch(JSONException e) {
             e.printStackTrace();
         }
