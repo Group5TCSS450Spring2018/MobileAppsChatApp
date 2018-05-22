@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ep_base_url">team5-chatapp-backend.herokuapp.com</string>
+    <string name="ep_base_url">team5-chatapp-newbackend.herokuapp.com</string>
 
     <string name="ep_login">login</string>
     <string name="ep_register">register</string>
@@ -25,5 +25,6 @@
     <string name="ep_currentWeather">currentWeather</string>
     <string name = "ep_hourlyWeather">hourlyWeather</string>
     <string name = "ep_forecast10Weather">forecast10Weather</string>
+    <string name = "ep_saveWeather">saveWeather</string>
 
 </resources>

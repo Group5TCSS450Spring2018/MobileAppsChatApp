@@ -1,5 +1,8 @@
 package spr018.tcss450.clientapplication;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,11 +25,15 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 public class TabWeatherFragment extends Fragment {
 
     public static final String LOCATION = "Location";
+    private static final float SIZE = .4f;
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private LinearLayout m24HoursWidget;
     private LinearLayout m10DayWidget;
+    private ImageView mImage;
     private String mLocation;
+    private ImageButton mReload;
+
 
     public TabWeatherFragment() {
         // Required empty public constructor
@@ -57,12 +66,20 @@ public class TabWeatherFragment extends Fragment {
         mWeatherWidget = v.findViewById(R.id.weatherTabCurrentTemp);
         m24HoursWidget = v.findViewById(R.id.weatherTabHourlyContainer);
         m10DayWidget = v.findViewById(R.id.weatherTabDailyContainer);
+        mImage = v.findViewById(R.id.imageView2);
+        mReload = v.findViewById(R.id.reloadButton);
+        mReload.setOnClickListener(this::Reload);
         getCurrentWeather();
         getHourlyWeather();
         get10DayWeather();
         return v;
     }
 
+    private void Reload(View v){
+        getCurrentWeather();
+        getHourlyWeather();
+        get10DayWeather();
+    }
 //    @Override
 //    public void onAttach(Context context) {
 //        super.onAttach(context);
@@ -89,7 +106,7 @@ public class TabWeatherFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("location", "98031");
+            msg.put("location", mLocation);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -100,15 +117,35 @@ public class TabWeatherFragment extends Fragment {
     }
     private void handleCurrentWeather(String results){
         Log.d("CURRENT", results);
-        String[] weather = results.split(":");
-        Log.d("CURRENT", ""+ weather[1].split(",")[0]);
-        mWeatherWidget.setText(weather[1].split(",")[0]+ "F");
+//        String[] weather = results.split(":");
+//        Log.d("CURRENT", ""+ weather[1].split(",")[0]);
+//        mWeatherWidget.setText(weather[1].split(",")[0]+ "F");
+//
+//        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
+        try {
+            JSONObject res = new JSONObject(results);
+            if (res.has("array")) {
+                Log.d("TAB WEATHER FRAG", "has.");
+                try {
+                    JSONArray arrayJ = res.getJSONArray("array");
+                    if (arrayJ.length() == 0 ) {
 
-        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
+                    } else {
+                        mWeatherWidget.setText(arrayJ.get(0).toString());
+                        mLocationWidget.setText(arrayJ.get(1).toString());
 
 
-        /*
-        get temp that is passed back and then setText of weatherTextview.*/
+                        mImage.setImageBitmap(getIconBitmap(arrayJ.get(2).toString()));
+                    }
+                } catch (JSONException e) {
+
+                }
+
+            }
+
+        } catch (JSONException e){
+
+        }
     }
 
     private void get10DayWeather(){
@@ -120,7 +157,7 @@ public class TabWeatherFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("location", "98031");
+            msg.put("location", mLocation);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -129,6 +166,7 @@ public class TabWeatherFragment extends Fragment {
                 .onPostExecute(this::handle10DayWeather)
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
+
     }
     private void handle10DayWeather(String r) {
         Log.d("TAB WEATHER", "10 days" + r);
@@ -139,6 +177,7 @@ public class TabWeatherFragment extends Fragment {
                 try {
                     JSONArray date = R.getJSONArray("datearray");
                     JSONArray temp = R.getJSONArray("temparray");
+                    JSONArray icons = R.getJSONArray(("iconarray"));
                     if (date.length() == 0 && temp.length() == 0) {
 
                     } else {
@@ -146,10 +185,13 @@ public class TabWeatherFragment extends Fragment {
                             TextView temperature = new TextView(getContext());
                             String[] dates = date.get(i).toString().split("on");
                             temperature.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F");
-
+                            ImageButton img = new ImageButton(getContext());
+                            img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
+//                            img.setScaleY(SIZE);
+//                            img.setScaleX(SIZE);
+                            m10DayWidget.addView(img);
                             temperature.setTextSize(30);
                             m10DayWidget.addView(temperature);
-
 
                         }
 
@@ -174,7 +216,7 @@ public class TabWeatherFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("location", "98031");
+            msg.put("location", mLocation);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -192,6 +234,7 @@ public class TabWeatherFragment extends Fragment {
                 try {
                     JSONArray time = resultJSON.getJSONArray("timearray");
                     JSONArray temp = resultJSON.getJSONArray("temparray");
+                    JSONArray icons = resultJSON.getJSONArray("iconarray");
                     if(time.length() == 0 && temp.length() == 0) {
 
                     } else {
@@ -215,6 +258,11 @@ public class TabWeatherFragment extends Fragment {
                             temperature.setTextSize(15);
                             temperature.setLayoutParams(textLayout);
 
+                            ImageButton img = new ImageButton(getContext());
+                            img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
+                            img.setScaleY(SIZE);
+                            img.setScaleX(SIZE);
+                            verticalHolder.addView(img);
                             verticalHolder.addView(hour);
                             verticalHolder.addView(temperature);
                             m24HoursWidget.addView(verticalHolder);
@@ -231,6 +279,7 @@ public class TabWeatherFragment extends Fragment {
         } catch (JSONException e) {
 
         }
+
     }
 
     /**Handle errors that may ouccur during the async taks.
@@ -240,8 +289,50 @@ public class TabWeatherFragment extends Fragment {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
-//    public interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
-//        void onFragmentInteraction(Uri uri);
-//    }
+
+    private Bitmap getIconBitmap(String icon) {
+        Bitmap b;
+        if(icon.equals("chanceflurries")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chanceflurries);
+        } if(icon.equals("chancerain")) {
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancerain);
+        } if(icon.equals("chancesleet")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancesleet);
+        } if(icon.equals("chancesnow")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancesnow);
+        } if(icon.equals("chancetstorms")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancetstorms);
+        } if(icon.equals("clear")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+        } if(icon.equals("cloudy")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.cloudy);
+        } if(icon.equals("flurries")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.flurries);
+        } if(icon.equals("fog")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.fog);
+        } if(icon.equals("hazy")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
+        } if(icon.equals("mostlysunny")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.mostlysunny);
+        } if(icon.equals("mostlycloudy")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
+        } if(icon.equals("rain")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.rain);
+        } if(icon.equals("sleet")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.sleet);
+        } if(icon.equals("partlycloudy")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.partlycloudy);
+        } if(icon.equals("partlysunny")){
+            return  BitmapFactory.decodeResource(getResources(), R.drawable.partlysunny);
+        } if(icon.equals("snow")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.snow);
+        } if(icon.equals("sunny")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.sunny);
+        }  if(icon.equals("tstorms")){
+            return BitmapFactory.decodeResource(getResources(), R.drawable.tstorms);
+        } else {
+            return BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+        }
+        //return b;
+    }
 }

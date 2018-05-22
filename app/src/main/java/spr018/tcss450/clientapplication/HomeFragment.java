@@ -2,6 +2,8 @@ package spr018.tcss450.clientapplication;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -48,6 +51,7 @@ public class HomeFragment extends Fragment{
     private SharedPreferences mPrefs;
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
+    private ImageView mImage;
     private static final String TAG = "MyHomeFragment";
     private String mCurrentLocation;
 
@@ -71,7 +75,7 @@ public class HomeFragment extends Fragment{
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
         mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
-
+        mImage = v.findViewById(R.id.imageView);
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
         mChatList = new ArrayList<>();
         mChatAdapter = new ChatPreviewAdapter(mChatList);
@@ -131,13 +135,30 @@ public class HomeFragment extends Fragment{
                 .build().execute();
     }
     private void handleHomeCurrentWeather(String results){
-        Log.d("CURRENT", results);
-        String[] weather = results.split(":");
-        Log.d("CURRENT", ""+ weather[1].split(",")[0]);
-        mWeatherWidget.setText(weather[1].split(",")[0]+ "F");
+        try {
+            JSONObject res = new JSONObject(results);
+            if (res.has("array")) {
+                Log.d("TAB WEATHER FRAG", "has.");
+                try {
+                    JSONArray arrayJ = res.getJSONArray("array");
+                    if (arrayJ.length() == 0 ) {
 
-        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
+                    } else {
+                        mWeatherWidget.setText(arrayJ.get(0).toString());
+                        mLocationWidget.setText(arrayJ.get(1).toString());
+                        //getIcon(arrayJ.get(2));
+                        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+                        mImage.setImageBitmap(icon);
+                    }
+                } catch (JSONException e) {
 
+                }
+
+            }
+
+        } catch (JSONException e){
+
+        }
 
         /*
         get temp that is passed back and then setText of weatherTextview.*/
@@ -375,6 +396,69 @@ public class HomeFragment extends Fragment{
         void onExpandingRequestAttempt(Connection connection);
     }
 
+    private Bitmap getIconBitmap(String icon) {
+        Bitmap b;
+        if (icon.equals("chanceflurries")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.chanceflurries);
+        }
+        if (icon.equals("chancerain")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancerain);
+        }
+        if (icon.equals("chancesleet")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancesleet);
+        }
+        if (icon.equals("chancesnow")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancesnow);
+        }
+        if (icon.equals("chancetstorms")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancetstorms);
+        }
+        if (icon.equals("clear")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+        }
+        if (icon.equals("cloudy")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.cloudy);
+        }
+        if (icon.equals("flurries")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.flurries);
+        }
+        if (icon.equals("fog")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.fog);
+        }
+        if (icon.equals("hazy")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
+        }
+        if (icon.equals("mostlysunny")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.mostlysunny);
+        }
+        if (icon.equals("mostlycloudy")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
+        }
+        if (icon.equals("rain")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.rain);
+        }
+        if (icon.equals("sleet")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.sleet);
+        }
+        if (icon.equals("partlycloudy")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.partlycloudy);
+        }
+        if (icon.equals("partlysunny")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.partlysunny);
+        }
+        if (icon.equals("snow")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.snow);
+        }
+        if (icon.equals("sunny")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.sunny);
+        }
+        if (icon.equals("tstorms")) {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.tstorms);
+        } else {
+            b = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+        }
+        return b;
+    }
 
 
 
