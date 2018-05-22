@@ -116,18 +116,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        loadFragmentNoBackStack(new HomeFragment());
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
-                            , Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_LOCATIONS);
-        }
-
     }
 
     @Override
@@ -334,9 +322,9 @@ public class MainActivity extends AppCompatActivity
         if(fragment instanceof HomeFragment) {
             Log.d("MAIN", "HOME2");
             Bundle b = new Bundle();
-//            String latlng = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
-//            b.putString("latlng", latlng);
-//            fragment.setArguments(b);
+            String latlng = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
+            b.putString(HomeFragment.COORDINATES, latlng);
+            fragment.setArguments(b);
         }
         getSupportFragmentManager()
                 .beginTransaction()
@@ -350,10 +338,10 @@ public class MainActivity extends AppCompatActivity
         if(fragment instanceof HomeFragment) {
             Log.d("MAIN", "HOME");
             Bundle b = new Bundle();
-//            Log.d("MAIN",mCurrentLocation.getLatitude()+"");
-//            String latlng = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
-//            b.putString("latlng", latlng);
-//            fragment.setArguments(b);
+            Log.d("MAIN",mCurrentLocation.getLatitude()+"");
+            String latlng = mCurrentLocation.getLatitude()+","+mCurrentLocation.getLongitude();
+            b.putString(HomeFragment.COORDINATES, latlng);
+            fragment.setArguments(b);
         }
         getSupportFragmentManager()
                 .beginTransaction()
@@ -430,6 +418,18 @@ public class MainActivity extends AppCompatActivity
 
                 if (mCurrentLocation != null) {
                     Log.d(TAG, "on connected"+mCurrentLocation.toString());
+                }
+
+                loadFragmentNoBackStack(new HomeFragment());
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
+                                    , Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_LOCATIONS);
                 }
                 startLocationUpdates();
             }
