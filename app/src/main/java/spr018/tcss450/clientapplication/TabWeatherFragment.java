@@ -2,6 +2,7 @@ package spr018.tcss450.clientapplication;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,6 +25,7 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 public class TabWeatherFragment extends Fragment {
 
     public static final String LOCATION = "Location";
+    private static final float SIZE = .4f;
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private LinearLayout m24HoursWidget;
@@ -31,6 +33,7 @@ public class TabWeatherFragment extends Fragment {
     private ImageView mImage;
     private String mLocation;
     private ImageButton mReload;
+
 
     public TabWeatherFragment() {
         // Required empty public constructor
@@ -130,9 +133,9 @@ public class TabWeatherFragment extends Fragment {
                     } else {
                         mWeatherWidget.setText(arrayJ.get(0).toString());
                         mLocationWidget.setText(arrayJ.get(1).toString());
-                        //getIcon(arrayJ.get(2));
-                        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
-                        mImage.setImageBitmap(icon);
+
+
+                        mImage.setImageBitmap(getIconBitmap(arrayJ.get(2).toString()));
                     }
                 } catch (JSONException e) {
 
@@ -184,9 +187,12 @@ public class TabWeatherFragment extends Fragment {
                             temperature.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F");
                             ImageButton img = new ImageButton(getContext());
                             img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
+//                            img.setScaleY(SIZE);
+//                            img.setScaleX(SIZE);
+                            m10DayWidget.addView(img);
                             temperature.setTextSize(30);
                             m10DayWidget.addView(temperature);
-                            m10DayWidget.addView(img);
+
                         }
 
 
@@ -254,6 +260,8 @@ public class TabWeatherFragment extends Fragment {
 
                             ImageButton img = new ImageButton(getContext());
                             img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
+                            img.setScaleY(SIZE);
+                            img.setScaleX(SIZE);
                             verticalHolder.addView(img);
                             verticalHolder.addView(hour);
                             verticalHolder.addView(temperature);
@@ -271,6 +279,7 @@ public class TabWeatherFragment extends Fragment {
         } catch (JSONException e) {
 
         }
+
     }
 
     /**Handle errors that may ouccur during the async taks.
@@ -284,46 +293,46 @@ public class TabWeatherFragment extends Fragment {
     private Bitmap getIconBitmap(String icon) {
         Bitmap b;
         if(icon.equals("chanceflurries")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.chanceflurries);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chanceflurries);
         } if(icon.equals("chancerain")) {
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancerain);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancerain);
         } if(icon.equals("chancesleet")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancesleet);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancesleet);
         } if(icon.equals("chancesnow")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancesnow);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancesnow);
         } if(icon.equals("chancetstorms")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.chancetstorms);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.chancetstorms);
         } if(icon.equals("clear")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.clear);
         } if(icon.equals("cloudy")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.cloudy);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.cloudy);
         } if(icon.equals("flurries")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.flurries);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.flurries);
         } if(icon.equals("fog")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.fog);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.fog);
         } if(icon.equals("hazy")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
         } if(icon.equals("mostlysunny")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.mostlysunny);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.mostlysunny);
         } if(icon.equals("mostlycloudy")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.mostlycloudy);
         } if(icon.equals("rain")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.rain);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.rain);
         } if(icon.equals("sleet")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.sleet);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.sleet);
         } if(icon.equals("partlycloudy")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.partlycloudy);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.partlycloudy);
         } if(icon.equals("partlysunny")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.partlysunny);
+            return  BitmapFactory.decodeResource(getResources(), R.drawable.partlysunny);
         } if(icon.equals("snow")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.snow);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.snow);
         } if(icon.equals("sunny")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.sunny);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.sunny);
         }  if(icon.equals("tstorms")){
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.tstorms);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.tstorms);
         } else {
-            b = BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.clear);
         }
-        return b;
+        //return b;
     }
 }
