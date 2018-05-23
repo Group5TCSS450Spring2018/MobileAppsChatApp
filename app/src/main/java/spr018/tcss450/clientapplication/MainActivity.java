@@ -97,6 +97,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadFragmentNoBackStack(new HomeFragment());
+
+        if (getIntent().hasExtra("GoToChatList")) {
+            Toast.makeText(getApplicationContext(), "Left "
+                    + getIntent().getExtras().getString("GoToChatList")
+                    + "!", Toast.LENGTH_LONG).show();
+            loadFragmentWithBackStack(new ChatListFragment(), Pages.CHATLIST);
+        }
     }
 
     @Override

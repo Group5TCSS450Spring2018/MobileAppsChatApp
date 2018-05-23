@@ -1,6 +1,7 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v4.app.NavUtils;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +29,8 @@ import spr018.tcss450.clientapplication.utility.ListenManager;
 import spr018.tcss450.clientapplication.utility.Pages;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity
+    implements ChatFragment.OnFragmentInteractionListener {
     public static final String CONNECTION_USERNAME = "username";
     public static final String CHAT_ID = "chatID";
     public static final String CHAT_NAME ="chatName";
@@ -48,10 +51,19 @@ public class ChatActivity extends AppCompatActivity {
             setTitle("\"" + mChatName + "\"" + " - " + mUsername);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.chatActivity,
-                            ChatFragment.newInstance(mUsername, mChatID),
+                            ChatFragment.newInstance(mUsername, mChatID, mChatName),
                             Pages.CHAT.toString())
                     .commit();
         }
     }
 
+
+
+    @Override
+    public void goBackToMainActivity(String chatname) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("GoToChatList", chatname);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
 }
