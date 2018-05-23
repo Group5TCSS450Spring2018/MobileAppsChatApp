@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener{
@@ -53,7 +54,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLng latLng = new LatLng(mLat, mLng);
         mGoogleMap.addMarker(new MarkerOptions().
                 position(latLng).
-                title("Marker in Tacoma"));
+                title("Current Location"));
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
         mGoogleMap.setOnMapClickListener(this);
     }
@@ -67,14 +68,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Confirm");
-        builder.setMessage("Are you sure?");
+        builder.setTitle("Would you like to view the weather at this location?");
+        //builder.setMessage("Are you sure?");
 
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface dialog, int which) {
                 // Do nothing but close the dialog
-
+                mPrefs = Objects.requireNonNull(getApplication()).getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+                Log.d("NEW LOCATION ON MAP CLICK", latLng.latitude+","+latLng.longitude);
+                mPrefs.edit().putString(getString(R.string.keys_prefs_NEWCOORDINATES), latLng.latitude+","+latLng.longitude).apply();
                 dialog.dismiss();
             }
         });
