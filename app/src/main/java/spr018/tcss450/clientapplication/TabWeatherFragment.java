@@ -103,11 +103,13 @@ public class TabWeatherFragment extends Fragment {
             Intent i = new Intent(view.getContext(), MapActivity.class);
 
             Double latitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_latitude),""));
-
+            Double longitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_longitude),""));
+            String.format("%.1f", latitude);
+            String.format("%.1f", longitude);
 //
-//            i.putExtra(MapActivity.LATITUDE, mCurrentLocation.getLatitude());
-//            i.putExtra(MapActivity.LONGITUDE, mCurrentLocation.getLongitude());
-//            startActivity(i);
+            i.putExtra(MapActivity.LATITUDE, latitude);
+            i.putExtra(MapActivity.LONGITUDE, longitude);
+            startActivity(i);
         }));
         getCurrentWeather();
         getHourlyWeather();
