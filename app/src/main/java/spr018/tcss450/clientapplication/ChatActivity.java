@@ -34,6 +34,7 @@ public class ChatActivity extends AppCompatActivity
     public static final String CONNECTION_USERNAME = "username";
     public static final String CHAT_ID = "chatID";
     public static final String CHAT_NAME ="chatName";
+    private SharedPreferences mPrefs;
     //private String mTheirUsername;
     private String mUsername;
     private String mChatName;
@@ -42,7 +43,17 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPrefs = getSharedPreferences(
+                getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+        // make sure to set the app theme before setting the view
+        //Log.d("MAIN",mCurrentLocation.getLatitude()+"");
+        setTheme(mPrefs.getInt(
+                getString(R.string.keys_prefs_app_theme), R.style.AppTheme));
+
         setContentView(R.layout.activity_chat);
+
+
         Bundle bundle = getIntent().getExtras();
         mUsername = bundle.getString(CONNECTION_USERNAME);
         mChatID = bundle.getInt(CHAT_ID);

@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,12 +79,13 @@ public class ChatFragment extends Fragment {
         if (getArguments() != null) {
 
             mTheirUsername = getArguments().getString(CONNECTION_USERNAME);
+            mUsername = getArguments().getString(CONNECTION_USERNAME);
             mChatID = getArguments().getInt(CHAT_ID);
             SharedPreferences prefs =
                     Objects.requireNonNull(getActivity()).getSharedPreferences(
                             getString(R.string.keys_shared_prefs) + mChatID,
                             Context.MODE_PRIVATE);
-            mUsername = prefs.getString(getString(R.string.keys_prefs_user_name), "");
+            //mUsername = prefs.getString(getString(R.string.keys_prefs_user_name), "");
             mChatName = getArguments().getString(CHAT_NAME);
             mChatDialogue = new ArrayList<>();
             mAdapter = new ChatDialogueAdapter(mChatDialogue);
@@ -207,7 +209,7 @@ public class ChatFragment extends Fragment {
                     displayList.add(obj.getString("username"));
                 }
 
-                String result = displayList.toString().substring(1, displayList.toString().length() - 2);
+                String result = displayList.toString().substring(1, displayList.toString().length() - 1);
                 Log.e("LIST CONTENTS", displayList.toString() + "\n" + result);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Chat Participants!")
@@ -256,23 +258,26 @@ public class ChatFragment extends Fragment {
                     this::publishProgress)
                     .setTimeStamp(prefs.getString(getString(R.string.keys_prefs_time_stamp), "0"))
                     .setExceptionHandler(this::handleError)
-                    .setDelay(1000)
+                    .setDelay(5000)
                     .build();
         } else {
             //no record of a saved timestamp. must be a first time login
             mListenManager = new ListenManager.Builder(retrieve.toString(),
                     this::publishProgress)
                     .setExceptionHandler(this::handleError)
-                    .setDelay(1000)
+                    .setDelay(5000)
                     .build();
         }
     }
 
     private void sendMessage(final View theButton) {
+        Log.e("SEND", "ATTEMPTING TO SEND MESSAGE");
         JSONObject messageJSON = new JSONObject();
         String msg = ((EditText) Objects.requireNonNull(getView()).findViewById(R.id.chatSendText))
                 .getText().toString();
-
+        Log.e("SEND", "USING:\nUSERNAME: " + mUsername
+                + "\nMESSAGE: " + msg
+                + "\nCHATID: " + mChatID);
         try {
             messageJSON.put(getString(R.string.keys_json_username), mUsername);
             messageJSON.put(getString(R.string.keys_json_message), msg);
@@ -282,6 +287,7 @@ public class ChatFragment extends Fragment {
         }
 
         if (!msg.isEmpty()) {
+            Log.e("SEND", "SENDING MESSAGE IN ASYNC");
             new SendPostAsyncTask.Builder(mSendUrl, messageJSON)
                     .onPostExecute(this::endOfSendMsgTask)
                     .onCancelled(this::handleError)
@@ -295,6 +301,7 @@ public class ChatFragment extends Fragment {
 
     private void endOfSendMsgTask(final String result) {
         try {
+            Log.e("END SEND MESSAGE", result);
             JSONObject res = new JSONObject(result);
 
             if(res.get(getString(R.string.keys_json_success)).toString()
