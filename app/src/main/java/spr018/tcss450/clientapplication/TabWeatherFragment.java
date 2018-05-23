@@ -1,14 +1,12 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
@@ -19,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -46,7 +43,6 @@ public class TabWeatherFragment extends Fragment {
     private ImageButton mReload;
     private SharedPreferences mPrefs;
     private ListenManager mWeatherListen;
-    private FloatingActionButton mMaps;
 
 
     public TabWeatherFragment() {
@@ -78,9 +74,6 @@ public class TabWeatherFragment extends Fragment {
             } else{
                 mLocation = getArguments().getString(LOCATION);
             }
-
-
-            Log.d("LATLNG TAB WEATHER", mLocation);
         }
 
     }
@@ -97,19 +90,6 @@ public class TabWeatherFragment extends Fragment {
         mImage = v.findViewById(R.id.imageView2);
         mReload = v.findViewById(R.id.reloadButton);
         mReload.setOnClickListener(this::Reload);
-        mMaps = v.findViewById(R.id.mapAction);
-        mMaps.setOnClickListener((view -> {
-            Intent i = new Intent(view.getContext(), MapActivity.class);
-
-            Double latitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_latitude),""));
-            Double longitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_longitude),""));
-            String.format("%.1f", latitude);
-            String.format("%.1f", longitude);
-//
-            i.putExtra(MapActivity.LATITUDE, latitude);
-            i.putExtra(MapActivity.LONGITUDE, longitude);
-            startActivity(i);
-        }));
         getCurrentWeather();
         getHourlyWeather();
         get10DayWeather();
@@ -190,7 +170,6 @@ public class TabWeatherFragment extends Fragment {
         try {
             JSONObject resultJSON = new JSONObject(result);
             if (resultJSON.has("datearray")&& resultJSON.has("temparray")) {
-                Log.d("TAB WEATHER FRAG", "has.");
                 try {
                     JSONArray dates = resultJSON.getJSONArray("datearray");
                     JSONArray highTemperatures = resultJSON.getJSONArray("temparray");
