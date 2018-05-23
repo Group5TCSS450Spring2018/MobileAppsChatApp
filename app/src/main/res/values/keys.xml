@@ -10,6 +10,7 @@
     <string name="keys_prefs_coordinates">coordinates</string>
     <string name="keys_prefs_latitude">latitude</string>
     <string name="keys_prefs_longitude">longitude</string>
+    <string name="keys_prefs_NEWCOORDINATES">newCoordinates</string>
 
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>
