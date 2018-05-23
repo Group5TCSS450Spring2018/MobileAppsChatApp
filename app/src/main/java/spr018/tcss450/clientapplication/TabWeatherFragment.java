@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
+import spr018.tcss450.clientapplication.utility.ListenManager;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
@@ -40,6 +41,7 @@ public class TabWeatherFragment extends Fragment {
     private String mLocation;
     private ImageButton mReload;
     private SharedPreferences mPrefs;
+    private ListenManager mWeatherListen;
 
 
     public TabWeatherFragment() {
@@ -107,49 +109,47 @@ public class TabWeatherFragment extends Fragment {
 
 
     private void getCurrentWeather() {
+
+
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_currentWeather))
+                .appendQueryParameter("location", mLocation)
                 .build();
-
-        JSONObject msg = new JSONObject();
-        try{
-                msg.put("location", mLocation);
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-        new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleCurrentWeather)
-                .onCancelled(this::handleErrorsInTask)
-                .build().execute();
+        mWeatherListen = new ListenManager.Builder(uri.toString(),
+                this::handleHomeCurrentWeather)
+                .setExceptionHandler(this::handleWeatherError)
+                .setDelay((int) HomeFragment.UPDATE_INTERVAL_IN_MILLISECONDS)
+                .build();
     }
-    private void handleCurrentWeather(String results){
-        Log.d("CURRENT", results);
+
+    private void handleHomeCurrentWeather(JSONObject resultJSON) {
+        final String[] currentWeather;
         try {
-            JSONObject res = new JSONObject(results);
-            if (res.has("array")) {
-                Log.d("TAB WEATHER FRAG", "has.");
-                try {
-                    JSONArray arrayJ = res.getJSONArray("array");
-                    if (arrayJ.length() == 0 ) {
-
-                    } else {
-                        mWeatherWidget.setText(arrayJ.get(0).toString());
-                        mLocationWidget.setText(arrayJ.get(1).toString());
-
-
-                        mImage.setImageBitmap(getIconBitmap(arrayJ.get(2).toString()));
-                    }
-                } catch (JSONException e) {
-
-                }
-
+            JSONArray arrayJ = resultJSON.getJSONArray("array");
+            currentWeather = new String[arrayJ.length()];
+            for (int i = 0; i < currentWeather.length; i++) {
+                currentWeather[i] = arrayJ.getString(i);
             }
-
-        } catch (JSONException e){
-
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
         }
+
+        Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
+            mWeatherWidget.setText(currentWeather[0]);
+            mLocationWidget.setText(currentWeather[1]);
+            Bitmap icon = getIconBitmap(currentWeather[2]);
+            mImage.setImageBitmap(icon);
+        });
+
+        /*
+        get temp that is passed back and then setText of weatherTextview.*/
+    }
+
+    private void handleWeatherError(final Exception e) {
+        Log.e("HOME WEATHER", e.getMessage());
     }
 
     private void get10DayWeather(){
@@ -354,5 +354,39 @@ public class TabWeatherFragment extends Fragment {
             return BitmapFactory.decodeResource(getResources(), R.drawable.clear);
         }
         //return b;
+    }
+
+    @Override
+    public void onStart() {
+//        if (mGoogleApiClient != null) {
+//            mGoogleApiClient.connect();
+//        }
+
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        if (mWeatherListen != null) {
+            mWeatherListen.startListening();
+        }
+//        if (mRequestListen != null) {
+//            mRequestListen.startListening();
+//        }
+        super.onResume();
+    }
+
+    @Override
+    public void onStop() {
+//        if (mGoogleApiClient != null) {
+//            mGoogleApiClient.disconnect();
+//        }
+        if (mWeatherListen != null) {
+            mWeatherListen.stopListening();
+        }
+//        if (mRequestListen != null) {
+//            mRequestListen.stopListening();
+//        }
+        super.onStop();
     }
 }
