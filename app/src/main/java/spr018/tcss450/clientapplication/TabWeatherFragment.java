@@ -1,14 +1,14 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -38,13 +37,12 @@ public class TabWeatherFragment extends Fragment {
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private LinearLayout m24HoursWidget;
-    private LinearLayout m10DayWidget;
+    private LinearLayout mVerticalHolder;
     private ImageView mImage;
     private String mLocation;
     private ImageButton mReload;
     private SharedPreferences mPrefs;
     private ListenManager mWeatherListen;
-    private FloatingActionButton mMaps;
 
 
     public TabWeatherFragment() {
@@ -58,7 +56,6 @@ public class TabWeatherFragment extends Fragment {
         Bundle args = new Bundle();
         args.putString(LOCATION, location);
         args.putString(CURRENTORSAVED, current);
-        Log.d("LATLNG NEW INSTANCE", location);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,8 +63,7 @@ public class TabWeatherFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPrefs = mPrefs =
-                Objects.requireNonNull(getActivity()).getSharedPreferences(
+        mPrefs = Objects.requireNonNull(getActivity()).getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
         if (getArguments() != null) {
@@ -78,9 +74,6 @@ public class TabWeatherFragment extends Fragment {
             } else{
                 mLocation = getArguments().getString(LOCATION);
             }
-
-
-            Log.d("LATLNG TAB WEATHER", mLocation);
         }
 
     }
@@ -93,24 +86,10 @@ public class TabWeatherFragment extends Fragment {
         mLocationWidget = v.findViewById(R.id.weatherTabCurrentLocation);
         mWeatherWidget = v.findViewById(R.id.weatherTabCurrentTemp);
         m24HoursWidget = v.findViewById(R.id.weatherTabHourlyContainer);
-        m10DayWidget = v.findViewById(R.id.weatherTabDailyContainer);
-
+        mVerticalHolder = v.findViewById(R.id.weatherTabVerticalHolder);
         mImage = v.findViewById(R.id.imageView2);
         mReload = v.findViewById(R.id.reloadButton);
         mReload.setOnClickListener(this::Reload);
-        mMaps = v.findViewById(R.id.mapAction);
-        mMaps.setOnClickListener((view -> {
-            Intent i = new Intent(view.getContext(), MapActivity.class);
-
-            Double latitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_latitude),""));
-            Double longitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_longitude),""));
-            String.format("%.1f", latitude);
-            String.format("%.1f", longitude);
-//
-            i.putExtra(MapActivity.LATITUDE, latitude);
-            i.putExtra(MapActivity.LONGITUDE, longitude);
-            startActivity(i);
-        }));
         getCurrentWeather();
         getHourlyWeather();
         get10DayWeather();
@@ -125,8 +104,6 @@ public class TabWeatherFragment extends Fragment {
 
 
     private void getCurrentWeather() {
-
-
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -154,14 +131,12 @@ public class TabWeatherFragment extends Fragment {
         }
 
         Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
-            mWeatherWidget.setText(currentWeather[0]);
+            String temperature = currentWeather[0] + (char) 0x00B0 + "F";
+            mWeatherWidget.setText(temperature);
             mLocationWidget.setText(currentWeather[1]);
             Bitmap icon = getIconBitmap(currentWeather[2]);
             mImage.setImageBitmap(icon);
         });
-
-        /*
-        get temp that is passed back and then setText of weatherTextview.*/
     }
 
     private void handleWeatherError(final Exception e) {
@@ -191,54 +166,91 @@ public class TabWeatherFragment extends Fragment {
                 .build().execute();
 
     }
-    private void handle10DayWeather(String r) {
-        Log.d("TAB WEATHER", "10 days" + r);
+    private void handle10DayWeather(String result) {
         try {
-            JSONObject R = new JSONObject(r);
-            if (R.has("datearray")&& R.has("temparray")) {
-                Log.d("TAB WEATHER FRAG", "has.");
+            JSONObject resultJSON = new JSONObject(result);
+            if (resultJSON.has("datearray")&& resultJSON.has("temparray")) {
                 try {
-                    JSONArray date = R.getJSONArray("datearray");
-                    JSONArray temp = R.getJSONArray("temparray");
-                    JSONArray icons = R.getJSONArray(("iconarray"));
-                    JSONArray low = R.getJSONArray("LOWtemparray");
-                    if (date.length() == 0 && temp.length() == 0) {
-
+                    JSONArray dates = resultJSON.getJSONArray("datearray");
+                    JSONArray highTemperatures = resultJSON.getJSONArray("temparray");
+                    JSONArray icons = resultJSON.getJSONArray(("iconarray"));
+                    JSONArray lowTemperatures = resultJSON.getJSONArray("LOWtemparray");
+                    if (dates.length() == 0 && highTemperatures.length() == 0) {
+                        Log.e("10 DAY WEATHER", "Empty");
                     } else {
-                        for (int i = 0; i < date.length(); i++) {
-                            LinearLayout horizontalHolder = new LinearLayout(getActivity());
-                            horizontalHolder.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            horizontalHolder.setOrientation(LinearLayout.HORIZONTAL);
-
-                            LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                        for (int i = 0; i < dates.length(); i++) {
+                            LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                             textLayout.setMargins(10,10,10,10);
 
-                            TextView temperature = new TextView(getContext());
-                            String[] dates = date.get(i).toString().split("on");
-                            temperature.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F \n\t\tLow: "+low.get(i).toString()+"F");
-                            temperature.setLayoutParams(textLayout);
-                            ImageButton img = new ImageButton(getContext());
+                            String date = dates.get(i).toString().split("on")[1];
+                            TextView dateText = new TextView(getContext());
+                            dateText.setText(date);
+                            dateText.setLayoutParams(textLayout);
+                            dateText.setTextSize(20);
+                            dateText.setId(View.generateViewId());
+
+                            TextView highText = new TextView(getContext());
+                            String high = highTemperatures.get(i).toString() + (char) 0x00B0 + "F";
+                            highText.setText(high);
+                            highText.setLayoutParams(textLayout);
+                            highText.setTextSize(18);
+                            highText.setId(View.generateViewId());
+
+                            TextView lowText = new TextView(getActivity());
+                            String low = lowTemperatures.get(i).toString() + (char) 0x00B0 + "F";
+                            lowText.setText(low);
+                            lowText.setTextSize(18);
+                            lowText.setLayoutParams(textLayout);
+                            lowText.setId(View.generateViewId());
+
+                            LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(200, 200);
+                            ImageView img = new ImageView(getContext());
                             img.setBackgroundColor(Color.TRANSPARENT);
                             img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
-//                            img.setScaleY(SIZE/2);
-//                            img.setScaleX(SIZE/2);
-                            horizontalHolder.addView(img);
-                            temperature.setTextSize(15);
-                            horizontalHolder.addView(temperature);
-                            m10DayWidget.addView(horizontalHolder);
+                            img.setLayoutParams(imageParams);
+                            img.setId(View.generateViewId());
 
+                            ConstraintLayout constraintText = new ConstraintLayout(getActivity());
+                            constraintText.setId(View.generateViewId());
+                            constraintText.addView(highText);
+                            constraintText.addView(lowText);
+                            ConstraintSet constraintSet = new ConstraintSet();
+                            constraintSet.clone(constraintText);
+                            constraintSet.createVerticalChain(ConstraintSet.PARENT_ID, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM,
+                                    new int[]{highText.getId(), lowText.getId()}, null, ConstraintSet.CHAIN_PACKED);
+                            constraintSet.connect(highText.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+                            constraintSet.connect(highText.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+                            constraintSet.connect(lowText.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+                            constraintSet.connect(highText.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+                            constraintSet.applyTo(constraintText);
+
+                            ConstraintLayout constraintHolder = new ConstraintLayout(getActivity());
+                            constraintHolder.setId(View.generateViewId());
+                            constraintHolder.addView(img);
+                            constraintHolder.addView(dateText);
+                            constraintHolder.addView(constraintText);
+                            constraintSet = new ConstraintSet();
+                            constraintSet.clone(constraintHolder);
+                            constraintSet.connect(img.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                            constraintSet.connect(img.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+                            constraintSet.connect(dateText.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                            constraintSet.connect(dateText.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+                            constraintSet.connect(constraintText.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                            constraintSet.connect(constraintText.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+                            constraintSet.createHorizontalChain(ConstraintSet.PARENT_ID, ConstraintSet.LEFT,
+                                    ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, new int[] {img.getId(), dateText.getId(), constraintText.getId()},
+                                    null, ConstraintSet.CHAIN_SPREAD);
+                            constraintSet.applyTo(constraintHolder);
+
+                            mVerticalHolder.addView(constraintHolder);
                         }
-
-
                     }
                 } catch (JSONException e) {
-
+                    Log.e("10 DAY WEATHER", e.getMessage());
                 }
-
             }
-
         } catch (JSONException e){
-
+            Log.e("10 DAY WEATHER", e.getMessage());
         }
     }
     private void getHourlyWeather() {
@@ -262,17 +274,15 @@ public class TabWeatherFragment extends Fragment {
                 .build().execute();
     }
     private void handleHourlyWeather(String results){
-        Log.d("TAB WEATHER FRAG",results); //displays in console. timearray and temparray
         try{
             JSONObject resultJSON = new JSONObject(results);
             if(resultJSON.has("timearray") &&resultJSON.has("temparray")) {
-                Log.d("TAB WEATHER FRAG", "has.");
                 try {
                     JSONArray time = resultJSON.getJSONArray("timearray");
                     JSONArray temp = resultJSON.getJSONArray("temparray");
                     JSONArray icons = resultJSON.getJSONArray("iconarray");
                     if(time.length() == 0 && temp.length() == 0) {
-
+                        Log.e("HOURLY WEATHER", "EMPTY");
                     } else {
                         for (int i = 0; i < time.length(); i++) {
                             LinearLayout verticalHolder = new LinearLayout(getActivity());
@@ -287,34 +297,33 @@ public class TabWeatherFragment extends Fragment {
                             hour.setText(time.get(i).toString());
                             hour.setTextSize(15);
                             hour.setLayoutParams(textLayout);
+                            hour.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
                             TextView temperature = new TextView(getActivity());
-                            temperature.setText(temp.get(i).toString());
+                            String s = temp.getString(i) + (char) 0x00B0 + "F";
+                            temperature.setText(s);
                             temperature.setTextSize(15);
                             temperature.setLayoutParams(textLayout);
+                            temperature.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
-                            ImageButton img = new ImageButton(getContext());
+                            ImageView img = new ImageView(getContext());
                             img.setBackgroundColor(Color.TRANSPARENT);
                             img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
-//                            img.setScaleY(SIZE);
-//                            img.setScaleX(SIZE);
+
                             verticalHolder.addView(img);
                             verticalHolder.addView(hour);
                             verticalHolder.addView(temperature);
 
                             m24HoursWidget.addView(verticalHolder);
                         }
-
-
-
                     }
                 } catch (JSONException e) {
-
+                    Log.e("HOURLY WEATHER", e.getMessage());
                 }
             }
 
         } catch (JSONException e) {
-
+            Log.e("HOURLY WEATHER", e.getMessage());
         }
 
     }
