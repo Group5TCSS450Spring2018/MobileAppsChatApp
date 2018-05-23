@@ -116,11 +116,11 @@ public class ChatFragment extends Fragment {
                 .appendPath(getString(R.string.ep_getMessages))
                 .appendQueryParameter("chatid", Integer.toString(mChatID))
                 .build();
-        if (prefs.contains(getString(R.string.keys_prefs_time_stamp))) {
+        if (prefs.contains(getString(R.string.keys_prefs_chat_time_stamp))) {
             //ignore all of the seen messages. You may want to store these messages locally
             mListenManager = new ListenManager.Builder(retrieve.toString(),
                     this::publishProgress)
-                    .setTimeStamp(prefs.getString(getString(R.string.keys_prefs_time_stamp), "0"))
+                    .setTimeStamp(prefs.getString(getString(R.string.keys_prefs_chat_time_stamp), "0"))
                     .setExceptionHandler(this::handleError)
                     .setDelay(1000)
                     .build();
@@ -235,7 +235,7 @@ public class ChatFragment extends Fragment {
                         Context.MODE_PRIVATE);
         // Save the most recent message timestamp
         prefs.edit().putString(
-                getString(R.string.keys_prefs_time_stamp) + mChatID,
+                getString(R.string.keys_prefs_chat_time_stamp) + mChatID,
                 latestMessage)
                 .apply();
     }
