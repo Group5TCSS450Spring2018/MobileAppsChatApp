@@ -205,8 +205,6 @@ public class MainActivity extends AppCompatActivity
             loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
             NotificationIntentService.stopServiceAlarm(this);
-            mEditor.putBoolean(getString(R.string.keys_sp_on), false);
-            mEditor.apply();
             showLoginActivity();
         }
 
