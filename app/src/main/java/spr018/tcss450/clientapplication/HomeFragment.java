@@ -215,6 +215,8 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
 
     private void getCurrentWeather() {
         String coordinates = mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude();
+        Log.d("LATLNG!!", coordinates);
+        mPrefs.edit().putString(getString(R.string.keys_prefs_coordinates), coordinates).apply();
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))

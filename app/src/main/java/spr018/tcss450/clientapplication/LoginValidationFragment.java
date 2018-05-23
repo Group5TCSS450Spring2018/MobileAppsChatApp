@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,9 +90,12 @@ public class LoginValidationFragment extends Fragment {
     private void onCodeFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (mCode.getText().toString().isEmpty()) {
+                Log.d("HELLO", "in input rn: " + mCode.getText().toString());
                 mCode.setError(getString(R.string.error_empty));
             } else if (mCode.getText().toString().length() != 4) {
                 mCode.setError(getString(R.string.error_verification_code));
+            } else {
+                mCode.setError(null);
             }
         }
     }
@@ -116,7 +120,7 @@ public class LoginValidationFragment extends Fragment {
         //Log in unsuccessful for reason: err. Try again.
         //you may want to add error stuffs for the user here.
         ((EditText) Objects.requireNonNull(getView()).findViewById(R.id.validationNumberInput))
-                .setError(getString(R.string.error_empty));
+                .setError("Unable to validate! Is the code correct?");
     }
 
     /**

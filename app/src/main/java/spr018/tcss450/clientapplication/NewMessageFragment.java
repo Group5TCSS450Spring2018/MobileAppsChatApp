@@ -114,8 +114,8 @@ public class NewMessageFragment extends Fragment {
             check = false;
         }
 
-        if (mSelectedMembers.size() < 2) {
-            mSelectedLabel.setError("Must select at least two members!");
+        if (mSelectedMembers.size() < 1) {
+            mSelectedLabel.setError("Must select at least one member to chat with!");
             mCreateChatButton.setEnabled(true);
             check = false;
         }
