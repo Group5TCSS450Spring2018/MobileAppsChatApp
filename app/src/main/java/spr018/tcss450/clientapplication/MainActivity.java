@@ -312,14 +312,14 @@ public class MainActivity extends AppCompatActivity
                 getString(R.string.keys_prefs_app_theme_no_actionbar), themeID_no_actionbar).apply();
 
         setTheme(themeID_no_actionbar);
-        recreate();
+
 
         //Empties back stack because it doesn't work properly after recreate() is called.
         FragmentManager fm = getSupportFragmentManager();
         for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStack();
         }
-        updateFABandNV(null);
+        recreate();
     }
 
     /* Helpers */
