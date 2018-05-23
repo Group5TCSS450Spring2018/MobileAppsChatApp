@@ -348,6 +348,17 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void loadMap() {
+        Intent i = new Intent(this, MapActivity.class);
+        Double latitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_latitude),""));
+        Double longitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_longitude),""));
+        String.format("%.1f", latitude);
+        String.format("%.1f", longitude);
+        i.putExtra(MapActivity.LATITUDE, latitude);
+        i.putExtra(MapActivity.LONGITUDE, longitude);
+        startActivity(i);
+    }
+
     //Sets the Floating Action Button and NavigationView to the correct state.
     private void updateFABandNV(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
@@ -364,7 +375,9 @@ public class MainActivity extends AppCompatActivity
             nv.setCheckedItem(R.id.nav_connections);
             setTitle(Pages.CONNECTIONS.toString());
         } else if (fragment instanceof WeatherFragment) {
-            mFab.hide();
+            mFab.show();
+            mFab.setImageResource(R.drawable.ic_fab_map);
+            mFab.setOnClickListener(view -> loadMap());
             nv.setCheckedItem(R.id.nav_weather);
             setTitle(Pages.WEATHER.toString());
         } else if (fragment instanceof SettingsFragment) {
