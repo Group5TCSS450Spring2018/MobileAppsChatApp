@@ -1,5 +1,7 @@
 package spr018.tcss450.clientapplication;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -20,13 +22,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 public class TabWeatherFragment extends Fragment {
 
     public static final String LOCATION = "Location";
-    private static final float SIZE = .25f;
+    public static final String CURRENTORSAVED = "c";
+    private String mCurrentorSaved;
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private LinearLayout m24HoursWidget;
@@ -34,7 +39,7 @@ public class TabWeatherFragment extends Fragment {
     private ImageView mImage;
     private String mLocation;
     private ImageButton mReload;
-    private ScrollView mHorizontalScrollView;
+    private SharedPreferences mPrefs;
 
 
     public TabWeatherFragment() {
@@ -43,10 +48,12 @@ public class TabWeatherFragment extends Fragment {
 
     //Static method to create a new fragment with the specified parameters,
     //Can pass anything here, JSON, String, Coordinate.
-    public static TabWeatherFragment newInstance(String location) {
+    public static TabWeatherFragment newInstance(String location, String current) {
         TabWeatherFragment fragment = new TabWeatherFragment();
         Bundle args = new Bundle();
         args.putString(LOCATION, location);
+        args.putString(CURRENTORSAVED, current);
+        Log.d("LATLNG NEW INSTANCE", location);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,9 +61,23 @@ public class TabWeatherFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPrefs = mPrefs =
+                Objects.requireNonNull(getActivity()).getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
         if (getArguments() != null) {
-            mLocation = getArguments().getString(LOCATION);
+            mCurrentorSaved = getArguments().getString(CURRENTORSAVED);
+            if(mCurrentorSaved.equals("Current")){
+                mLocation = mPrefs.getString(getString(R.string.keys_prefs_coordinates), "");
+
+            } else{
+                mLocation = getArguments().getString(LOCATION);
+            }
+
+
+            Log.d("LATLNG TAB WEATHER", mLocation);
         }
+
     }
 
     @Override
@@ -83,22 +104,7 @@ public class TabWeatherFragment extends Fragment {
         getHourlyWeather();
         get10DayWeather();
     }
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
+
 
     private void getCurrentWeather() {
         Uri uri = new Uri.Builder()
@@ -109,7 +115,7 @@ public class TabWeatherFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-            msg.put("location", mLocation);
+                msg.put("location", mLocation);
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -120,11 +126,6 @@ public class TabWeatherFragment extends Fragment {
     }
     private void handleCurrentWeather(String results){
         Log.d("CURRENT", results);
-//        String[] weather = results.split(":");
-//        Log.d("CURRENT", ""+ weather[1].split(",")[0]);
-//        mWeatherWidget.setText(weather[1].split(",")[0]+ "F");
-//
-//        mLocationWidget.setText(weather[2].substring(1, weather[2].length()-2));
         try {
             JSONObject res = new JSONObject(results);
             if (res.has("array")) {
@@ -160,7 +161,10 @@ public class TabWeatherFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
+
+
             msg.put("location", mLocation);
+
         } catch(JSONException e) {
             e.printStackTrace();
         }
@@ -229,7 +233,9 @@ public class TabWeatherFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
+
             msg.put("location", mLocation);
+
         } catch(JSONException e) {
             e.printStackTrace();
         }
