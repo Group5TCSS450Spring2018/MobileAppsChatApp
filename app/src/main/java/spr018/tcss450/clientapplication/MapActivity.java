@@ -58,7 +58,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Log.d("LAT/LONG", latLng.toString());
+        Log.d("NEW MARKER. LAT/LONG", latLng.toString());
         Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title("New Marker"));
