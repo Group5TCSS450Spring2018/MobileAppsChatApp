@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -25,7 +26,7 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 public class TabWeatherFragment extends Fragment {
 
     public static final String LOCATION = "Location";
-    private static final float SIZE = .4f;
+    private static final float SIZE = .25f;
     private TextView mWeatherWidget;
     private TextView mLocationWidget;
     private LinearLayout m24HoursWidget;
@@ -33,6 +34,7 @@ public class TabWeatherFragment extends Fragment {
     private ImageView mImage;
     private String mLocation;
     private ImageButton mReload;
+    private ScrollView mHorizontalScrollView;
 
 
     public TabWeatherFragment() {
@@ -66,6 +68,7 @@ public class TabWeatherFragment extends Fragment {
         mWeatherWidget = v.findViewById(R.id.weatherTabCurrentTemp);
         m24HoursWidget = v.findViewById(R.id.weatherTabHourlyContainer);
         m10DayWidget = v.findViewById(R.id.weatherTabDailyContainer);
+
         mImage = v.findViewById(R.id.imageView2);
         mReload = v.findViewById(R.id.reloadButton);
         mReload.setOnClickListener(this::Reload);
@@ -182,16 +185,26 @@ public class TabWeatherFragment extends Fragment {
 
                     } else {
                         for (int i = 0; i < date.length(); i++) {
+                            LinearLayout horizontalHolder = new LinearLayout(getActivity());
+                            horizontalHolder.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            horizontalHolder.setOrientation(LinearLayout.HORIZONTAL);
+
+                            LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                            textLayout.setMargins(10,10,10,10);
+
                             TextView temperature = new TextView(getContext());
                             String[] dates = date.get(i).toString().split("on");
                             temperature.setText(dates[1]+ " \n \t\tHigh: " +temp.get(i).toString()+"F");
+                            temperature.setLayoutParams(textLayout);
                             ImageButton img = new ImageButton(getContext());
+                            img.setBackgroundColor(Color.TRANSPARENT);
                             img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
-//                            img.setScaleY(SIZE);
-//                            img.setScaleX(SIZE);
-                            m10DayWidget.addView(img);
-                            temperature.setTextSize(30);
-                            m10DayWidget.addView(temperature);
+//                            img.setScaleY(SIZE/2);
+//                            img.setScaleX(SIZE/2);
+                            horizontalHolder.addView(img);
+                            temperature.setTextSize(15);
+                            horizontalHolder.addView(temperature);
+                            m10DayWidget.addView(horizontalHolder);
 
                         }
 
@@ -239,13 +252,12 @@ public class TabWeatherFragment extends Fragment {
 
                     } else {
                         for (int i = 0; i < time.length(); i++) {
-
                             LinearLayout verticalHolder = new LinearLayout(getActivity());
                             verticalHolder.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                             verticalHolder.setOrientation(LinearLayout.VERTICAL);
 
                             //Margins for the TextView.
-                            LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
                             textLayout.setMargins(10,10,10,10);
 
                             TextView hour = new TextView(getActivity());
@@ -259,12 +271,14 @@ public class TabWeatherFragment extends Fragment {
                             temperature.setLayoutParams(textLayout);
 
                             ImageButton img = new ImageButton(getContext());
+                            img.setBackgroundColor(Color.TRANSPARENT);
                             img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
-                            img.setScaleY(SIZE);
-                            img.setScaleX(SIZE);
+//                            img.setScaleY(SIZE);
+//                            img.setScaleX(SIZE);
                             verticalHolder.addView(img);
                             verticalHolder.addView(hour);
                             verticalHolder.addView(temperature);
+
                             m24HoursWidget.addView(verticalHolder);
                         }
 
