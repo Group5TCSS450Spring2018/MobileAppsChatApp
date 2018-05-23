@@ -221,6 +221,8 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         String coordinates = mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude();
         Log.d("LATLNG!!", coordinates);
         mPrefs.edit().putString(getString(R.string.keys_prefs_coordinates), coordinates).apply();
+        mPrefs.edit().putString(getString(R.string.keys_prefs_latitude), ""+mCurrentLocation.getLatitude()).apply();
+        mPrefs.edit().putString(getString(R.string.keys_prefs_longitude), ""+mCurrentLocation.getLongitude()).apply();
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
