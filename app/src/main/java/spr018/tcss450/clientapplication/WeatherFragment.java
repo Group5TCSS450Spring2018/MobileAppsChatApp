@@ -1,6 +1,7 @@
 package spr018.tcss450.clientapplication;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import spr018.tcss450.clientapplication.model.WeatherCollectionPagerAdapter;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
@@ -34,6 +36,7 @@ public class WeatherFragment extends Fragment {
     private List<TabWeatherFragment> mWeatherTabs;
     private List<String> mTabNames;
     private WeatherCollectionPagerAdapter mWeatherPagerAdapter;
+    private SharedPreferences mPrefs;
     public WeatherFragment() {
         // Required empty public constructor
     }
@@ -48,8 +51,17 @@ public class WeatherFragment extends Fragment {
         mTabNames = new ArrayList<>();
         mWeatherPagerAdapter =
                 new WeatherCollectionPagerAdapter(getChildFragmentManager(), mWeatherTabs, mTabNames);
-        addTab(TabWeatherFragment.newInstance("98031"), "Current");
-        addTab(TabWeatherFragment.newInstance("10001"), "Saved");
+        mPrefs =
+                Objects.requireNonNull(getActivity()).getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        String mLocation = mPrefs.getString(getString(R.string.keys_prefs_coordinates), "");
+        Log.d("LATLNG mPREFS", mLocation);
+        addTab(TabWeatherFragment.newInstance(mLocation, "Current"), "Current");
+
+        String newLocation = mPrefs.getString(getString(R.string.keys_prefs_NEWCOORDINATES),"");
+        Log.d("NEW LOCATION", newLocation);
+        addTab(TabWeatherFragment.newInstance(newLocation, "Saved"), "Saved");
 
         ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
         mViewPager.setAdapter(mWeatherPagerAdapter);

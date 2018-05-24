@@ -1,5 +1,9 @@
 package spr018.tcss450.clientapplication;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,17 +16,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener{
     public static final String LATITUDE = "lat";
     public static final String LONGITUDE = "lng";
 
     private GoogleMap mGoogleMap;
     private double mLat, mLng;
+    private SharedPreferences mPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        mPrefs =
+                Objects.requireNonNull(getApplication()).getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
 
         mLat = getIntent().getDoubleExtra(LATITUDE, 0.0);
         mLng = getIntent().getDoubleExtra(LONGITUDE, 0.0);
@@ -42,17 +54,47 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLng latLng = new LatLng(mLat, mLng);
         mGoogleMap.addMarker(new MarkerOptions().
                 position(latLng).
-                title("Marker in Tacoma"));
+                title("Current Location"));
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
         mGoogleMap.setOnMapClickListener(this);
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Log.d("LAT/LONG", latLng.toString());
+        Log.d("NEW MARKER. LAT/LONG", latLng.toString());
         Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title("New Marker"));
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Would you like to view the weather at this location?");
+        //builder.setMessage("Are you sure?");
+
+        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing but close the dialog
+                mPrefs = Objects.requireNonNull(getApplication()).getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+                Log.d("NEW LOCATION ON MAP CLICK", latLng.latitude+","+latLng.longitude);
+                mPrefs.edit().putString(getString(R.string.keys_prefs_NEWCOORDINATES), latLng.latitude+","+latLng.longitude).apply();
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                // Do nothing
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }
