@@ -126,6 +126,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 mPrefs.edit().putString(getString(R.string.keys_prefs_NEWCOORDINATES), latLng.latitude+","+latLng.longitude).apply();
                 dialog.dismiss();
                 onBackPressed();
+//                getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.mainFragmentContainer, new TabWeatherFragment())
+//                        .commit();
             }
         });
 

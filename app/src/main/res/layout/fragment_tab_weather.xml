@@ -54,15 +54,16 @@
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                android:id="@+id/reloadButton"
-                android:layout_width="20dp"
-                android:layout_height="19dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:src="@android:drawable/ic_menu_rotate"
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="63dp"
+                android:layout_height="35dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:text="SAVE"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </android.support.constraint.ConstraintLayout>
 
         <HorizontalScrollView
