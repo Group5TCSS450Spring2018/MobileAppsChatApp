@@ -45,11 +45,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPrefs = Objects.requireNonNull(getApplication()).getSharedPreferences(
+                    getString(R.string.keys_shared_prefs),
+                    Context.MODE_PRIVATE);
+        setTheme(mPrefs.getInt(
+                getString(R.string.keys_prefs_app_theme), R.style.AppTheme));
+
         setContentView(R.layout.activity_map);
-        mPrefs =
-                Objects.requireNonNull(getApplication()).getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
+
 
 /*        mSearchView = v.findViewById(R.id.mapSearchView);
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -127,7 +131,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 mPrefs = Objects.requireNonNull(getApplication()).getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
-                Log.d("NEW LOCATION ON MAP CLICK", latLng.latitude+","+latLng.longitude);
+                Log.d("NEW LOCATION MAP CLICK", latLng.latitude+","+latLng.longitude);
                 mPrefs.edit().putString(getString(R.string.keys_prefs_NEWCOORDINATES), latLng.latitude+","+latLng.longitude).apply();
                 dialog.dismiss();
                 //TODO: Figure out how to switch back activities more elegantly
