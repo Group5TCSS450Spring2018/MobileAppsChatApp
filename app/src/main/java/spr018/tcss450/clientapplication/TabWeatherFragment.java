@@ -1,6 +1,8 @@
 package spr018.tcss450.clientapplication;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,14 +12,17 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +45,7 @@ public class TabWeatherFragment extends Fragment {
     private LinearLayout mVerticalHolder;
     private ImageView mImage;
     private String mLocation;
-    private ImageButton mReload;
+    private Button mSave;
     private SharedPreferences mPrefs;
     private ListenManager mWeatherListen;
 
@@ -88,18 +93,82 @@ public class TabWeatherFragment extends Fragment {
         m24HoursWidget = v.findViewById(R.id.weatherTabHourlyContainer);
         mVerticalHolder = v.findViewById(R.id.weatherTabVerticalHolder);
         mImage = v.findViewById(R.id.imageView2);
-        mReload = v.findViewById(R.id.reloadButton);
-        mReload.setOnClickListener(this::Reload);
+        mSave = v.findViewById(R.id.saveButton);
+        mSave.setOnClickListener(this::save);
         getCurrentWeather();
         getHourlyWeather();
         get10DayWeather();
         return v;
     }
 
-    private void Reload(View v){
-        getCurrentWeather();
-        getHourlyWeather();
-        get10DayWeather();
+    private void save(View v){
+        //send username and mLocation to the database.
+        //get out in onCreateView weather fragment.
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_saveWeather))
+                .build();
+
+        JSONObject msg = new JSONObject();
+        try{
+            String name = mPrefs.getString(getString(R.string.keys_prefs_user_name),"");
+            if(mLocation.contains(",")){
+                Log.d("long", mLocation.split(",")[1]);
+                msg.put("username", name);
+                msg.put("lat", mLocation.split(",")[0]);
+                msg.put("long", mLocation.split(",")[1]);
+            } else {
+                msg.put("username", name);
+                msg.put("zip", mLocation);
+            }
+            //Log.d("lat", mLocation.split(",")[0]);
+
+
+
+        } catch (JSONException e){
+
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                .onPostExecute(this::handleSave)
+                .onCancelled(this::handleErrorsInTask)
+                .build().execute();
+    }
+
+    private void handleSave(String results){
+        Log.d("RESULTS", results);
+        try {
+            JSONObject resultJSON = new JSONObject(results);
+            boolean success = resultJSON.getBoolean("success");
+            Log.d("HANDLE SAVE", ""+success);
+            if (success) {
+                //alert dialog here.
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("This location has been saved.");
+                builder.setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            } else {
+                //alert dialog here.
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("This location was unable to be saved, please try again..");
+                builder.setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        } catch (JSONException e) {
+            Log.e("JSON_PARSE_ERROR", results
+                    + System.lineSeparator()
+                    + e.getMessage());
+        }
     }
 
 
@@ -152,8 +221,6 @@ public class TabWeatherFragment extends Fragment {
 
         JSONObject msg = new JSONObject();
         try{
-
-
             msg.put("location", mLocation);
 
         } catch(JSONException e) {
@@ -190,14 +257,14 @@ public class TabWeatherFragment extends Fragment {
                             dateText.setId(View.generateViewId());
 
                             TextView highText = new TextView(getContext());
-                            String high = highTemperatures.get(i).toString() + (char) 0x00B0 + "F";
+                            String high = "H:"+highTemperatures.get(i).toString() + (char) 0x00B0 + "F";
                             highText.setText(high);
                             highText.setLayoutParams(textLayout);
                             highText.setTextSize(18);
                             highText.setId(View.generateViewId());
 
                             TextView lowText = new TextView(getActivity());
-                            String low = lowTemperatures.get(i).toString() + (char) 0x00B0 + "F";
+                            String low = "L:"+lowTemperatures.get(i).toString() + (char) 0x00B0 + "F";
                             lowText.setText(low);
                             lowText.setTextSize(18);
                             lowText.setLayoutParams(textLayout);
