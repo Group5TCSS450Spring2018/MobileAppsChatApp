@@ -212,7 +212,7 @@ public class ChatFragment extends Fragment {
                 String result = displayList.toString().substring(1, displayList.toString().length() - 1);
                 Log.e("LIST CONTENTS", displayList.toString() + "\n" + result);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("Chat Participants!")
+                builder.setTitle("Chat Participants of \"" + mChatName + "\"!")
                         .setMessage(result)
                         .show();
             } else {
