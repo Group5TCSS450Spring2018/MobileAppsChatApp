@@ -34,11 +34,10 @@ public class ChatActivity extends AppCompatActivity
     public static final String CONNECTION_USERNAME = "username";
     public static final String CHAT_ID = "chatID";
     public static final String CHAT_NAME ="chatName";
-    //private String mTheirUsername;
     private String mUsername;
     private String mChatName;
     private SharedPreferences.Editor editor;
-    /*Remembers if user chooses to stay logged in*/
+    private SharedPreferences mPrefs;
     private int mChatID;
 
     @Override
@@ -77,6 +76,7 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        NotificationIntentService.startServiceAlarm(this, true, mUsername);
         NotificationIntentService.stopServiceAlarm(this);
         editor.putBoolean(getString(R.string.keys_is_foreground), true);
         editor.apply();
@@ -85,6 +85,7 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        NotificationIntentService.stopServiceAlarm(this);
         NotificationIntentService.startServiceAlarm(this, false, mUsername);
         editor.putBoolean(getString(R.string.keys_is_foreground), false);
         editor.apply();
