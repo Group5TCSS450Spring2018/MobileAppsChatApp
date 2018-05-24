@@ -38,7 +38,7 @@ public class NotificationIntentService extends IntentService {
     public static final int NOTIFICATION_REQUEST_ID = -1;
 
     public static final String HOME_FRAGMENT = "homeFragment";
-    private static final int POLL_INTERVAL = 60_000;
+    private static final int POLL_INTERVAL = 2 * 60000;
     private static final String NOTIFICATION_GROUP = "TCSS450 NOTIFICATION";
 
     private NotificationManager notifManager;
@@ -63,9 +63,14 @@ public class NotificationIntentService extends IntentService {
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, i, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         int startAfter = isInForeground ? POLL_INTERVAL : POLL_INTERVAL * 2;
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP
-                , startAfter
-                , POLL_INTERVAL, pendingIntent);
+        try {
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP
+                    , startAfter
+                    , POLL_INTERVAL, pendingIntent);
+        } catch ( NullPointerException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void stopServiceAlarm(Context context) {
@@ -92,7 +97,7 @@ public class NotificationIntentService extends IntentService {
     }
 
     public void createRequestNotification(String aMessage, int idNotify) {
-         int NOTIFY_ID = idNotif;
+         int NOTIFY_ID = idNotify;
         // There are hardcoding only for show it's just strings
         String name = "my_package_channel";
         String id = "my_package_channel_1"; // The user-visible name of the channel.
@@ -218,7 +223,7 @@ public class NotificationIntentService extends IntentService {
                     String sentTimestampstr = timeStamp.getString("timestamp");
                     String usernameSent;
                     if (sentTimestampstr.compareTo(timestampStr) > 0) {
-                        createNotification("You have a new connection request!", 1000);
+                        createRequestNotification("You have a new connection request!", 1000);
                     }
 
                     sp.edit().putString(getString(R.string.keys_timestamp) + username, sentTimestampstr).apply();
@@ -284,9 +289,10 @@ public class NotificationIntentService extends IntentService {
                     Log.wtf("TAGCURR", currtimestampStr);
                     Log.wtf("TAGSTAMP", sentTimestampstr);
                     if (sentTimestampstr.compareTo(currtimestampStr) > 0 && !username.equals(timeStamp.getString("username"))) {
-                        createNotification("You have new message(s)", 1001);
+                        createRequestNotification("You have new message(s)", 1001);
 
-                    sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).apply();
+                        sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).apply();
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
