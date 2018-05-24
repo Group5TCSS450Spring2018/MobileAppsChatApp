@@ -217,6 +217,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
     }
 
     private void getCurrentWeather() {
+        Log.e("SENDING WEATHER REQUEST", "SENDING WEATHER REQUEST!");
         String coordinates = mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude();
         mPrefs.edit().putString(getString(R.string.keys_prefs_coordinates), coordinates).apply();
         mPrefs.edit().putString(getString(R.string.keys_prefs_latitude), ""+mCurrentLocation.getLatitude()).apply();
@@ -246,7 +247,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
             e.printStackTrace();
             return;
         }
-
+        Log.e("UPDATING WEATHER", "WEATHER SHOULD UPDATE WITH " + resultJSON.toString());
         Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
             String temperature = currentWeather[0] + (char) 0x00B0 + "F";
             mWeatherWidget.setText(temperature);
