@@ -8,11 +8,31 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.Date;
+
+import spr018.tcss450.clientapplication.utility.ListenManager;
+import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
+
+import static spr018.tcss450.clientapplication.HomeFragment.UPDATE_REQUESTS;
 
 
 /**
@@ -24,6 +44,7 @@ import android.widget.Toast;
 public class NotificationIntentService extends IntentService {
 
     private static final int POLL_INTERVAL = 60_000;
+    private String mUsername;
     private NotificationManager notifManager;
 
     public NotificationIntentService() {
@@ -33,17 +54,16 @@ public class NotificationIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
-            Log.d("TAG", "Service started");
-            if(!MainActivity.isInApp) {
-                createNotification("Test");
-            }
-
+            //Log.d("TAG", "Service started");
+            getRequests(intent.getStringExtra(getString(R.string.keys_editor_username)));
+            //getChatRequests(intent.getStringExtra(getString(R.string.keys_editor_username)));
         }
     }
 
-    public static void startServiceAlarm(Context context, boolean isInForeground) {
+    public static void startServiceAlarm(Context context, boolean isInForeground, String username) {
         Intent i = new Intent(context, NotificationIntentService.class);
         i.putExtra(context.getString(R.string.keys_is_foreground), isInForeground);
+        i.putExtra(context.getString(R.string.keys_editor_username), username);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, i, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         int startAfter = isInForeground ? POLL_INTERVAL : POLL_INTERVAL * 2;
@@ -60,9 +80,19 @@ public class NotificationIntentService extends IntentService {
         pendingIntent.cancel();
     }
 
-    public void createToastNotification(String aMessage) {
-        Toast.makeText(getApplicationContext(), aMessage,
-                Toast.LENGTH_SHORT).show();
+    private void getRequests(String mUsername) {
+        //Log.wtf("TAG420", mUsername);
+        AsyncTask<String, Void, String> task = new GetWebServiceTask();
+        task.execute(getString(R.string.ep_base_url),
+                getString(R.string.ep_getConnectionRequests),
+                mUsername);
+    }
+
+    private void getChatRequests(String mUsername) {
+        AsyncTask<String, Void, String> task = new GetChatWebServiceTask();
+        task.execute(getString(R.string.ep_base_url),
+                getString(R.string.ep_getChatNotifications),
+                mUsername);
     }
 
 
@@ -77,6 +107,8 @@ public class NotificationIntentService extends IntentService {
         Intent intent;
         PendingIntent pendingIntent;
         NotificationCompat.Builder builder;
+
+        SharedPreferences sp;
 
         if (notifManager == null) {
             notifManager =
@@ -130,5 +162,142 @@ public class NotificationIntentService extends IntentService {
         Notification notification = builder.build();
         notifManager.notify(NOTIFY_ID, notification);
     }
+
+    private class GetWebServiceTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... strings) {
+            if (strings.length != 3) {
+                throw new IllegalArgumentException("Three String arguments required.");
+            }
+            String response = "";
+            HttpURLConnection urlConnection = null;
+            SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+            String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
+            String date = sp.getString(getString(R.string.keys_timestamp) + username, "1970-01-01T00:00:01.000Z");
+            Log.wtf("DATE", date);
+//            Log.e("USERNAME", username);
+//            Log.e("DATESENT", date);
+            //instead of using a hard coded (found in end_points.xml) url for our web service
+            // address, here we will build the URL from parts. This can be helpful when
+            // sending arguments via GET. In this example, we are sending plain text.
+            String url = strings[0];
+            String endPoint = strings[1];
+            String args = strings[2];
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(url)
+                    .appendPath(endPoint)
+                    .appendQueryParameter("username", args)
+                    .appendQueryParameter("after", date)
+                    .build();
+            try {
+                URL urlObject = new URL(uri.toString());
+                urlConnection = (HttpURLConnection) urlObject.openConnection();
+                InputStream content = urlConnection.getInputStream();
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+                String s = "";
+                while ((s = buffer.readLine()) != null) {
+                    response += s;
+                }
+            } catch (Exception e) {
+                response = "Unable to connect, Reason: "
+                        + e.getMessage();
+            } finally {
+                if (urlConnection != null)
+                    urlConnection.disconnect();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                JSONObject res = new JSONObject(result);
+                JSONArray resArr = res.getJSONArray("recieved_requests");
+                if (resArr.length() > 0) {
+                    JSONObject timeStamp = resArr.getJSONObject(resArr.length() - 1);
+                    SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+                    String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
+                    String timestampStr = sp.getString(getString(R.string.keys_timestamp) + username, "");
+                    String sentTimestampstr = timeStamp.getString("timestamp");
+
+                    if (sentTimestampstr.compareTo(timestampStr) > 0) {
+                        createNotification("You have a new connection request!");
+                    }
+
+                    sp.edit().putString(getString(R.string.keys_timestamp) + username, sentTimestampstr).commit();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    private class GetChatWebServiceTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... strings) {
+            if (strings.length != 3) {
+                throw new IllegalArgumentException("Three String arguments required.");
+            }
+            String response = "";
+            HttpURLConnection urlConnection = null;
+            SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+            String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
+            String date = sp.getString(getString(R.string.keys_chatTimestamp) + username, "1970-01-01T00:00:01.000Z");
+
+            String url = strings[0];
+            String endPoint = strings[1];
+            String args = strings[2];
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(url)
+                    .appendPath(endPoint)
+                    .appendQueryParameter("username", args)
+                    .build();
+            try {
+                URL urlObject = new URL(uri.toString());
+                urlConnection = (HttpURLConnection) urlObject.openConnection();
+                InputStream content = urlConnection.getInputStream();
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+                String s = "";
+                while ((s = buffer.readLine()) != null) {
+                    response += s;
+                }
+            } catch (Exception e) {
+                response = "Unable to connect, Reason: "
+                        + e.getMessage();
+            } finally {
+                if (urlConnection != null)
+                    urlConnection.disconnect();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                JSONObject res = new JSONObject(result);
+                JSONArray resArr = res.getJSONArray("message");
+                if (resArr.length() > 0) {
+                    JSONObject timeStamp = resArr.getJSONObject(resArr.length() - 1);
+                    SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+                    String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
+                    String timestampStr = sp.getString(getString(R.string.keys_chatTimestamp) + username, "");
+                    String sentTimestampstr = timeStamp.getString("timestamp");
+
+                    if (sentTimestampstr.compareTo(timestampStr) > 0) {
+                        createNotification("You have new message(s)");
+                    }
+
+                    sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).commit();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
 }
+
 

@@ -38,6 +38,9 @@ public class ChatActivity extends AppCompatActivity
     //private String mTheirUsername;
     private String mUsername;
     private String mChatName;
+    private SharedPreferences.Editor editor;
+    /*Remembers if user chooses to stay logged in*/
+    private SharedPreferences mPrefs;
     private int mChatID;
 
     @Override
@@ -58,6 +61,11 @@ public class ChatActivity extends AppCompatActivity
         mUsername = bundle.getString(CONNECTION_USERNAME);
         mChatID = bundle.getInt(CHAT_ID);
         mChatName = bundle.getString(CHAT_NAME);
+
+        mPrefs = getSharedPreferences(
+                getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
+        editor = mPrefs.edit();
+
         if (findViewById(R.id.chatActivity) != null) {
             setTitle("\"" + mChatName + "\"" + " - " + mUsername);
             getSupportFragmentManager().beginTransaction()
@@ -67,8 +75,22 @@ public class ChatActivity extends AppCompatActivity
                     .commit();
         }
     }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NotificationIntentService.stopServiceAlarm(this);
+        editor.putBoolean(getString(R.string.keys_is_foreground), true);
+        editor.apply();
+    }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+        editor.apply();
+    }
 
     @Override
     public void goBackToMainActivity(String chatname) {
