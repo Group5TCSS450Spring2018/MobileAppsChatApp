@@ -58,6 +58,7 @@ public class TabWeatherFragment extends Fragment {
     //Can pass anything here, JSON, String, Coordinate.
     public static TabWeatherFragment newInstance(String location, String current) {
         TabWeatherFragment fragment = new TabWeatherFragment();
+
         Log.d("TABWEATHERFRAG", location+" "+current);
         Bundle args = new Bundle();
         args.putString(LOCATION, location);

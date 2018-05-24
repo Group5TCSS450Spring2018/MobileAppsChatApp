@@ -78,7 +78,7 @@ public class WeatherFragment extends Fragment {
 
         ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
         mViewPager.setAdapter(mWeatherPagerAdapter);
-        mViewPager.setOffscreenPageLimit(20);
+        //mViewPager.setOffscreenPageLimit(100);
         mWeatherPagerAdapter.notifyDataSetChanged();
         return view;
     }
