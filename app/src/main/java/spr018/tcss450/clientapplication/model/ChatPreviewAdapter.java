@@ -77,7 +77,7 @@ public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.
                 holder.mRecentMessageTextView.setText(chat.getUsername() + " : "+ chat.getRecentMessage());
             } else {
                 String members = chat.getMembers().toString();
-                holder.mRecentMessageTextView.setText("Members: " + members.substring(1, members.length()-2));
+                holder.mRecentMessageTextView.setText("Members: " + members.substring(1, members.length()-1));
             }
         }
         holder.bind(mChats.get(position), mListener);
