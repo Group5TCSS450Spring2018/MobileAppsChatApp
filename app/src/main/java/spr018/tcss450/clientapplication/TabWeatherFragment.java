@@ -450,7 +450,7 @@ public class TabWeatherFragment extends Fragment {
         }  if(icon.equals("tstorms")){
             return BitmapFactory.decodeResource(getResources(), R.drawable.tstorms);
         } else {
-            return BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.unknown);
         }
         //return b;
     }
