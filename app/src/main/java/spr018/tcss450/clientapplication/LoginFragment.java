@@ -85,6 +85,8 @@ public class LoginFragment extends Fragment {
         if (!hasFocus) {
             if (mUsername.getText().toString().isEmpty()) {
                 mUsername.setError(getString(R.string.error_empty));
+            } else {
+                mUsername.setError(null);
             }
         }
     }
@@ -93,6 +95,8 @@ public class LoginFragment extends Fragment {
         if (!hasFocus) {
             if (mPassword.getText().toString().isEmpty()) {
                 mPassword.setError(getString(R.string.error_empty));
+            } else {
+                mPassword.setError(null);
             }
         }
     }

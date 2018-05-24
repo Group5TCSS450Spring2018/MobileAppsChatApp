@@ -241,6 +241,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onChatCreation(int chatid, String chatName) {
+        getSupportFragmentManager().popBackStack();
+        mFab.show();
         onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chatid, chatName);
     }
 
