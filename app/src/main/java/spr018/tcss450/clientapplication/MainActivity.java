@@ -100,6 +100,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadFragmentNoBackStack(new HomeFragment());
+
+        if (getIntent().hasExtra("GoToChatList")) {
+            Toast.makeText(getApplicationContext(), "Left \""
+                    + getIntent().getExtras().getString("GoToChatList")
+                    + "\"!", Toast.LENGTH_LONG).show();
+            loadFragmentWithBackStack(new ChatListFragment(), Pages.CHATLIST);
+        }
     }
 
     @Override
@@ -320,14 +327,14 @@ public class MainActivity extends AppCompatActivity
                 getString(R.string.keys_prefs_app_theme_no_actionbar), themeID_no_actionbar).apply();
 
         setTheme(themeID_no_actionbar);
-        recreate();
+
 
         //Empties back stack because it doesn't work properly after recreate() is called.
         FragmentManager fm = getSupportFragmentManager();
         for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStack();
         }
-        updateFABandNV(null);
+        recreate();
     }
 
     /* Helpers */
@@ -358,6 +365,17 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void loadMap() {
+        Intent i = new Intent(this, MapActivity.class);
+        Double latitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_latitude),""));
+        Double longitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_longitude),""));
+        String.format("%.1f", latitude);
+        String.format("%.1f", longitude);
+        i.putExtra(MapActivity.LATITUDE, latitude);
+        i.putExtra(MapActivity.LONGITUDE, longitude);
+        startActivity(i);
+    }
+
     //Sets the Floating Action Button and NavigationView to the correct state.
     private void updateFABandNV(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
@@ -374,7 +392,9 @@ public class MainActivity extends AppCompatActivity
             nv.setCheckedItem(R.id.nav_connections);
             setTitle(Pages.CONNECTIONS.toString());
         } else if (fragment instanceof WeatherFragment) {
-            mFab.hide();
+            mFab.show();
+            mFab.setImageResource(R.drawable.ic_fab_map);
+            mFab.setOnClickListener(view -> loadMap());
             nv.setCheckedItem(R.id.nav_weather);
             setTitle(Pages.WEATHER.toString());
         } else if (fragment instanceof SettingsFragment) {
@@ -392,7 +412,9 @@ public class MainActivity extends AppCompatActivity
             mFab.hide();
             setTitle(Pages.PROFILE.toString());
         } else if (fragment instanceof  ChatListFragment) {
-            mFab.hide();
+            mFab.show();
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
+            mFab.setImageResource(R.drawable.ic_fab_send);
             nv.setCheckedItem(R.id.nav_chat_list);
             setTitle(Pages.CHATLIST.toString());
         }

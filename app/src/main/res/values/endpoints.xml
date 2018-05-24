@@ -27,5 +27,7 @@
     <string name = "ep_forecast10Weather">forecast10Weather</string>
     <string name = "ep_saveWeather">saveWeather</string>
     <string name = "ep_getChatNotifications">getChatNotifications</string>
-
+    <string name="ep_getChatMembers">getChatMembers</string>
+    <string name="ep_leaveChat">leaveChat</string>
+    <string name="ep_getSavedWeather">getSavedWeather</string>
 </resources>

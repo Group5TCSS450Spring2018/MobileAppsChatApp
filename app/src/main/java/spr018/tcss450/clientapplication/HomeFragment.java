@@ -1,10 +1,7 @@
 package spr018.tcss450.clientapplication;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -132,14 +128,14 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-        mWeatherWidget = v.findViewById(R.id.weatherText);
-        mLocationWidget = v.findViewById(R.id.weatherTabCurrentLocation);
+        mWeatherWidget = v.findViewById(R.id.homeWeatherTemperature);
+        mLocationWidget = v.findViewById(R.id.homeWeatherLocation);
         mPrefs =
                 Objects.requireNonNull(getActivity()).getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
         mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
-        mImage = v.findViewById(R.id.imageView);
+        mImage = v.findViewById(R.id.homeWeatherIcon);
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
         mChatList = new ArrayList<>();
         mChatAdapter = new ChatPreviewAdapter(mChatList);
@@ -219,6 +215,9 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
 
     private void getCurrentWeather() {
         String coordinates = mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude();
+        mPrefs.edit().putString(getString(R.string.keys_prefs_coordinates), coordinates).apply();
+        mPrefs.edit().putString(getString(R.string.keys_prefs_latitude), ""+mCurrentLocation.getLatitude()).apply();
+        mPrefs.edit().putString(getString(R.string.keys_prefs_longitude), ""+mCurrentLocation.getLongitude()).apply();
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -246,7 +245,8 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         }
 
         Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
-            mWeatherWidget.setText(currentWeather[0]);
+            String temperature = currentWeather[0] + (char) 0x00B0 + "F";
+            mWeatherWidget.setText(temperature);
             mLocationWidget.setText(currentWeather[1]);
             Bitmap icon = getIconBitmap(currentWeather[2]);
             mImage.setImageBitmap(icon);
