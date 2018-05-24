@@ -81,6 +81,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d("NEW LOCATION ON MAP CLICK", latLng.latitude+","+latLng.longitude);
                 mPrefs.edit().putString(getString(R.string.keys_prefs_NEWCOORDINATES), latLng.latitude+","+latLng.longitude).apply();
                 dialog.dismiss();
+//                getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.mainFragmentContainer, new TabWeatherFragment())
+//                        .commit();
             }
         });
 
