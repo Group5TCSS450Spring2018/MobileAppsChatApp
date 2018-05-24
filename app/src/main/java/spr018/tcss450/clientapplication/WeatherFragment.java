@@ -66,6 +66,7 @@ public class WeatherFragment extends Fragment {
         addTab(TabWeatherFragment.newInstance(mLocation, "Current"), "Current");
 
         String newLocation = mPrefs.getString(getString(R.string.keys_prefs_NEWCOORDINATES),"");
+        Log.e("WEATHER", "LOCATION USED FOR UNSAVED IS: " + newLocation);
         Log.d("NEW LOCATION", newLocation);
         addTab(TabWeatherFragment.newInstance(newLocation, "Unsaved"), "Unsaved");
 

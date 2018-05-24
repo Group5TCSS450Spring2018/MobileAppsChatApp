@@ -3,6 +3,7 @@ package spr018.tcss450.clientapplication;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -125,11 +126,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d("NEW LOCATION ON MAP CLICK", latLng.latitude+","+latLng.longitude);
                 mPrefs.edit().putString(getString(R.string.keys_prefs_NEWCOORDINATES), latLng.latitude+","+latLng.longitude).apply();
                 dialog.dismiss();
+                //TODO: Figure out how to switch back activities more elegantly
                 onBackPressed();
-//                getSupportFragmentManager()
-//                        .beginTransaction()
-//                        .replace(R.id.mainFragmentContainer, new TabWeatherFragment())
-//                        .commit();
+                //returnToMainActivity();
             }
         });
 
@@ -145,6 +144,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    private void returnToMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
 
