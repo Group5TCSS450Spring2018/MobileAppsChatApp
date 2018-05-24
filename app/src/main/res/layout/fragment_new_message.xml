@@ -29,7 +29,7 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Please provide a chat title "
-        android:inputType="textPersonName"
+        android:inputType="text|textCapWords|textAutoCorrect|textAutoComplete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView10" />

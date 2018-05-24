@@ -9,14 +9,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,12 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Date;
-
-import spr018.tcss450.clientapplication.utility.ListenManager;
-import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
-
-import static spr018.tcss450.clientapplication.HomeFragment.UPDATE_REQUESTS;
 
 
 /**
@@ -43,8 +34,13 @@ import static spr018.tcss450.clientapplication.HomeFragment.UPDATE_REQUESTS;
  */
 public class NotificationIntentService extends IntentService {
 
+    /**Notification id for connection request notifications*/
+    public static final int NOTIFICATION_REQUEST_ID = -1;
+
+    public static final String HOME_FRAGMENT = "homeFragment";
     private static final int POLL_INTERVAL = 60_000;
-    private String mUsername;
+    private static final String NOTIFICATION_GROUP = "TCSS450 NOTIFICATION";
+
     private NotificationManager notifManager;
 
     public NotificationIntentService() {
@@ -82,28 +78,27 @@ public class NotificationIntentService extends IntentService {
 
     private void getRequests(String mUsername) {
         //Log.wtf("TAG420", mUsername);
-        AsyncTask<String, Void, String> task = new GetWebServiceTask();
+        AsyncTask<String, Void, String> task = new RequestNotificationTask();
         task.execute(getString(R.string.ep_base_url),
                 getString(R.string.ep_getConnectionRequestsNotifications),
                 mUsername);
     }
 
     private void getChatRequests(String mUsername) {
-        AsyncTask<String, Void, String> task = new GetChatWebServiceTask();
+        AsyncTask<String, Void, String> task = new ChatNotificationTask();
         task.execute(getString(R.string.ep_base_url),
                 getString(R.string.ep_getChatNotifications),
                 mUsername);
     }
 
-        public void createNotification(String aMessage, int idNotif) {
-        int NOTIFY_ID = idNotif;
-
+    public void createRequestNotification(String aMessage, int idNotify) {
+         int NOTIFY_ID = idNotif;
         // There are hardcoding only for show it's just strings
         String name = "my_package_channel";
         String id = "my_package_channel_1"; // The user-visible name of the channel.
         String description = "my_package_first_channel"; // The user-visible description of the channel.
 
-        Intent intent;
+        Intent mainActivityIntent;
         PendingIntent pendingIntent;
         NotificationCompat.Builder builder;
 
@@ -126,9 +121,12 @@ public class NotificationIntentService extends IntentService {
             }
             builder = new NotificationCompat.Builder(this, id);
 
-            intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+            mainActivityIntent = new Intent(this, MainActivity.class);
+
+            //use this to notify main activity to open home fragment.
+            mainActivityIntent.putExtra(MainActivity.INTENT_EXTRA_NOTIFICATION, HOME_FRAGMENT);
+            mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, mainActivityIntent, 0);
 
             builder.setContentTitle(aMessage)  // required
                     .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
@@ -142,9 +140,9 @@ public class NotificationIntentService extends IntentService {
 
             builder = new NotificationCompat.Builder(this);
 
-            intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+            mainActivityIntent = new Intent(this, MainActivity.class);
+            mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, mainActivityIntent, 0);
 
             builder.setContentTitle(aMessage)                           // required
                     .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
@@ -155,14 +153,15 @@ public class NotificationIntentService extends IntentService {
                     .setContentIntent(pendingIntent)
                     .setTicker(aMessage)
                     .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
-                    .setPriority(Notification.PRIORITY_HIGH);
+                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setGroup(NOTIFICATION_GROUP);
         }
 
         Notification notification = builder.build();
-        notifManager.notify(NOTIFY_ID, notification);
+        notifManager.notify(NOTIFICATION_REQUEST_ID, notification);
     }
 
-    private class GetWebServiceTask extends AsyncTask<String, Void, String> {
+    private class RequestNotificationTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... strings) {
             if (strings.length != 3) {
@@ -210,6 +209,7 @@ public class NotificationIntentService extends IntentService {
             try {
                 JSONObject res = new JSONObject(result);
                 JSONArray resArr = res.getJSONArray("recieved_requests");
+                Log.e("Connection Requests ARRAY", resArr.toString());
                 if (resArr.length() > 0) {
                     JSONObject timeStamp = resArr.getJSONObject(0);
                     SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
@@ -230,7 +230,7 @@ public class NotificationIntentService extends IntentService {
         }
     }
 
-    private class GetChatWebServiceTask extends AsyncTask<String, Void, String> {
+    private class ChatNotificationTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... strings) {
             if (strings.length != 3) {
@@ -285,7 +285,6 @@ public class NotificationIntentService extends IntentService {
                     Log.wtf("TAGSTAMP", sentTimestampstr);
                     if (sentTimestampstr.compareTo(currtimestampStr) > 0 && !username.equals(timeStamp.getString("username"))) {
                         createNotification("You have new message(s)", 1001);
-                    }
 
                     sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).apply();
                 }
