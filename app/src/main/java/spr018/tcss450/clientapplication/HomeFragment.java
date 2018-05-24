@@ -190,7 +190,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         if (mRequestListen != null) {
             mRequestListen.startListening();
         }
-        mNotificationManager.cancel(NotificationIntentService.NOTIFICATION_REQUEST_ID);
+        //mNotificationManager.cancel(NotificationIntentService.NOTIFICATION_REQUEST_ID);
         super.onResume();
     }
 

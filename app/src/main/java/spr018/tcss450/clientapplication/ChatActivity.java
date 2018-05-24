@@ -4,31 +4,12 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import spr018.tcss450.clientapplication.model.ChatDialogueAdapter;
-import spr018.tcss450.clientapplication.utility.ListenManager;
 import spr018.tcss450.clientapplication.utility.Pages;
-import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 public class ChatActivity extends AppCompatActivity
         implements ChatFragment.OnFragmentInteractionListener {
@@ -79,8 +60,8 @@ public class ChatActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         mNotificationManager.cancel(mChatID);
-        NotificationIntentService.startServiceAlarm(this, true, mUsername);
-        NotificationIntentService.stopServiceAlarm(this);
+//        NotificationIntentService.startServiceAlarm(this, true, mUsername);
+//        NotificationIntentService.stopServiceAlarm(this);
         editor.putBoolean(getString(R.string.keys_is_foreground), true);
         editor.apply();
     }
@@ -88,8 +69,8 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        NotificationIntentService.stopServiceAlarm(this);
-        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+//        NotificationIntentServiceice.stopServiceAlarm(this);
+//        NotificationIntentServiceicece.startServiceAlarm(this, false, mUsername);
         editor.putBoolean(getString(R.string.keys_is_foreground), false);
         editor.apply();
     }

@@ -1,24 +1,19 @@
 package spr018.tcss450.clientapplication;
 
-import android.Manifest;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -32,18 +27,11 @@ import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-
-import java.util.List;
 import java.util.Objects;
 
 import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -107,33 +95,33 @@ public class MainActivity extends AppCompatActivity
             loadFragmentWithBackStack(new ChatListFragment(), Pages.CHATLIST);
         }
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        NotificationIntentService.startServiceAlarm(this, true, mUsername);
-        NotificationIntentService.stopServiceAlarm(this);
-        editor.putBoolean(getString(R.string.keys_is_foreground), true);
-        editor.apply();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        NotificationIntentService.stopServiceAlarm(this);
-        NotificationIntentService.startServiceAlarm(this, false, mUsername);
-        editor.putBoolean(getString(R.string.keys_is_foreground), false);
-        editor.apply();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        NotificationIntentService.stopServiceAlarm(this);
-        NotificationIntentService.startServiceAlarm(this, false, mUsername);
-        editor.putBoolean(getString(R.string.keys_is_foreground), false);
-        editor.apply();
-    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        NotificationIntentService.startServiceAlarm(this, true, mUsername);
+//        NotificationIntentService.stopServiceAlarm(this);
+//        editor.putBoolean(getString(R.string.keys_is_foreground), true);
+//        editor.apply();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        NotificationIntentService.stopServiceAlarm(this);
+//        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+//        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+//        editor.apply();
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        NotificationIntentService.stopServiceAlarm(this);
+//        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+//        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+//        editor.apply();
+//    }
 
 
 
@@ -217,7 +205,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_weather) {
             loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
-            NotificationIntentService.stopServiceAlarm(this);
+//            NotificationIntentService.stopServiceAlarm(this);
             showLoginActivity();
         }
 
@@ -330,6 +318,7 @@ public class MainActivity extends AppCompatActivity
 
     /* Helpers */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment, page.toString())
