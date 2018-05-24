@@ -84,7 +84,7 @@ public class NotificationIntentService extends IntentService {
         //Log.wtf("TAG420", mUsername);
         AsyncTask<String, Void, String> task = new GetWebServiceTask();
         task.execute(getString(R.string.ep_base_url),
-                getString(R.string.ep_getConnectionRequests),
+                getString(R.string.ep_getConnectionRequestsNotifications),
                 mUsername);
     }
 
@@ -95,8 +95,7 @@ public class NotificationIntentService extends IntentService {
                 mUsername);
     }
 
-
-    public void createNotification(String aMessage) {
+        public void createNotification(String aMessage) {
         final int NOTIFY_ID = 1002;
 
         // There are hardcoding only for show it's just strings
@@ -174,9 +173,6 @@ public class NotificationIntentService extends IntentService {
             SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
             String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
             String date = sp.getString(getString(R.string.keys_timestamp) + username, "1970-01-01T00:00:01.000Z");
-            Log.wtf("DATE", date);
-//            Log.e("USERNAME", username);
-//            Log.e("DATESENT", date);
             //instead of using a hard coded (found in end_points.xml) url for our web service
             // address, here we will build the URL from parts. This can be helpful when
             // sending arguments via GET. In this example, we are sending plain text.
@@ -215,7 +211,7 @@ public class NotificationIntentService extends IntentService {
                 JSONObject res = new JSONObject(result);
                 JSONArray resArr = res.getJSONArray("recieved_requests");
                 if (resArr.length() > 0) {
-                    JSONObject timeStamp = resArr.getJSONObject(resArr.length() - 1);
+                    JSONObject timeStamp = resArr.getJSONObject(0);
                     SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
                     String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
                     String timestampStr = sp.getString(getString(R.string.keys_timestamp) + username, "");
@@ -280,13 +276,14 @@ public class NotificationIntentService extends IntentService {
                 JSONObject res = new JSONObject(result);
                 JSONArray resArr = res.getJSONArray("message");
                 if (resArr.length() > 0) {
-                    JSONObject timeStamp = resArr.getJSONObject(resArr.length() - 1);
+                    JSONObject timeStamp = resArr.getJSONObject(0);
                     SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
                     String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
-                    String timestampStr = sp.getString(getString(R.string.keys_chatTimestamp) + username, "");
+                    String currtimestampStr = sp.getString(getString(R.string.keys_chatTimestamp) + username, "");
                     String sentTimestampstr = timeStamp.getString("timestamp");
-
-                    if (sentTimestampstr.compareTo(timestampStr) > 0) {
+                    Log.wtf("TAGCURR", currtimestampStr);
+                    Log.wtf("TAGSTAMP", sentTimestampstr);
+                    if (sentTimestampstr.compareTo(currtimestampStr) > 0) {
                         createNotification("You have new message(s)");
                     }
 

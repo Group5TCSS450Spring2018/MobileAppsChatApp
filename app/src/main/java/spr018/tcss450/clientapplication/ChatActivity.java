@@ -40,7 +40,6 @@ public class ChatActivity extends AppCompatActivity
     private String mChatName;
     private SharedPreferences.Editor editor;
     /*Remembers if user chooses to stay logged in*/
-    private SharedPreferences mPrefs;
     private int mChatID;
 
     @Override
