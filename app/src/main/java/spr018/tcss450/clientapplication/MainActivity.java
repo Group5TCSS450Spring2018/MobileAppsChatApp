@@ -288,11 +288,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onOpenChatAttempt(String username, int chatID, String chatname) {
-        onOpenChat(username, chatID, chatname);
-    }
-
-    @Override
     public void onChatListSelection(Chat chat) {
         onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chat.getChatID(), chat.getName());
     }

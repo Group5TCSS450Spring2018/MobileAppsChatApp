@@ -34,7 +34,6 @@ public class ChatActivity extends AppCompatActivity
     public static final String CONNECTION_USERNAME = "username";
     public static final String CHAT_ID = "chatID";
     public static final String CHAT_NAME ="chatName";
-    private SharedPreferences mPrefs;
     //private String mTheirUsername;
     private String mUsername;
     private String mChatName;
