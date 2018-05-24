@@ -99,9 +99,9 @@ public class MainActivity extends AppCompatActivity
         loadFragmentNoBackStack(new HomeFragment());
 
         if (getIntent().hasExtra("GoToChatList")) {
-            Toast.makeText(getApplicationContext(), "Left "
+            Toast.makeText(getApplicationContext(), "Left \""
                     + getIntent().getExtras().getString("GoToChatList")
-                    + "!", Toast.LENGTH_LONG).show();
+                    + "\"!", Toast.LENGTH_LONG).show();
             loadFragmentWithBackStack(new ChatListFragment(), Pages.CHATLIST);
         }
     }
@@ -395,7 +395,9 @@ public class MainActivity extends AppCompatActivity
             mFab.hide();
             setTitle(Pages.PROFILE.toString());
         } else if (fragment instanceof  ChatListFragment) {
-            mFab.hide();
+            mFab.show();
+            mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
+            mFab.setImageResource(R.drawable.ic_fab_send);
             nv.setCheckedItem(R.id.nav_chat_list);
             setTitle(Pages.CHATLIST.toString());
         }
