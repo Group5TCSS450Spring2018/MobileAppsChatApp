@@ -116,8 +116,9 @@ public class TabWeatherFragment extends Fragment {
             if(mLocation.contains(",")){
                 Log.d("long", mLocation.split(",")[1]);
                 msg.put("username", name);
+                msg.put("lng", mLocation.split(",")[1]);
                 msg.put("lat", mLocation.split(",")[0]);
-                msg.put("long", mLocation.split(",")[1]);
+
             } else {
                 msg.put("username", name);
                 msg.put("zip", mLocation);

@@ -61,7 +61,7 @@ public class WeatherFragment extends Fragment {
 
         String newLocation = mPrefs.getString(getString(R.string.keys_prefs_NEWCOORDINATES),"");
         Log.d("NEW LOCATION", newLocation);
-        addTab(TabWeatherFragment.newInstance(newLocation, "Saved"), "Saved");
+        addTab(TabWeatherFragment.newInstance(newLocation, "Unsaved"), "Unsaved");
 
         ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
         mViewPager.setAdapter(mWeatherPagerAdapter);
