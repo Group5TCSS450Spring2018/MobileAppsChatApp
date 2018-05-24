@@ -114,7 +114,7 @@ public class NotificationIntentService extends IntentService {
             notifManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         }
-
+        //Where?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel mChannel = notifManager.getNotificationChannel(id);
