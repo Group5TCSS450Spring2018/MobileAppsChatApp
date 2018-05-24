@@ -128,14 +128,14 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-        mWeatherWidget = v.findViewById(R.id.weatherText);
-        mLocationWidget = v.findViewById(R.id.weatherTabCurrentLocation);
+        mWeatherWidget = v.findViewById(R.id.homeWeatherTemperature);
+        mLocationWidget = v.findViewById(R.id.homeWeatherLocation);
         mPrefs =
                 Objects.requireNonNull(getActivity()).getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
         mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
-        mImage = v.findViewById(R.id.imageView);
+        mImage = v.findViewById(R.id.homeWeatherIcon);
         RecyclerView chats = v.findViewById(R.id.chatListContainer);
         mChatList = new ArrayList<>();
         mChatAdapter = new ChatPreviewAdapter(mChatList);
