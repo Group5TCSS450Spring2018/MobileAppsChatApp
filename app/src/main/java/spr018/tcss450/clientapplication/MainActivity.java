@@ -57,17 +57,13 @@ public class MainActivity extends AppCompatActivity
         NewMessageFragment.OnFragmentInteractionListener {
 
 
-
-    public static boolean isInApp ;
+    private SharedPreferences.Editor editor;
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
-
+    private String mUsername;
     /*Floating action button in Main Activity*/
     private FloatingActionButton mFab;
 
-    private SharedPreferences mSharedPreferences;
-
-    private SharedPreferences.Editor mEditor;
     private static final int MY_PERMISSIONS_LOCATIONS = 814;
 
     @Override
@@ -78,21 +74,28 @@ public class MainActivity extends AppCompatActivity
                 getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
         // make sure to set the app theme
 
+
         //Log.d("MAIN",mCurrentLocation.getLatitude()+"");
         setTheme(mPrefs.getInt(
                 getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
 
         setContentView(R.layout.activity_main);
 
+        editor = mPrefs.edit();
+
         mFab = findViewById(R.id.fab);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
+        editor.putString(getString(R.string.keys_editor_username), mUsername);
+        editor.apply();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -102,17 +105,31 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        isInApp = true;
+        NotificationIntentService.startServiceAlarm(this, true, mUsername);
         NotificationIntentService.stopServiceAlarm(this);
+        editor.putBoolean(getString(R.string.keys_is_foreground), true);
+        editor.apply();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        isInApp = false;
-        NotificationIntentService.startServiceAlarm(this, false);
-
+        NotificationIntentService.stopServiceAlarm(this);
+        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+        editor.apply();
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        NotificationIntentService.stopServiceAlarm(this);
+        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+        editor.apply();
+    }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -198,8 +215,6 @@ public class MainActivity extends AppCompatActivity
             loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
             NotificationIntentService.stopServiceAlarm(this);
-            mEditor.putBoolean(getString(R.string.keys_sp_on), false);
-            mEditor.apply();
             showLoginActivity();
         }
 
