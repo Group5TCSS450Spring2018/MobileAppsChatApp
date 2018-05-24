@@ -56,7 +56,7 @@ public class NotificationIntentService extends IntentService {
         if (intent != null) {
             //Log.d("TAG", "Service started");
             getRequests(intent.getStringExtra(getString(R.string.keys_editor_username)));
-            //getChatRequests(intent.getStringExtra(getString(R.string.keys_editor_username)));
+            getChatRequests(intent.getStringExtra(getString(R.string.keys_editor_username)));
         }
     }
 
@@ -225,7 +225,7 @@ public class NotificationIntentService extends IntentService {
                         createNotification("You have a new connection request!");
                     }
 
-                    sp.edit().putString(getString(R.string.keys_timestamp) + username, sentTimestampstr).commit();
+                    sp.edit().putString(getString(R.string.keys_timestamp) + username, sentTimestampstr).apply();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -290,7 +290,7 @@ public class NotificationIntentService extends IntentService {
                         createNotification("You have new message(s)");
                     }
 
-                    sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).commit();
+                    sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).apply();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
