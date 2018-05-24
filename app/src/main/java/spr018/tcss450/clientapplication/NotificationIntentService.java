@@ -91,7 +91,8 @@ public class NotificationIntentService extends IntentService {
                 mUsername);
     }
 
-    public void createRequestNotification(String aMessage) {
+    public void createRequestNotification(String aMessage, int idNotify) {
+         int NOTIFY_ID = idNotif;
         // There are hardcoding only for show it's just strings
         String name = "my_package_channel";
         String id = "my_package_channel_1"; // The user-visible name of the channel.
@@ -215,9 +216,9 @@ public class NotificationIntentService extends IntentService {
                     String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
                     String timestampStr = sp.getString(getString(R.string.keys_timestamp) + username, "");
                     String sentTimestampstr = timeStamp.getString("timestamp");
-
+                    String usernameSent;
                     if (sentTimestampstr.compareTo(timestampStr) > 0) {
-                        createRequestNotification("You have a new connection request!");
+                        createNotification("You have a new connection request!", 1000);
                     }
 
                     sp.edit().putString(getString(R.string.keys_timestamp) + username, sentTimestampstr).apply();
@@ -282,9 +283,8 @@ public class NotificationIntentService extends IntentService {
                     String sentTimestampstr = timeStamp.getString("timestamp");
                     Log.wtf("TAGCURR", currtimestampStr);
                     Log.wtf("TAGSTAMP", sentTimestampstr);
-                    if (sentTimestampstr.compareTo(currtimestampStr) > 0) {
-                        createRequestNotification("You have new message(s)");
-                    }
+                    if (sentTimestampstr.compareTo(currtimestampStr) > 0 && !username.equals(timeStamp.getString("username"))) {
+                        createNotification("You have new message(s)", 1001);
 
                     sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).apply();
                 }
