@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity
         ChatListFragment.OnFragmentInteractionListener,
         NewMessageFragment.OnFragmentInteractionListener {
 
+    public static final String INTENT_EXTRA_NOTIFICATION = "notificationExtra";
+
+    private static final int MY_PERMISSIONS_LOCATIONS = 814;
 
     private SharedPreferences.Editor editor;
     /*Remembers if user chooses to stay logged in*/
@@ -64,7 +67,7 @@ public class MainActivity extends AppCompatActivity
     /*Floating action button in Main Activity*/
     private FloatingActionButton mFab;
 
-    private static final int MY_PERMISSIONS_LOCATIONS = 814;
+    private NotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +75,6 @@ public class MainActivity extends AppCompatActivity
 
         mPrefs = getSharedPreferences(
                 getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
-        // make sure to set the app theme
-
-
-        //Log.d("MAIN",mCurrentLocation.getLatitude()+"");
         setTheme(mPrefs.getInt(
                 getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
 
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity
 
         editor.putString(getString(R.string.keys_editor_username), mUsername);
         editor.apply();
-
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadFragmentNoBackStack(new HomeFragment());
@@ -351,7 +350,7 @@ public class MainActivity extends AppCompatActivity
     private void showLoginActivity() {
         // clear stay logged in regardless of whether it is set or not
         mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in), false).apply();
-
+        mNotificationManager.cancelAll();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

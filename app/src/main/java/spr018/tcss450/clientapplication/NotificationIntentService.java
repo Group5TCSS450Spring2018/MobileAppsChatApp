@@ -34,9 +34,13 @@ import java.net.URL;
  */
 public class NotificationIntentService extends IntentService {
 
+    /**Notification id for connection request notifications*/
+    public static final int NOTIFICATION_REQUEST_ID = -1;
+
+    public static final String HOME_FRAGMENT = "homeFragment";
     private static final int POLL_INTERVAL = 60_000;
     private static final String NOTIFICATION_GROUP = "TCSS450 NOTIFICATION";
-    private static final int NOTIFICATION_REQUEST_ID = -1;
+
     private NotificationManager notifManager;
 
     public NotificationIntentService() {
@@ -93,7 +97,7 @@ public class NotificationIntentService extends IntentService {
         String id = "my_package_channel_1"; // The user-visible name of the channel.
         String description = "my_package_first_channel"; // The user-visible description of the channel.
 
-        Intent intent;
+        Intent mainActivityIntent;
         PendingIntent pendingIntent;
         NotificationCompat.Builder builder;
 
@@ -116,9 +120,12 @@ public class NotificationIntentService extends IntentService {
             }
             builder = new NotificationCompat.Builder(this, id);
 
-            intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+            mainActivityIntent = new Intent(this, MainActivity.class);
+
+            //use this to notify main activity to open home fragment.
+            mainActivityIntent.putExtra(MainActivity.INTENT_EXTRA_NOTIFICATION, HOME_FRAGMENT);
+            mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, mainActivityIntent, 0);
 
             builder.setContentTitle(aMessage)  // required
                     .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
@@ -132,9 +139,9 @@ public class NotificationIntentService extends IntentService {
 
             builder = new NotificationCompat.Builder(this);
 
-            intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+            mainActivityIntent = new Intent(this, MainActivity.class);
+            mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            pendingIntent = PendingIntent.getActivity(this, 0, mainActivityIntent, 0);
 
             builder.setContentTitle(aMessage)                           // required
                     .setSmallIcon(android.R.drawable.ic_popup_reminder) // required
