@@ -236,6 +236,12 @@ public class LoginActivity extends AppCompatActivity
         //save the users "want" to stay logged in
         mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in),
                 stayLoggedIn).apply();
+        String timestamp = mPrefs.getString(getString(R.string.keys_timestamp) + mCredentials.getUsername(), "");
+        String chatTimestamp = mPrefs.getString(getString(R.string.keys_chatTimestamp) + mCredentials.getUsername(), "");
+        if(timestamp.isEmpty()) {
+            mPrefs.edit().putString(getString(R.string.keys_timestamp) + mCredentials.getUsername(),  "1970-01-01T00:00:01.000Z").apply();
+            mPrefs.edit().putString(getString(R.string.keys_chatTimestamp) + mCredentials.getUsername(),  "1970-01-01T00:00:01.000Z").apply();
+        }
     }
 
     private void showVerificationPage() {

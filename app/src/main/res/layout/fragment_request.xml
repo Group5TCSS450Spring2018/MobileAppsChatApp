@@ -12,7 +12,7 @@
         android:paddingEnd="0dp"
         android:paddingStart="0dp"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <android.support.constraint.ConstraintLayout
@@ -22,8 +22,8 @@
         <ImageButton
             android:id="@+id/requestAcceptButton"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_request_accept_default"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -33,8 +33,8 @@
         <ImageButton
             android:id="@+id/requestDeclineButton"
             style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_request_deny_red"
             app:layout_constraintEnd_toStartOf="@+id/requestAcceptButton"
             app:layout_constraintHorizontal_bias="0.5"

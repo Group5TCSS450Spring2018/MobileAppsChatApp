@@ -56,19 +56,18 @@ public class MainActivity extends AppCompatActivity
         ChatListFragment.OnFragmentInteractionListener,
         NewMessageFragment.OnFragmentInteractionListener {
 
+    public static final String INTENT_EXTRA_NOTIFICATION = "notificationExtra";
 
+    private static final int MY_PERMISSIONS_LOCATIONS = 814;
 
-    public static boolean isInApp ;
+    private SharedPreferences.Editor editor;
     /*Remembers if user chooses to stay logged in*/
     private SharedPreferences mPrefs;
-
+    private String mUsername;
     /*Floating action button in Main Activity*/
     private FloatingActionButton mFab;
 
-    private SharedPreferences mSharedPreferences;
-
-    private SharedPreferences.Editor mEditor;
-    private static final int MY_PERMISSIONS_LOCATIONS = 814;
+    private NotificationManager mNotificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,24 +75,27 @@ public class MainActivity extends AppCompatActivity
 
         mPrefs = getSharedPreferences(
                 getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
-        // make sure to set the app theme
-
-        //Log.d("MAIN",mCurrentLocation.getLatitude()+"");
         setTheme(mPrefs.getInt(
                 getString(R.string.keys_prefs_app_theme_no_actionbar), R.style.AppTheme_NoActionBar));
 
         setContentView(R.layout.activity_main);
 
+        editor = mPrefs.edit();
+
         mFab = findViewById(R.id.fab);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mUsername = mPrefs.getString(getString(R.string.keys_prefs_user_name), "");
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        editor.putString(getString(R.string.keys_editor_username), mUsername);
+        editor.apply();
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loadFragmentNoBackStack(new HomeFragment());
@@ -109,17 +111,31 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        isInApp = true;
+        NotificationIntentService.startServiceAlarm(this, true, mUsername);
         NotificationIntentService.stopServiceAlarm(this);
+        editor.putBoolean(getString(R.string.keys_is_foreground), true);
+        editor.apply();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        isInApp = false;
-        NotificationIntentService.startServiceAlarm(this, false);
-
+        NotificationIntentService.stopServiceAlarm(this);
+        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+        editor.apply();
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        NotificationIntentService.stopServiceAlarm(this);
+        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+        editor.apply();
+    }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -129,10 +145,7 @@ public class MainActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // locations-related task you need to do.
-
+                    loadFragmentNoBackStack(new HomeFragment());
                 } else {
 
                     // permission denied, boo! Disable the
@@ -271,11 +284,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onOpenChatAttempt(String username, int chatID, String chatname) {
-        onOpenChat(username, chatID, chatname);
-    }
-
-    @Override
     public void onChatListSelection(Chat chat) {
         onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chat.getChatID(), chat.getName());
     }
@@ -342,7 +350,7 @@ public class MainActivity extends AppCompatActivity
     private void showLoginActivity() {
         // clear stay logged in regardless of whether it is set or not
         mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in), false).apply();
-
+        mNotificationManager.cancelAll();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
