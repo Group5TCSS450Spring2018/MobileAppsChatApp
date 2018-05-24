@@ -146,10 +146,7 @@ public class MainActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // locations-related task you need to do.
-
+                    loadFragmentNoBackStack(new HomeFragment());
                 } else {
 
                     // permission denied, boo! Disable the
