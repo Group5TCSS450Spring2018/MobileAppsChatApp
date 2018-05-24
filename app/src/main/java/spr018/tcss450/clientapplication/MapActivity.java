@@ -6,9 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.SearchView;
 
 import com.google.android.gms.common.api.Status;
@@ -43,11 +45,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPrefs = Objects.requireNonNull(getApplication()).getSharedPreferences(
+                    getString(R.string.keys_shared_prefs),
+                    Context.MODE_PRIVATE);
+        setTheme(mPrefs.getInt(
+                getString(R.string.keys_prefs_app_theme), R.style.AppTheme));
+
         setContentView(R.layout.activity_map);
-        mPrefs =
-                Objects.requireNonNull(getApplication()).getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
+
 
 /*        mSearchView = v.findViewById(R.id.mapSearchView);
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -90,6 +96,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
@@ -123,7 +131,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 mPrefs = Objects.requireNonNull(getApplication()).getSharedPreferences(
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
-                Log.d("NEW LOCATION ON MAP CLICK", latLng.latitude+","+latLng.longitude);
+                Log.d("NEW LOCATION MAP CLICK", latLng.latitude+","+latLng.longitude);
                 mPrefs.edit().putString(getString(R.string.keys_prefs_NEWCOORDINATES), latLng.latitude+","+latLng.longitude).apply();
                 dialog.dismiss();
                 //TODO: Figure out how to switch back activities more elegantly
@@ -152,5 +160,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                Intent intent = NavUtils.getParentActivityIntent(this);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                NavUtils.navigateUpTo(this, intent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

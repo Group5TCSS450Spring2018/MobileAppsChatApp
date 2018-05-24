@@ -59,8 +59,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_connection_add_default"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/profileOpenButton"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.74" />
@@ -96,24 +95,6 @@
         app:layout_constraintEnd_toStartOf="@+id/profileAcceptButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.74" />
-
-    <ImageButton
-        android:id="@+id/profileOpenButton"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_connection_message_default"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/profileAddButton"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.74" />
 

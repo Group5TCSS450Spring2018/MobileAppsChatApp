@@ -1,6 +1,7 @@
 package spr018.tcss450.clientapplication;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -58,7 +59,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 100000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 2 * 60000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
@@ -87,6 +88,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
     private Location mCurrentLocation;
     private ListenManager mRequestListen;
     private ListenManager mWeatherListen;
+    private NotificationManager mNotificationManager;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -109,7 +111,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
+        mNotificationManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -188,6 +190,7 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         if (mRequestListen != null) {
             mRequestListen.startListening();
         }
+        mNotificationManager.cancel(NotificationIntentService.NOTIFICATION_REQUEST_ID);
         super.onResume();
     }
 

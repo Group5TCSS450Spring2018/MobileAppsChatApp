@@ -49,13 +49,17 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.ViewHold
                 mUsernameTextView.setText("No New Requests");
                 mUsernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 mUsernameTextView.setTypeface(null, Typeface.NORMAL);
-                mUsernameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                mUsernameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 accept.setVisibility(View.GONE);
                 deny.setVisibility(View.GONE);
             } else {
+                mUsernameTextView.setTypeface(null, Typeface.BOLD);
+                mUsernameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                mUsernameTextView.setOnClickListener(view -> listener.onExpand(connection));
+                accept.setVisibility(View.VISIBLE);
+                deny.setVisibility(View.VISIBLE);
                 accept.setOnClickListener(view -> listener.onAccept(connection));
                 deny.setOnClickListener(view -> listener.onDeny(connection));
-                mUsernameTextView.setOnClickListener(view -> listener.onExpand(connection));
             }
         }
     }

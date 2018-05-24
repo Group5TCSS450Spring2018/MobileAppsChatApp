@@ -375,9 +375,12 @@ public class TabWeatherFragment extends Fragment {
                             temperature.setLayoutParams(textLayout);
                             temperature.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
+                            LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(200, 200);
                             ImageView img = new ImageView(getContext());
                             img.setBackgroundColor(Color.TRANSPARENT);
                             img.setImageBitmap(getIconBitmap(icons.get(i).toString()));
+                            img.setLayoutParams(imageParams);
+
 
                             verticalHolder.addView(img);
                             verticalHolder.addView(hour);

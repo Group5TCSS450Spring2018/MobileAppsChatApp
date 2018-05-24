@@ -46,7 +46,6 @@ public class ConnectionProfileFragment extends Fragment {
     private ImageButton mButton;
     private ImageButton mAcceptButton;
     private ImageButton mDeclineButton;
-    private ImageButton mOpenButton;
 
     private OnFragmentInteractionListener mListener;
 
@@ -89,7 +88,6 @@ public class ConnectionProfileFragment extends Fragment {
         mButton = mView.findViewById(R.id.profileAddButton);
         mAcceptButton = mView.findViewById(R.id.profileAcceptButton);
         mDeclineButton = mView.findViewById(R.id.profileDeclineButton);
-        mOpenButton = mView.findViewById(R.id.profileOpenButton);
         setUpButtons();
         return mView;
     }
@@ -115,11 +113,8 @@ public class ConnectionProfileFragment extends Fragment {
         if (mType == FRIEND) {
             mButton.setImageResource(R.drawable.ic_connection_remove_red);
             mButton.setOnClickListener(this::onRemoveButtonClicked);
-            mOpenButton.setVisibility(View.VISIBLE);
-            mOpenButton.setOnClickListener(this::onOpenChatClicked);
         } else if (mType == PENDING) {
             mButton.setVisibility(View.GONE);
-            mOpenButton.setVisibility(View.GONE);
             mAcceptButton.setVisibility(View.VISIBLE);
             mAcceptButton.setOnClickListener(this::onAcceptButtonClicked);
             mView.findViewById(R.id.profileDeclineButton).setVisibility(View.VISIBLE);
@@ -306,104 +301,11 @@ public class ConnectionProfileFragment extends Fragment {
         }
     }
 
-    private void onOpenChatClicked(View button) {
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
-
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_getChatID))
-                .build();
-
-        JSONObject msg = new JSONObject();
-        try{
-            msg.put("username_a", u);
-            msg.put("username_b", mUsername);
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-
-        new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleOpenPost)
-                .onCancelled(this::handleError)
-                .build().execute();
-    }
-
-    private void handleOpenPost(String result) {
-        try {
-            JSONObject resultJSON = new JSONObject(result);
-            boolean success = resultJSON.getBoolean("success");
-            if (success) {
-                mListener.onOpenChatAttempt(mUsername,
-                        resultJSON.getInt("chatid"),
-                        resultJSON.getString("name"));
-            } else {
-                JSONArray chatIDs = resultJSON.getJSONArray("chatid");
-                if (chatIDs.length() == 0) {
-                    openNewChat();
-                } else {
-                    Log.e("getChatID", resultJSON.getString("message"));
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void openNewChat() {
-        SharedPreferences prefs =
-                getActivity().getSharedPreferences(
-                        getString(R.string.keys_shared_prefs),
-                        Context.MODE_PRIVATE);
-        String u = prefs.getString(getString(R.string.keys_prefs_user_name), "");
-
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_addChat))
-                .build();
-
-        JSONObject msg = new JSONObject();
-        JSONArray members = new JSONArray();
-        members.put(u);
-        members.put(mUsername);
-        try{
-            msg.put("chatname", u + " chat with " + mUsername);
-            msg.put("members", members);
-        } catch(JSONException e) {
-            e.printStackTrace();
-        }
-
-        new SendPostAsyncTask.Builder(uri.toString(), msg)
-                .onPostExecute(this::handleNewChatPost)
-                .onCancelled(this::handleError)
-                .build().execute();
-    }
-
-    private void handleNewChatPost(String result) {
-        try {
-            JSONObject resultJSON = new JSONObject(result);
-            boolean success = resultJSON.getBoolean("success");
-            if (success) {
-                onOpenChatClicked(null);
-            } else {
-                Log.e("ADDCHAT", resultJSON.getString("message"));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void handleError(String result) {
         Log.e("JSONOBJECT", result);
     }
 
     public interface OnFragmentInteractionListener { //change to send bundle later.
         void onUpdateFragmentAttempt();
-        void onOpenChatAttempt(String username, int chatID, String chatname);
     }
 }
