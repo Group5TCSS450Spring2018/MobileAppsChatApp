@@ -128,11 +128,33 @@ public class WeatherFragment extends Fragment {
                             String latlng = lat+","+lg;
                             addTab(TabWeatherFragment.newInstance(latlng, "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
+
+
+
+
+                            FragmentTransaction tr = getFragmentManager().beginTransaction();
+                            tr.replace(R.id.frameLayout5, new WeatherFragment());
+                            tr.commit();
+
+
+
                         } else {
                             //send in zip code.
                             addTab(TabWeatherFragment.newInstance(arrayT.get(i).toString().
                                     split(",")[0].split(":")[1], "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
+
+
+
+
+
+                            FragmentTransaction tr = getFragmentManager().beginTransaction();
+                            tr.replace(R.id.frameLayout5, new WeatherFragment());
+                            tr.commit();
+
+
+
+
                         }
                     }
                 }catch(JSONException e){
