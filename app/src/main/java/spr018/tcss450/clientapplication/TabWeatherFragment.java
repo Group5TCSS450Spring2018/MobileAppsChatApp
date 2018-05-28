@@ -97,6 +97,12 @@ public class TabWeatherFragment extends Fragment {
         mImage = v.findViewById(R.id.imageView2);
         mSave = v.findViewById(R.id.saveButton);
         mSave.setOnClickListener(this::save);
+        if(mCurrentorSaved == "Saved") {
+            mSave.setEnabled(false);
+        } 
+
+
+
         getCurrentWeather();
         getHourlyWeather();
         get10DayWeather();
