@@ -132,11 +132,6 @@ public class WeatherFragment extends Fragment {
 
 
 
-                            FragmentTransaction tr = getFragmentManager().beginTransaction();
-                            tr.replace(R.id.frameLayout5, new WeatherFragment());
-                            tr.commit();
-
-
 
                         } else {
                             //send in zip code.
@@ -144,13 +139,6 @@ public class WeatherFragment extends Fragment {
                                     split(",")[0].split(":")[1], "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
 
-
-
-
-
-                            FragmentTransaction tr = getFragmentManager().beginTransaction();
-                            tr.replace(R.id.frameLayout5, new WeatherFragment());
-                            tr.commit();
 
 
 

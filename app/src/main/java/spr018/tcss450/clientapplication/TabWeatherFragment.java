@@ -99,7 +99,9 @@ public class TabWeatherFragment extends Fragment {
         mSave.setOnClickListener(this::save);
         if(mCurrentorSaved == "Saved") {
             mSave.setEnabled(false);
-        } 
+        } else {
+            mSave.setEnabled(true);
+        }
 
 
 

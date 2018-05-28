@@ -15,6 +15,10 @@ import java.util.List;
 
 import spr018.tcss450.clientapplication.R;
 
+/**
+ * Holds information about your list of connectinos. displays username and full name.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
+ */
 public class ConnectionAdapter extends RecyclerView.Adapter<ConnectionAdapter.ViewHolder> {
     private List<Connection> mConnections;
     private OnItemClickListener mListener;

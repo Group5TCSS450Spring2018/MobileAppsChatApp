@@ -7,7 +7,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import java.util.List;
 
 import spr018.tcss450.clientapplication.TabWeatherFragment;
-
+/**Adapter calss holds information about the weather pages.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
+ */
 public class WeatherCollectionPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<TabWeatherFragment> mFragments;

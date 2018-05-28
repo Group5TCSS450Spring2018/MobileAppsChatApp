@@ -13,7 +13,10 @@ import android.widget.TextView;
 import java.util.List;
 
 import spr018.tcss450.clientapplication.R;
-
+/**
+ * Adapter for chat preview page. Displays all of the current chats that you are a part of.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
+ */
 public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.ViewHolder> {
     private List<Chat> mChats;
     private OnItemClickListener mListener;
