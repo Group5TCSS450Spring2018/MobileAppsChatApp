@@ -11,6 +11,10 @@ import android.view.MenuItem;
 
 import spr018.tcss450.clientapplication.utility.Pages;
 
+/**
+ * Activity to hold chat fragments. Holds username, chat id and chat name.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
+ */
 public class ChatActivity extends AppCompatActivity
         implements ChatFragment.OnFragmentInteractionListener {
     public static final String CONNECTION_USERNAME = "username";
