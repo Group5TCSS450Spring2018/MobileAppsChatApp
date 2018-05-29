@@ -214,7 +214,6 @@ public class NotificationIntentService extends IntentService {
             try {
                 JSONObject res = new JSONObject(result);
                 JSONArray resArr = res.getJSONArray("recieved_requests");
-                Log.e("Connection Requests ARRAY", resArr.toString());
                 if (resArr.length() > 0) {
                     JSONObject timeStamp = resArr.getJSONObject(0);
                     SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
@@ -286,8 +285,6 @@ public class NotificationIntentService extends IntentService {
                     String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
                     String currtimestampStr = sp.getString(getString(R.string.keys_chatTimestamp) + username, "");
                     String sentTimestampstr = timeStamp.getString("timestamp");
-                    Log.wtf("TAGCURR", currtimestampStr);
-                    Log.wtf("TAGSTAMP", sentTimestampstr);
                     if (sentTimestampstr.compareTo(currtimestampStr) > 0 && !username.equals(timeStamp.getString("username"))) {
                         createRequestNotification("You have new message(s)", 1001);
 
@@ -301,5 +298,3 @@ public class NotificationIntentService extends IntentService {
         }
     }
 }
-
-
