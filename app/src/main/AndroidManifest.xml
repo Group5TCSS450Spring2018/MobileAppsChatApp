@@ -51,9 +51,6 @@
                 android:value="spr018.tcss450.clientapplication.MainActivity" />
         </activity>
 
-        <service
-            android:name=".NotificationIntentService"
-            android:exported="false" />
     </application>
 
 </manifest>

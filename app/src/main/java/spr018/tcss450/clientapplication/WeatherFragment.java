@@ -40,6 +40,10 @@ public class WeatherFragment extends Fragment {
     public WeatherFragment() {
         // Required empty public constructor
     }
+    public void onCreate (Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +63,15 @@ public class WeatherFragment extends Fragment {
         String newLocation = mPrefs.getString(getString(R.string.keys_prefs_NEWCOORDINATES),"");
         addTab(TabWeatherFragment.newInstance(newLocation, "Unsaved"), "Unsaved");
 
+        getSavedWeatherTabs();
+
+        ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
+        mViewPager.setAdapter(mWeatherPagerAdapter);
+        //mViewPager.setOffscreenPageLimit(100);
+        mWeatherPagerAdapter.notifyDataSetChanged();
+        return view;
+    }
+    private void getSavedWeatherTabs(){
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -66,7 +79,7 @@ public class WeatherFragment extends Fragment {
                 .build();
 
         JSONObject msg = new JSONObject();
-        try{
+        try {
             String name = mPrefs.getString(getString(R.string.keys_prefs_user_name),"");
             msg.put("username", name);
         } catch (JSONException e){
@@ -76,10 +89,6 @@ public class WeatherFragment extends Fragment {
                 .onPostExecute(this::handleCreateTabs)
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
-        ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
-        mViewPager.setAdapter(mWeatherPagerAdapter);
-        mWeatherPagerAdapter.notifyDataSetChanged();
-        return view;
     }
 
     /**
@@ -110,11 +119,13 @@ public class WeatherFragment extends Fragment {
                             String latlng = lat+","+lg;
                             addTab(TabWeatherFragment.newInstance(latlng, "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
+
                         } else {
                             //send in zip code.
                             addTab(TabWeatherFragment.newInstance(arrayT.get(i).toString().
                                     split(",")[0].split(":")[1], "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
+
                         }
                     }
                 }catch(JSONException e){
@@ -128,6 +139,7 @@ public class WeatherFragment extends Fragment {
             return;
         }
         mWeatherPagerAdapter.notifyDataSetChanged();
+
 
     }
     /**Handle errors that may ouccur during the async taks.

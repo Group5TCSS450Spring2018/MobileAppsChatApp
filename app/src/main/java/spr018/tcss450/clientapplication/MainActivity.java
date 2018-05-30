@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -97,33 +98,33 @@ public class MainActivity extends AppCompatActivity
             loadFragmentWithBackStack(new ChatListFragment(), Pages.CHATLIST);
         }
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        NotificationIntentService.startServiceAlarm(this, true, mUsername);
-        NotificationIntentService.stopServiceAlarm(this);
-        editor.putBoolean(getString(R.string.keys_is_foreground), true);
-        editor.apply();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        NotificationIntentService.stopServiceAlarm(this);
-        NotificationIntentService.startServiceAlarm(this, false, mUsername);
-        editor.putBoolean(getString(R.string.keys_is_foreground), false);
-        editor.apply();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        NotificationIntentService.stopServiceAlarm(this);
-        NotificationIntentService.startServiceAlarm(this, false, mUsername);
-        editor.putBoolean(getString(R.string.keys_is_foreground), false);
-        editor.apply();
-    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        NotificationIntentService.startServiceAlarm(this, true, mUsername);
+//        NotificationIntentService.stopServiceAlarm(this);
+//        editor.putBoolean(getString(R.string.keys_is_foreground), true);
+//        editor.apply();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        NotificationIntentService.stopServiceAlarm(this);
+//        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+//        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+//        editor.apply();
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        NotificationIntentService.stopServiceAlarm(this);
+//        NotificationIntentService.startServiceAlarm(this, false, mUsername);
+//        editor.putBoolean(getString(R.string.keys_is_foreground), false);
+//        editor.apply();
+//    }
 
 
 
@@ -207,7 +208,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_weather) {
             loadFragmentWithBackStack(new WeatherFragment(), Pages.WEATHER);
         } else if (id == R.id.nav_log_out) {
-            NotificationIntentService.stopServiceAlarm(this);
+//            NotificationIntentService.stopServiceAlarm(this);
             showLoginActivity();
         }
 
@@ -328,6 +329,7 @@ public class MainActivity extends AppCompatActivity
      * @param page - current page
      */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.mainFragmentContainer, fragment, page.toString())

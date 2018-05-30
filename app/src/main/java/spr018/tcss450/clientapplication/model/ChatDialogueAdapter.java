@@ -12,7 +12,10 @@ import android.widget.TextView;
 import java.util.List;
 
 import spr018.tcss450.clientapplication.R;
-
+/**
+ * This custom adapter class to be able to change information based on new chats coming in.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
+ */
 public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapter.ViewHolder> {
 
     public static final int DISPLAY_LEFT = 0;
@@ -45,6 +48,9 @@ public class ChatDialogueAdapter extends RecyclerView.Adapter<ChatDialogueAdapte
         }
     }
 
+    /**
+     * inner class to hold information about the chat.
+     */
     public static class ChatHolder {
         private String mUsername;
         private String mMessage;

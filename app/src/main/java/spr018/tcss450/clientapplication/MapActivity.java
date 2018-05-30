@@ -119,6 +119,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 //TODO: Figure out how to switch back activities more elegantly
                 onBackPressed();
                 //returnToMainActivity();
+
+                //OPEN NEW FRAG
+
+
             }
         });
 
