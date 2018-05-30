@@ -407,7 +407,7 @@ public class MainActivity extends AppCompatActivity
         } else if (fragment instanceof  ChatListFragment) {
             mFab.show();
             mFab.setOnClickListener(view -> loadFragmentWithBackStack(new NewMessageFragment(), Pages.NEWMESSAGE));
-            mFab.setImageResource(R.drawable.ic_fab_send);
+            mFab.setImageResource(R.drawable.ic_fab_add);
             nv.setCheckedItem(R.id.nav_chat_list);
             setTitle(Pages.CHATLIST.toString());
         }

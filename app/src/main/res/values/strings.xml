@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">ClientApplication</string>
+    <string name="app_name">Marshenger</string>
 
-    <string name="nav_header_title">Chat Application</string>
+    <string name="nav_header_title">Marshenger: A Modern Chat App</string>
     <string name="nav_header_subtitle_course">TCSS 450 Spring 2018</string>
     <string name="nav_header_subtitle_authors">Daryan, Deepjot, Tenma, Tuan</string>
 
