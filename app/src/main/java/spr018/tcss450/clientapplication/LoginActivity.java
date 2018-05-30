@@ -21,6 +21,7 @@ import spr018.tcss450.clientapplication.model.Credentials;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 /**
+ * Activity that holds fragments involved in loging in. register, login, validiation, forgot password
  * @author Deepjot Kaur
  * @author Daryan Hanshew
  * @author Tenma Rollins
@@ -70,6 +71,10 @@ public class LoginActivity extends AppCompatActivity
 
     }
 
+    /**
+     *sends your credentials to login database.
+     * @param loginCredentials: your username and password saved.
+     */
     @Override
     public void onLoginAttempt(Credentials loginCredentials) {
         //build
@@ -88,6 +93,9 @@ public class LoginActivity extends AppCompatActivity
                 .build().execute();
     }
 
+    /**
+     * If you click register, the register fragment will appear.
+     */
     @Override
     public void onRegisterClicked() {
         RegisterFragment r = new RegisterFragment();
@@ -98,6 +106,9 @@ public class LoginActivity extends AppCompatActivity
         transaction.commit();
     }
 
+    /**
+     * if you click forgot password then the forgot password fragment will display.
+     */
     @Override
     public void onForgotPasswordClicked() {
         getSupportFragmentManager()
@@ -107,6 +118,10 @@ public class LoginActivity extends AppCompatActivity
                 .commit();
     }
 
+    /**
+     * sends a new password to the database
+     * @param email: users email
+     */
     @Override
     public void onSendResetCodeAttempt(String email) {
         Uri uri = new Uri.Builder()
@@ -128,6 +143,10 @@ public class LoginActivity extends AppCompatActivity
                 .execute();
     }
 
+    /**
+     * sends to register database users registration information.
+     * @param loginCredentials: users information
+     */
     @Override
     public void onRegisterAttempt(Credentials loginCredentials) {
         emailTemp = loginCredentials.getEmail();
@@ -145,6 +164,10 @@ public class LoginActivity extends AppCompatActivity
                 .build().execute();
     }
 
+    /**
+     * sends to the database the code to verify the user
+     * @param code: code to verify with
+     */
     @Override
     public void onValidationAttempt(int code) {
         Uri uri = new Uri.Builder()
@@ -167,6 +190,9 @@ public class LoginActivity extends AppCompatActivity
                 .build().execute();
     }
 
+    /**
+     * sends to the database a new code.
+     */
     @Override
     public void onResendCodeAttempt() {
         Uri uri = new Uri.Builder()
@@ -188,6 +214,11 @@ public class LoginActivity extends AppCompatActivity
 
     }
 
+    /**
+     * sends to the database a new password
+     * @param credentials: users information
+     * @param resetCode: the new code the user was given.
+     */
     @Override
     public void onResetPasswordAttempt(Credentials credentials, int resetCode) {
         Uri uri = new Uri.Builder()
@@ -215,12 +246,19 @@ public class LoginActivity extends AppCompatActivity
     /* *************** */
     /* PRIVATE HELPERS */
     /* *************** */
+
+    /**
+     * show main activity
+     */
     private void showMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 
+    /**
+     * stay logged in until user manually logs out.
+     */
     private void checkStayLoggedIn() {
         if (((CheckBox) findViewById(R.id.logCheckBox)).isChecked()) {
             Log.e("CHECK BOX", "CHECKED");
@@ -228,6 +266,9 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * save the users information
+     */
     private void saveUserInfo() {
         //Save the username for later usage
         mPrefs.edit().putString(getString(R.string.keys_prefs_user_name),
@@ -244,6 +285,9 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * show a verification page
+     */
     private void showVerificationPage() {
         LoginValidationFragment l_v_frag = new LoginValidationFragment();
         FragmentTransaction transaction = getSupportFragmentManager()
@@ -306,7 +350,10 @@ public class LoginActivity extends AppCompatActivity
             Log.e("JSON_PARSE_ERROR", result + System.lineSeparator() + e.getMessage());
         }
     }
-
+    /**
+     * Handle registration errors
+     * @param result the JSON formatted String response from the web service
+     */
     private void handleRegisterErrorsInTask(String result) {
         Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
         Log.e("ASYNCT_TASK_ERROR", result);
@@ -316,7 +363,11 @@ public class LoginActivity extends AppCompatActivity
             registerFragment.setEnabledAllButtons(true);
         }
     }
-
+    /**
+     * Handle onPostExecute of the AsynceTask. The result from our webservice is * a J  SON formatted String. Parse it for success or failure.
+     *
+     * @param result the JSON formatted String response from the web service
+     */
     private void handleRegisterOnPost(String result) {
         RegisterFragment registerFragment = (RegisterFragment) getSupportFragmentManager()
                 .findFragmentByTag(getString(R.string.keys_fragment_register));
@@ -352,7 +403,11 @@ public class LoginActivity extends AppCompatActivity
             validationFragment.setEnabledAllButtons(true);
         }
     }
-
+    /**
+     * Handle onPostExecute of the AsynceTask. The result from our webservice is * a J  SON formatted String. Parse it for success or failure.
+     *
+     * @param result the JSON formatted String response from the web service
+     */
     private void handleLoginVerificationOnPost(String result) {
         LoginValidationFragment validationFragment = (LoginValidationFragment) getSupportFragmentManager()
                 .findFragmentByTag(getString(R.string.keys_fragment_login_validation));
@@ -379,10 +434,17 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * set the forgot password button to disabled.
+     */
     private void handleSendValidationPre() {
         findViewById(R.id.forgotPasswordButton).setEnabled(false);
     }
-
+    /**
+     * Handle onPostExecute of the AsynceTask. The result from our webservice is * a J  SON formatted String. Parse it for success or failure.
+     *
+     * @param result the JSON formatted String response from the web service
+     */
     private void handleSendValidationPost(String result) {
         findViewById(R.id.forgotPasswordButton).setEnabled(true);
         try {
@@ -405,16 +467,27 @@ public class LoginActivity extends AppCompatActivity
 
     }
 
+    /**
+     * handle error from validation
+     * @param result: the error that is thrown
+     */
     private void handleSendValidationError(String result) {
         findViewById(R.id.forgotPasswordButton).setEnabled(true);
         Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
+    /**
+     * set the resend code button to disabled.
+     */
     private void handleResendCodePre() {
         findViewById(R.id.validationResendButton).setEnabled(false);
     }
 
+    /**
+     * checks to see if the code was resent successfully
+     * @param result: result that is passed in from the webservice.
+     */
     private void handleResendCodePost(String result) {
         findViewById(R.id.validationResendButton).setEnabled(true);
         try {
@@ -431,16 +504,27 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * handle resend code errors
+     * @param result: error that is thrown.
+     */
     private void handleResendCodeError(String result) {
         findViewById(R.id.validationResendButton).setEnabled(true);
         Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
-        Log.e("RESEND CODE ASYNCT_TASK_ERROR", result);
+        Log.e("RESEND CODE", result);
     }
 
+    /**
+     * set update password to disabled.
+     */
     private void handleUpdatePasswordPre() {
         findViewById(R.id.resetPasswordButton).setEnabled(false);
     }
-
+    /**
+     * Handle onPostExecute of the AsynceTask. The result from our webservice is * a J  SON formatted String. Parse it for success or failure.
+     *
+     * @param result the JSON formatted String response from the web service
+     */
     private void handleUpdatePasswordPost(String result) {
         findViewById(R.id.resetPasswordButton).setEnabled(true);
         try {
@@ -463,6 +547,10 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * throw error if resetting password fails.
+     * @param result
+     */
     private void handleUpdatePasswordError(String result) {
         findViewById(R.id.resetPasswordButton).setEnabled(true);
         Toast.makeText(getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();

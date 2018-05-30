@@ -26,10 +26,8 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
- * @author Deepjot Kaur
- * @author Daryan Hanshew
- * @author Tenma Rollins
- * @author Tuan Dinh
+ * Displays list of all your verified connections.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class ConnectionsFragment extends Fragment {
 
@@ -65,6 +63,9 @@ public class ConnectionsFragment extends Fragment {
         checkConnections();
     }
 
+    /**
+     * Check the connections that the signed in username has.
+     */
     private void checkConnections() {
         //send get connections the username.
         SharedPreferences prefs =
@@ -92,6 +93,10 @@ public class ConnectionsFragment extends Fragment {
 
     }
 
+    /**
+     * parse through the list of connections that have been accepted.
+     * @param results: two arrays of the connections.
+     */
     private void handleViewConnections(String results) {
         try {
             JSONObject resultJSON = new JSONObject(results);
@@ -129,7 +134,7 @@ public class ConnectionsFragment extends Fragment {
                     e.printStackTrace();
                     //return;
                 }
-                Log.d("size of mConnectionsList", ""+ mConnectionsList.size());
+                Log.d("size ofmConnectionsList", ""+ mConnectionsList.size());
                 //return;
             }
 

@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
+import spr018.tcss450.clientapplication.model.WeatherCollectionPagerAdapter;
 import spr018.tcss450.clientapplication.utility.ListenManager;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
@@ -48,6 +49,7 @@ public class TabWeatherFragment extends Fragment {
     private Button mSave;
     private SharedPreferences mPrefs;
     private ListenManager mWeatherListen;
+    private WeatherCollectionPagerAdapter mWeatherPagerAdapter;
 
 
     public TabWeatherFragment() {
@@ -58,6 +60,7 @@ public class TabWeatherFragment extends Fragment {
     //Can pass anything here, JSON, String, Coordinate.
     public static TabWeatherFragment newInstance(String location, String current) {
         TabWeatherFragment fragment = new TabWeatherFragment();
+
         Log.d("TABWEATHERFRAG", location+" "+current);
         Bundle args = new Bundle();
         args.putString(LOCATION, location);
@@ -96,6 +99,14 @@ public class TabWeatherFragment extends Fragment {
         mImage = v.findViewById(R.id.imageView2);
         mSave = v.findViewById(R.id.saveButton);
         mSave.setOnClickListener(this::save);
+        if(mCurrentorSaved == "Saved") {
+            mSave.setEnabled(false);
+        } else {
+            mSave.setEnabled(true);
+        }
+
+
+
         getCurrentWeather();
         getHourlyWeather();
         get10DayWeather();
@@ -154,6 +165,7 @@ public class TabWeatherFragment extends Fragment {
                 });
                 AlertDialog alert = builder.create();
                 alert.show();
+
             } else {
                 //alert dialog here.
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -449,7 +461,7 @@ public class TabWeatherFragment extends Fragment {
         }  if(icon.equals("tstorms")){
             return BitmapFactory.decodeResource(getResources(), R.drawable.tstorms);
         } else {
-            return BitmapFactory.decodeResource(getResources(), R.drawable.clear);
+            return BitmapFactory.decodeResource(getResources(), R.drawable.unknown);
         }
         //return b;
     }

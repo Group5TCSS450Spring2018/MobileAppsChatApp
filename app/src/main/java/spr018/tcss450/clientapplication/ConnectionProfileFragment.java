@@ -22,10 +22,8 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
- * @author Deepjot Kaur
- * @author Daryan Hanshew
- * @author Tenma Rollins
- * @author Tuan Dinh
+ * Displays your connections information. Allows user to accept, reject and remove the connection.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class ConnectionProfileFragment extends Fragment {
     private static final String BUNDLE_FULL_NAME = "full name";
@@ -53,7 +51,16 @@ public class ConnectionProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ConnectionProfileFragment newInstance(String fullName, String username, String email, int connectionType) {
+    /**
+     * Constructor to create a new profile frag.
+     * @param fullName; the connections fullname
+     * @param username; connections username
+     * @param email; connections email.
+     * @param connectionType; if they are a friend or no.
+     * @return
+     */
+    public static ConnectionProfileFragment newInstance(String fullName, String username,
+                                                        String email, int connectionType) {
         ConnectionProfileFragment fragment = new ConnectionProfileFragment();
         Bundle args = new Bundle();
         args.putString(BUNDLE_FULL_NAME, fullName);
@@ -109,6 +116,9 @@ public class ConnectionProfileFragment extends Fragment {
         mListener = null;
     }
 
+    /**
+     * Add listeners to all buttons that will be used in the fragment. Accept and decline requests.
+     */
     private void setUpButtons() {
         if (mType == FRIEND) {
             mButton.setImageResource(R.drawable.ic_connection_remove_red);
@@ -124,6 +134,10 @@ public class ConnectionProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Listener to add the connection
+     * @param button; view on which the button is on.
+     */
     private void onAddButtonClicked(View button) {
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
@@ -151,13 +165,18 @@ public class ConnectionProfileFragment extends Fragment {
                 .build().execute();
     }
 
+    /**
+     * send to the database your new connection.
+     * @param result: whether or not the user was successfully added.
+     */
     private void handleAddPost(String result) {
         try {
             JSONObject resultJSON = new JSONObject(result);
             boolean success = resultJSON.getBoolean("success");
             if (success) {
                 mButton.setEnabled(false);
-                Toast.makeText(getActivity().getApplicationContext(), "Request sent", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Request sent",
+                        Toast.LENGTH_LONG).show();
                 mListener.onUpdateFragmentAttempt();
             } else {
                 Log.e("JSONOBJECT", result);
@@ -167,6 +186,10 @@ public class ConnectionProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Listener to remove connections.
+     * @param button; View on which the button is on.
+     */
     private void onRemoveButtonClicked(View button) {
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
@@ -194,6 +217,10 @@ public class ConnectionProfileFragment extends Fragment {
                 .build().execute();
     }
 
+    /**
+     * Send to the database that the connection was removed.
+     * @param result; Whether or not the connection wass removed successfully.
+     */
     private void handleRemovePost(String result) {
         Log.e("JSON", result);
         try {
@@ -202,7 +229,8 @@ public class ConnectionProfileFragment extends Fragment {
             if (success) {
                 mType = STRANGER;
                 setUpButtons();
-                Toast.makeText(getActivity().getApplicationContext(), "Connection removed", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Connection removed",
+                        Toast.LENGTH_LONG).show();
                 mListener.onUpdateFragmentAttempt();
             } else {
                 Log.e("JSONOBJECT", result);
@@ -212,6 +240,10 @@ public class ConnectionProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Listener to accept the connection
+     * @param button: the view in which your button is on.
+     */
     private void onAcceptButtonClicked(View button) {
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
@@ -239,12 +271,17 @@ public class ConnectionProfileFragment extends Fragment {
                 .build().execute();
     }
 
+    /**
+     * Send to the database a new accepted connection.
+     * @param result: whether the connection was accepted successfully.
+     */
     private void handleAcceptPost(String result) {
         try {
             JSONObject resultJSON = new JSONObject(result);
             boolean success = resultJSON.getBoolean("success");
             if (success) {
-                Toast.makeText(getActivity().getApplicationContext(), "New connection added", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "New connection added",
+                        Toast.LENGTH_LONG).show();
                 mType = FRIEND;
                 setUpButtons();
                 mListener.onUpdateFragmentAttempt();
@@ -256,6 +293,10 @@ public class ConnectionProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Listener to decline the connection request.
+     * @param button: the view on which the button is on.
+     */
     private void onDeclineButtonClicked(View button) {
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
@@ -284,12 +325,17 @@ public class ConnectionProfileFragment extends Fragment {
                 .build().execute();
     }
 
+    /**
+     * Send to the database that user declined request.
+     * @param result: if the user was able to successfully decline the connection request.
+     */
     private void handleDeclinePost(String result) {
         try {
             JSONObject resultJSON = new JSONObject(result);
             boolean success = resultJSON.getBoolean("success");
             if (success) {
-                Toast.makeText(getActivity().getApplicationContext(), "Request removed", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Request removed",
+                        Toast.LENGTH_LONG).show();
                 mType = STRANGER;
                 setUpButtons();
                 mListener.onUpdateFragmentAttempt();
@@ -301,6 +347,10 @@ public class ConnectionProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Handle errors.
+     * @param result: JSON error.
+     */
     private void handleError(String result) {
         Log.e("JSONOBJECT", result);
     }
