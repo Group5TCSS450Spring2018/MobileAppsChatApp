@@ -17,6 +17,7 @@ import android.widget.EditText;
  * Activities that contain this fragment must implement the
  * {@link ForgotPasswordFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class ForgotPasswordFragment extends Fragment {
 

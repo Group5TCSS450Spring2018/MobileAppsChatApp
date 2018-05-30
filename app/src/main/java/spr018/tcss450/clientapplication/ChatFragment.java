@@ -212,8 +212,8 @@ public class ChatFragment extends Fragment {
     }
 
     /**
-     * Show the users the participants in the chat. 
-     * @param results
+     * Show the users the participants in the chat.
+     * @param results; result from database.
      */
     private void showParticipants(String results) {
         try {
@@ -287,6 +287,10 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * send a message. send usernmae, message and chat id to the database.
+     * @param theButton; The view on which the button is on.
+     */
     private void sendMessage(final View theButton) {
         Log.e("SEND", "ATTEMPTING TO SEND MESSAGE");
         JSONObject messageJSON = new JSONObject();
@@ -312,10 +316,18 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * handle errors.
+     * @param s
+     */
     private void handleError(String s) {
         Log.e("SEND", s);
     }
 
+    /**
+     * Make sure the message gets sent.
+     * @param result
+     */
     private void endOfSendMsgTask(final String result) {
         try {
             Log.e("END SEND MESSAGE", result);
@@ -332,6 +344,10 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * get the messages on a thread and display on to the screen.
+     * @param resultJSON
+     */
     private void publishProgress(JSONObject resultJSON) {
         final String[] messages;
         final String[] usernames;
@@ -371,6 +387,10 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * handle errors throuwl by json.
+     * @param e
+     */
     private void handleError(final Exception e) {
         Log.e("GET", e.getMessage());
     }

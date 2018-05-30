@@ -129,19 +129,11 @@ public class WeatherFragment extends Fragment {
                             addTab(TabWeatherFragment.newInstance(latlng, "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
 
-
-
-
-
                         } else {
                             //send in zip code.
                             addTab(TabWeatherFragment.newInstance(arrayT.get(i).toString().
                                     split(",")[0].split(":")[1], "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
-
-
-
-
 
                         }
                     }

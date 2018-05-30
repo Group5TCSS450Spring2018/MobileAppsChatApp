@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
+import spr018.tcss450.clientapplication.model.WeatherCollectionPagerAdapter;
 import spr018.tcss450.clientapplication.utility.ListenManager;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
@@ -48,6 +49,7 @@ public class TabWeatherFragment extends Fragment {
     private Button mSave;
     private SharedPreferences mPrefs;
     private ListenManager mWeatherListen;
+    private WeatherCollectionPagerAdapter mWeatherPagerAdapter;
 
 
     public TabWeatherFragment() {
@@ -163,6 +165,7 @@ public class TabWeatherFragment extends Fragment {
                 });
                 AlertDialog alert = builder.create();
                 alert.show();
+
             } else {
                 //alert dialog here.
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
