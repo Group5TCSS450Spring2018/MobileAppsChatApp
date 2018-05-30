@@ -13,10 +13,7 @@ import android.widget.EditText;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ForgotPasswordFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
+ * Displays fragment to reenter email if you forgot password.
  * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class ForgotPasswordFragment extends Fragment {
@@ -57,7 +54,10 @@ public class ForgotPasswordFragment extends Fragment {
         mListener = null;
     }
 
-    //Helper method
+    /**
+     *if the user has entered their email address. Then send the reset code.
+     * @param button: view on which button is on.
+     */
     private void onSendClicked(View button) {
         onEmailFocusChange(mEmail, false);
         if (mEmail.getError() == null) {
@@ -65,6 +65,11 @@ public class ForgotPasswordFragment extends Fragment {
         }
     }
 
+    /**
+     *
+     * @param editText: the edit text field that we will be getting the email address from.
+     * @param hasFocus: if the user has clicked on it.
+     */
     private void onEmailFocusChange(View editText, boolean hasFocus) {
         String email = mEmail.getText().toString();
         if (!hasFocus) {

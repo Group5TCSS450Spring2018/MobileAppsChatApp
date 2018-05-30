@@ -149,6 +149,7 @@ public class WeatherFragment extends Fragment {
         }
         mWeatherPagerAdapter.notifyDataSetChanged();
 
+
     }
     private void handleError(final Exception e) {
         Log.e("HOME WEATHER", e.getMessage());

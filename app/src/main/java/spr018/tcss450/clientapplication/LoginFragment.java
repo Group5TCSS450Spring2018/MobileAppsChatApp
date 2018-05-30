@@ -17,10 +17,7 @@ import spr018.tcss450.clientapplication.model.Credentials;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
+ * Login fragment. Enter username and password to log in to chat application.
  *
  * @author Deepjot Kaur
  * @author Daryan Hanshew
@@ -81,6 +78,12 @@ public class LoginFragment extends Fragment {
     /* **************** */
     /* PRIVATE HANDLERS */
     /* **************** */
+
+    /**
+     * Checks to see if the username field is empty when the user clicks away
+     * @param v: view on which the edit test is on.
+     * @param hasFocus: whether the user has clicked
+     */
     private void onUsernameFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (mUsername.getText().toString().isEmpty()) {
@@ -90,7 +93,11 @@ public class LoginFragment extends Fragment {
             }
         }
     }
-
+    /**
+     * Checks to see if the password field is empty when the user clicks away
+     * @param v: view on which the edit test is on.
+     * @param hasFocus: whether the user has clicked
+     */
     private void onPasswordFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (mPassword.getText().toString().isEmpty()) {
@@ -101,6 +108,10 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    /**
+     * Once the user clicks login. checks to see if any fields are invalid
+     * @param v: login fragment view
+     */
     private void handleLoginAttempt(View v) {
         //These two methods call are NECESSARY.
         //They simulate the views losing focus.
@@ -120,6 +131,11 @@ public class LoginFragment extends Fragment {
     /* *********** */
     /* EXPOSED API */
     /* *********** */
+
+    /**
+     * sets the button be either enabled or disabled.
+     * @param state: true or false.
+     */
     public void setEnabledAllButtons(boolean state) {
         Objects.requireNonNull(getActivity()).findViewById(R.id.loginButton).setEnabled(state);
         getActivity().findViewById(R.id.registerButton).setEnabled(state);

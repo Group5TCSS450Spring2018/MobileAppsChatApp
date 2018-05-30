@@ -47,10 +47,8 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
+ * Home fragment that displays the current weather, requests and recent chats.
+ *  @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class HomeFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -216,6 +214,9 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
             mGoogleApiClient.disconnect();
     }
 
+    /**
+     * Call to Weather underground api. Sends current location retrieved from google maps.
+     */
     private void getCurrentWeather() {
         Log.e("SENDING WEATHER REQUEST", "SENDING WEATHER REQUEST!");
         String coordinates = mCurrentLocation.getLatitude() + "," + mCurrentLocation.getLongitude();
@@ -235,6 +236,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build();
     }
 
+    /**
+     * Parses through the json returned to display the weather and icon.
+     * @param resultJSON: JSON object returned from api.
+     */
     private void handleHomeCurrentWeather(JSONObject resultJSON) {
         final String[] currentWeather;
         try {
@@ -260,6 +265,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         get temp that is passed back and then setText of weatherTextview.*/
     }
 
+    /**
+     * handle errors thrown by weather.
+     * @param e: exception
+     */
     private void handleWeatherError(final Exception e) {
         Log.e("HOME WEATHER", e.getMessage());
     }
@@ -282,7 +291,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build();
     }
 
-    //Create a JSON object and get the connections requests to display.
+    /**
+     * Create a JSON object and get the connections requests to display.
+     * @param resultJSON: parse the resuts that are sent
+     */
     private void handleViewConnectionRequests(JSONObject resultJSON) {
         final Connection[] connections;
         try {
@@ -313,6 +325,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         });
     }
 
+    /**
+     * handle errors thrown by requesting connections
+     * @param e: exception
+     */
     private void handleRequestError(final Exception e) {
         Log.e("HOME REQUEST", e.getMessage());
     }
@@ -345,7 +361,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build().execute();
     }
 
-    //Create a JSON object and get the connections requests to display.
+    /**
+     * Create a JSON object and get the recent chats to display.
+     * @param results: string of results that need to be parsed
+     */
     private void handleRecentChats(String results) {
         try {
             mChatList.clear();
@@ -388,7 +407,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         mChatAdapter.notifyDataSetChanged();
     }
 
-
+    /**
+     * Method to accept a request and send to the database that you have accepted
+     * @param connection: a connection that you are accepting.
+     */
     private void acceptRequest(Connection connection) {
         mConnection = connection;
 
@@ -411,6 +433,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build().execute();
     }
 
+    /**
+     * Deny a request and send to the database.
+     * @param connection: connection that you are denying.
+     */
     private void denyRequest(Connection connection) {
         mConnection = connection;
 
@@ -434,6 +460,10 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
                 .build().execute();
     }
 
+    /**
+     * checks if the connection was succesfully declined or accepted
+     * @param result: success or error
+     */
     private void handleAcceptDenyPost(String result) {
         try {
             JSONObject resultJSON = new JSONObject(result);
@@ -478,6 +508,9 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         mListener = null;
     }
 
+
+
+    //GOOGLE MAPPING.
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         // If the initial location was never previously requested, we use
@@ -577,6 +610,11 @@ public class HomeFragment extends Fragment implements GoogleApiClient.Connection
         void onExpandingRequestAttempt(Connection connection);
     }
 
+    /**
+     * Chooses an icon based on the json result that is parsed and passed in.
+     * @param icon: the string of the icon to use.
+     * @return a bitmap png of the icon.
+     */
     private Bitmap getIconBitmap(String icon) {
         Bitmap b;
         if (icon.equals("chanceflurries")) {
