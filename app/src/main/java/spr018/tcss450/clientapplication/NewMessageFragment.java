@@ -81,6 +81,10 @@ public class NewMessageFragment extends Fragment {
         return v;
     }
 
+    /**
+     * For selecting a chatmember for a chat
+     * @param c - the connection selected
+     */
     private void selectChatMember(Connection c) {
         if (mSelectedMembers.contains(c)) {
             mSelectedMembers.remove(c);
@@ -91,6 +95,9 @@ public class NewMessageFragment extends Fragment {
         updateSelectedLabel();
     }
 
+    /**
+     * Displays the updated label once users are added.
+     */
     private void updateSelectedLabel() {
         SharedPreferences prefs =
                 getActivity().getSharedPreferences(
@@ -104,6 +111,10 @@ public class NewMessageFragment extends Fragment {
         mSelectedLabel.setText(display);
     }
 
+    /**
+     *  Opens a chat with another user
+     * @param v current view
+     */
     private void openChat(View v){
         mCreateChatButton.setEnabled(false);
         tempChatName = mChatNameInput.getText().toString();
@@ -156,6 +167,10 @@ public class NewMessageFragment extends Fragment {
         }
     }
 
+    /**
+     * Handles all information when chat is created.
+     * @param results - the JSON returned
+     */
     private void handleChatCreationOnPost(String results) {
         try {
             JSONObject resultJSON = new JSONObject(results);
@@ -167,6 +182,9 @@ public class NewMessageFragment extends Fragment {
         }
     }
 
+    /**
+     *  Retrieves all connections for a user to add.
+     */
     private void checkConnections() {
         //send get connections the username.
         SharedPreferences prefs =
@@ -193,6 +211,10 @@ public class NewMessageFragment extends Fragment {
                 .build().execute();
     }
 
+    /**
+     *  Handle all current connections of a user
+     * @param results - json object of all connections
+     */
     private void handleViewConnections(String results) {
         try {
             JSONObject resultJSON = new JSONObject(results);
@@ -229,7 +251,7 @@ public class NewMessageFragment extends Fragment {
                     e.printStackTrace();
                     //return;
                 }
-                Log.d("size of mConnectionsList", ""+ mConnectionsList.size());
+                //Log.d("size of mConnectionsList", ""+ mConnectionsList.size());
                 //return;
             }
 
@@ -267,6 +289,11 @@ public class NewMessageFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
+        /**
+         *  Displays chat when chat is created
+         * @param chatid
+         * @param chatName
+         */
         void onChatCreation(int chatid, String chatName);
     }
 }

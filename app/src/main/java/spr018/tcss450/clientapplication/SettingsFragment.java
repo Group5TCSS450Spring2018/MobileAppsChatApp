@@ -11,12 +11,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.Toast;
-
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
+ *  Allows user to modify settings of look and feel of application.
  * {@link SettingsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
@@ -29,7 +26,13 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         // Required empty public constructor
     }
 
-
+    /**
+     *  Initializes the view with the information.
+     * @param inflater - layout to handle XML code.
+     * @param container - contains all XML code.
+     * @param savedInstanceState - grabs previous information from past activities.
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,13 +63,20 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+    /**
+     *  Checks if user checked to stay logged in.
+     * @param v - the view of  fragment.
+     */
     private void onStayLoggedInToggle(View v) {
         if (mListener != null) {
             mListener.settings_ToggleStayLoggedIn((Switch) v);
         }
     }
 
+    /**
+     *  Attaches fragment to current state..
+     * @param context the current state of the app.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -78,17 +88,30 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         }
     }
 
+    /**
+     *  Overrides on pause for the fragment.
+     */
     @Override
     public void onPause() {
         super.onPause();
     }
 
+    /**
+     *  Detaches the fragment from application.
+     */
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
+    /**
+     *  Checks the item clicked by a user.
+     * @param parent - the changing view of the parent.
+     * @param view - current view of the page.
+     * @param position - position inside the list.
+     * @param id - id of the selected item.
+     */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (!firstOpen) {
@@ -106,6 +129,10 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         }
     }
 
+    /**
+     *  Do nothing if nothing is selected.
+     * @param parent
+     */
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
@@ -118,7 +145,6 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
      * activity.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void settings_ToggleStayLoggedIn(Switch v);
         void settings_ChangeTheme(String styleID);
     }

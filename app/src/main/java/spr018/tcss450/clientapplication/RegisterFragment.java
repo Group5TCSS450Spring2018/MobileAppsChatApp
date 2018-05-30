@@ -21,8 +21,7 @@ import spr018.tcss450.clientapplication.model.Credentials;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
+ *  Handles all user registration.
  * {@link RegisterFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  *
@@ -95,6 +94,12 @@ public class RegisterFragment extends Fragment {
     /* **************** */
     /* PRIVATE HANDLERS */
     /* **************** */
+
+    /**
+     * Validates first name as user types it
+     * @param v - current view
+     * @param hasFocus - whether the firstname is being changed.
+     */
     private void onFirstNameFocusChange(View v, boolean hasFocus) {
         String firstName = mFirstName.getText().toString();
 
@@ -114,7 +119,11 @@ public class RegisterFragment extends Fragment {
 
         canRegister = canRegister && mFirstName.getError() == null;
     }
-
+    /**
+     * Validates last name as user types it
+     * @param v - current view
+     * @param hasFocus - whether the lastname is being changed.
+     */
     private void onLastNameFocusChange(View v, boolean hasFocus) {
         String lastName = mLastName.getText().toString();
 
@@ -135,6 +144,11 @@ public class RegisterFragment extends Fragment {
         canRegister = canRegister && mLastName.getError() == null;
     }
 
+    /**
+     * Validates email as user types it
+     * @param v - current view
+     * @param hasFocus - whether the email is being changed.
+     */
     private void onEmailFocusChange(View v, boolean hasFocus) {
         String email = mEmail.getText().toString();
 
@@ -154,6 +168,11 @@ public class RegisterFragment extends Fragment {
         canRegister = canRegister && mEmail.getError() == null;
     }
 
+    /**
+     * Validates username as user types it
+     * @param v - current view
+     * @param hasFocus - whether the username is being changed.
+     */
     private void onUsernameFocusChange(View v, boolean hasFocus) {
         String username = mUsername.getText().toString();
 
@@ -174,6 +193,11 @@ public class RegisterFragment extends Fragment {
         canRegister = canRegister && mUsername.getError() == null;
     }
 
+    /**
+     * Validates password as user types it
+     * @param v - current view
+     * @param hasFocus - whether the password is being changed.
+     */
     private void onPasswordFocusChange(View v, boolean hasFocus) {
         String password = mPassword.getText().toString();
 
@@ -200,6 +224,11 @@ public class RegisterFragment extends Fragment {
         canRegister = canRegister && mPassword.getError() == null;
     }
 
+    /**
+     * Validates reenter password as user types it
+     * @param v - current view
+     * @param hasFocus - whether the reenter password is being changed.
+     */
     private void onRePasswordFocusChange(View v, boolean hasFocus) {
         String rePassword = mRePassword.getText().toString();
         if (!hasFocus) {
@@ -216,6 +245,10 @@ public class RegisterFragment extends Fragment {
         canRegister = canRegister && mRePassword.getError() == null;
     }
 
+    /**
+     * Sends user information when user clicks to register.
+     * @param v - current view
+     */
     private void onRegisterClicked(View v) {
         canRegister = true; // allow base canRegister to be true
 
@@ -247,6 +280,11 @@ public class RegisterFragment extends Fragment {
     /* *********** */
     /* EXPOSED API */
     /* *********** */
+
+    /**
+     * Enables registration button when states are all valid
+     * @param state - checks whether registration state is valid
+     */
     public void setEnabledAllButtons(boolean state) {
         getActivity().findViewById(R.id.newRegisterButton).setEnabled(state);
     }
@@ -277,6 +315,10 @@ public class RegisterFragment extends Fragment {
      * activity.
      */
     public interface OnFragmentInteractionListener {
+        /**
+         *  Sends credentials when user registers
+         * @param loginCredentials - credentials for registration
+         */
         void onRegisterAttempt(Credentials loginCredentials);
     }
 }
