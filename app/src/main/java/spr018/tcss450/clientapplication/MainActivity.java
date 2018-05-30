@@ -33,6 +33,9 @@ import spr018.tcss450.clientapplication.model.Chat;
 import spr018.tcss450.clientapplication.model.Connection;
 import spr018.tcss450.clientapplication.utility.Pages;
 
+/**
+ *  The starting activity for the entire app.
+ */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         HomeFragment.OnFragmentInteractionListener,
@@ -246,10 +249,10 @@ public class MainActivity extends AppCompatActivity
         onOpenChat(mPrefs.getString(getString(R.string.keys_prefs_user_name), ""), chatid, chatName);
     }
 
-    @Override
+    /*@Override
     public void onWeatherInteraction(Uri uri) {
 
-    }
+    }*/
 
     @Override
     public void onSearchedConnectionClicked(Connection connection) {
@@ -319,6 +322,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     /* Helpers */
+
+    /**
+     *  Loads a fragment from previous  use
+     * @param fragment - current fragment
+     * @param page - current page
+     */
     private void loadFragmentWithBackStack(Fragment fragment, Pages page) {
 
         getSupportFragmentManager()
@@ -329,6 +338,10 @@ public class MainActivity extends AppCompatActivity
         updateFABandNV(fragment);
     }
 
+    /**
+     * Load back to home if no fragment is on back stack.
+     * @param fragment - current fragment.
+     */
     private void loadFragmentNoBackStack(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
@@ -338,6 +351,9 @@ public class MainActivity extends AppCompatActivity
         updateFABandNV(fragment);
     }
 
+    /**
+     *  Shows whether user is chose to stay logged in or not.
+     */
     private void showLoginActivity() {
         // clear stay logged in regardless of whether it is set or not
         mPrefs.edit().putBoolean(getString(R.string.keys_prefs_stay_logged_in), false).apply();
@@ -347,6 +363,9 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    /**
+     * Loads the map for weather.
+     */
     private void loadMap() {
         Intent i = new Intent(this, MapActivity.class);
         Double latitude = Double.parseDouble(mPrefs.getString(getString(R.string.keys_prefs_latitude),""));
@@ -358,7 +377,10 @@ public class MainActivity extends AppCompatActivity
         startActivity(i);
     }
 
-    //Sets the Floating Action Button and NavigationView to the correct state.
+    /**
+     * Sets the floating action button and navigation view to the correct state.
+     * @param fragment - current fragment
+     */
     private void updateFABandNV(@Nullable Fragment fragment) {
         NavigationView nv = findViewById(R.id.nav_view);
         if (fragment instanceof HomeFragment) {

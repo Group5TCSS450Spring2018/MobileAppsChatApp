@@ -31,6 +31,7 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
+ * New connection added fragment
  * @author Deepjot Kaur
  * @author Daryan Hanshew
  * @author Tenma Rollins
@@ -104,22 +105,40 @@ public class NewConnectionFragment extends Fragment {
     //Helper methods
 
     //Open the search when user clicked on the container.
+
+    /**
+     * Checks when connection request is accepted or denied.
+     * @param cardView - connection cardview
+     */
     private void onCardViewClicked(View cardView) {
         mSearchView.setIconified(false);
     }
 
 
     //Close the search when user clicked on the bottom container.
+
+    /**
+     * When the connection container is clicked.
+     * @param container - connection container
+     */
     private void onContainerClicked(View container) {
         Log.d("CONTAINER", "CLICKED");
         mSearchView.setIconified(true);
     }
 
+    /**
+     *  When a click happens for searching connections
+     * @param connection - the connection to be searched
+     */
     private void onItemClicked(Connection connection) {
         mSearchView.setIconified(true);
         mListener.onSearchedConnectionClicked(connection);
     }
 
+    /**
+     * The query handled by search.
+     * @param input - the search by the user
+     */
     private void handleQuery(String input) {
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -145,6 +164,10 @@ public class NewConnectionFragment extends Fragment {
     }
 
 
+    /**
+     * The information returned based off the search.
+     * @param result - JSON object of all connections based off a search.
+     */
     private void handleSearchPost(String result) {
         try {
             JSONObject objectJSON = new JSONObject(result);
@@ -172,6 +195,10 @@ public class NewConnectionFragment extends Fragment {
         }
     }
 
+    /***
+     * Handles an error for invalid connections.
+     * @param result - returns error JSON
+     */
     private void handleSearchError(String result) {
         Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), getString(R.string.toast_server_down), Toast.LENGTH_LONG).show();
         Log.e("ASYNCT_TASK_ERROR", result);
@@ -179,6 +206,10 @@ public class NewConnectionFragment extends Fragment {
 
 
     public interface OnFragmentInteractionListener {
+        /**
+         *  Handles when a searched connection is clicked.
+         * @param connection - connection that is clicked.
+         */
         void onSearchedConnectionClicked(Connection connection);
     }
 

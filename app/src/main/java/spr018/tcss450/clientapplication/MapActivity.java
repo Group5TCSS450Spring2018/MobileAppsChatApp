@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,14 +24,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.Objects;
 
-import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
-
+/**
+ *  Handles all activities related to the Google map for getting weather based off an user selected area.
+ */
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener{
     public static final String LATITUDE = "lat";
     public static final String LONGITUDE = "lng";
@@ -55,20 +51,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
 
-/*        mSearchView = v.findViewById(R.id.mapSearchView);
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                handleQuery(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                handleQuery(newText);
-                return false;
-            }
-        });*/
 
         mLat = getIntent().getDoubleExtra(LATITUDE, 0.0);
         mLng = getIntent().getDoubleExtra(LONGITUDE, 0.0);

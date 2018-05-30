@@ -12,17 +12,14 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +31,9 @@ import spr018.tcss450.clientapplication.model.WeatherCollectionPagerAdapter;
 import spr018.tcss450.clientapplication.utility.ListenManager;
 import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
-
+/**
+ *   Individual weather fragment tab that  contains all needed information for a single area of weather.
+ */
 public class TabWeatherFragment extends Fragment {
 
     public static final String LOCATION = "Location";
@@ -56,11 +55,16 @@ public class TabWeatherFragment extends Fragment {
         // Required empty public constructor
     }
 
+    /**
+     *  Initializes the fragment information from the web underground API.
+     * @param location - current location
+     * @param current -  current weather
+     * @return returns the  newly created fragment
+     */
     //Static method to create a new fragment with the specified parameters,
     //Can pass anything here, JSON, String, Coordinate.
     public static TabWeatherFragment newInstance(String location, String current) {
         TabWeatherFragment fragment = new TabWeatherFragment();
-
         Log.d("TABWEATHERFRAG", location+" "+current);
         Bundle args = new Bundle();
         args.putString(LOCATION, location);
@@ -113,6 +117,10 @@ public class TabWeatherFragment extends Fragment {
         return v;
     }
 
+    /**
+     * Saves the information for weather for a particular user
+     * @param v the current view
+     */
     private void save(View v){
         //send username and mLocation to the database.
         //get out in onCreateView weather fragment.
@@ -148,6 +156,10 @@ public class TabWeatherFragment extends Fragment {
                 .build().execute();
     }
 
+    /**
+     *  Gets all the weather information stored and  displays all the information.
+     * @param results The weather information called from the webservice.
+     */
     private void handleSave(String results){
         Log.d("RESULTS", results);
         try {
@@ -185,7 +197,9 @@ public class TabWeatherFragment extends Fragment {
         }
     }
 
-
+    /**
+     *  Get the current weather  for a particular location.
+     */
     private void getCurrentWeather() {
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -200,6 +214,10 @@ public class TabWeatherFragment extends Fragment {
                 .build();
     }
 
+    /**
+     *  Handles the JSON call for all weather information.
+     * @param resultJSON  the returned JSON from API call.
+     */
     private void handleHomeCurrentWeather(JSONObject resultJSON) {
         final String[] currentWeather;
         try {
@@ -226,6 +244,9 @@ public class TabWeatherFragment extends Fragment {
         Log.e("HOME WEATHER", e.getMessage());
     }
 
+    /**
+     *  Retrieves the 10 day weather information.
+     */
     private void get10DayWeather(){
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -240,13 +261,17 @@ public class TabWeatherFragment extends Fragment {
         } catch(JSONException e) {
             e.printStackTrace();
         }
-        Log.d("TAB WEATHER", "GET10 DAY");
         new SendPostAsyncTask.Builder(uri.toString(), msg)
                 .onPostExecute(this::handle10DayWeather)
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
 
     }
+
+    /**
+     * Handles all the 10 day information needed to display.
+     * @param result The resulting string from web API call.
+     */
     private void handle10DayWeather(String result) {
         try {
             JSONObject resultJSON = new JSONObject(result);
@@ -334,6 +359,10 @@ public class TabWeatherFragment extends Fragment {
             Log.e("10 DAY WEATHER", e.getMessage());
         }
     }
+
+    /**
+     *  Get  the hourly weather.
+     */
     private void getHourlyWeather() {
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -354,6 +383,11 @@ public class TabWeatherFragment extends Fragment {
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
     }
+
+    /**
+     *  Handles all the JSON  information for hourly weather.
+     * @param results the JSON of weather information.
+     */
     private void handleHourlyWeather(String results){
         try{
             JSONObject resultJSON = new JSONObject(results);
@@ -419,9 +453,12 @@ public class TabWeatherFragment extends Fragment {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
 
-
+    /**
+     *  Gets the icon that fits the current weather.
+     * @param icon -  the current weather string to match icon
+     * @return returns icon needed to be displayed
+     */
     private Bitmap getIconBitmap(String icon) {
-        Bitmap b;
         if(icon.equals("chanceflurries")){
             return BitmapFactory.decodeResource(getResources(), R.drawable.chanceflurries);
         } if(icon.equals("chancerain")) {
@@ -463,15 +500,10 @@ public class TabWeatherFragment extends Fragment {
         } else {
             return BitmapFactory.decodeResource(getResources(), R.drawable.unknown);
         }
-        //return b;
     }
 
     @Override
     public void onStart() {
-//        if (mGoogleApiClient != null) {
-//            mGoogleApiClient.connect();
-//        }
-
         super.onStart();
     }
 
@@ -480,23 +512,14 @@ public class TabWeatherFragment extends Fragment {
         if (mWeatherListen != null) {
             mWeatherListen.startListening();
         }
-//        if (mRequestListen != null) {
-//            mRequestListen.startListening();
-//        }
         super.onResume();
     }
 
     @Override
     public void onStop() {
-//        if (mGoogleApiClient != null) {
-//            mGoogleApiClient.disconnect();
-//        }
         if (mWeatherListen != null) {
             mWeatherListen.stopListening();
         }
-//        if (mRequestListen != null) {
-//            mRequestListen.stopListening();
-//        }
         super.onStop();
     }
 }

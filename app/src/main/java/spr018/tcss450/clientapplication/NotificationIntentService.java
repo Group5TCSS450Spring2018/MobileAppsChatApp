@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,10 +26,10 @@ import java.net.URL;
 
 
 /**
+ *  Intent service to handle all connection requests and chat notifications.
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  * <p>
- * TODO: Customize class - update intent actions and extra parameters.
  */
 public class NotificationIntentService extends IntentService {
 
@@ -56,6 +55,12 @@ public class NotificationIntentService extends IntentService {
         }
     }
 
+    /**
+     *  Starts the notification service while polling web service.
+     * @param context - current state of the app.
+     * @param isInForeground - checks whether app is in foreground
+     * @param username - username of user.
+     */
     public static void startServiceAlarm(Context context, boolean isInForeground, String username) {
         Intent i = new Intent(context, NotificationIntentService.class);
         i.putExtra(context.getString(R.string.keys_is_foreground), isInForeground);
@@ -73,6 +78,10 @@ public class NotificationIntentService extends IntentService {
 
     }
 
+    /**
+     * Stops the notification service.
+     * @param context - state of the app.
+     */
     public static void stopServiceAlarm(Context context) {
         Intent i = new Intent(context, NotificationIntentService.class);
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, i, 0);
@@ -81,6 +90,10 @@ public class NotificationIntentService extends IntentService {
         pendingIntent.cancel();
     }
 
+    /**
+     *  Gets all requests for a particular user.
+     * @param mUsername - username
+     */
     private void getRequests(String mUsername) {
         //Log.wtf("TAG420", mUsername);
         AsyncTask<String, Void, String> task = new RequestNotificationTask();
@@ -89,6 +102,10 @@ public class NotificationIntentService extends IntentService {
                 mUsername);
     }
 
+    /**
+     *  Gets all of the notifications if any recent messages have been sent.
+     * @param mUsername
+     */
     private void getChatRequests(String mUsername) {
         AsyncTask<String, Void, String> task = new ChatNotificationTask();
         task.execute(getString(R.string.ep_base_url),
@@ -96,6 +113,11 @@ public class NotificationIntentService extends IntentService {
                 mUsername);
     }
 
+    /**
+     *  Creates a notification for a new connection request.
+     * @param aMessage - body of the message.
+     * @param idNotify - channel  of notification
+     */
     public void createRequestNotification(String aMessage, int idNotify) {
          int NOTIFY_ID = idNotify;
         // There are hardcoding only for show it's just strings
@@ -166,6 +188,9 @@ public class NotificationIntentService extends IntentService {
         notifManager.notify(NOTIFICATION_REQUEST_ID, notification);
     }
 
+    /**
+     *  Request a notification for connections
+     */
     private class RequestNotificationTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... strings) {
@@ -214,7 +239,6 @@ public class NotificationIntentService extends IntentService {
             try {
                 JSONObject res = new JSONObject(result);
                 JSONArray resArr = res.getJSONArray("recieved_requests");
-                Log.e("Connection Requests ARRAY", resArr.toString());
                 if (resArr.length() > 0) {
                     JSONObject timeStamp = resArr.getJSONObject(0);
                     SharedPreferences sp = getApplicationContext().getSharedPreferences(getString(R.string.keys_shared_prefs), Context.MODE_PRIVATE);
@@ -235,6 +259,9 @@ public class NotificationIntentService extends IntentService {
         }
     }
 
+    /***
+     * Requests all recent messages in chat and notifies user.
+     */
     private class ChatNotificationTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... strings) {
@@ -286,11 +313,8 @@ public class NotificationIntentService extends IntentService {
                     String username = sp.getString(getString(R.string.keys_prefs_user_name), "");
                     String currtimestampStr = sp.getString(getString(R.string.keys_chatTimestamp) + username, "");
                     String sentTimestampstr = timeStamp.getString("timestamp");
-                    Log.wtf("TAGCURR", currtimestampStr);
-                    Log.wtf("TAGSTAMP", sentTimestampstr);
                     if (sentTimestampstr.compareTo(currtimestampStr) > 0 && !username.equals(timeStamp.getString("username"))) {
                         createRequestNotification("You have new message(s)", 1001);
-
                         sp.edit().putString(getString(R.string.keys_chatTimestamp) + username, sentTimestampstr).apply();
                     }
                 }
@@ -301,5 +325,3 @@ public class NotificationIntentService extends IntentService {
         }
     }
 }
-
-

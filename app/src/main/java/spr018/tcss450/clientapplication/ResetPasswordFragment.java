@@ -14,8 +14,7 @@ import spr018.tcss450.clientapplication.model.Credentials;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
+ *  Reset the password  fragment for users who have forgotten or want to change there password.
  * {@link ResetPasswordFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
@@ -30,7 +29,6 @@ public class ResetPasswordFragment extends Fragment {
     public ResetPasswordFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -61,17 +59,27 @@ public class ResetPasswordFragment extends Fragment {
         }
     }
 
+
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
+    /**
+     * Sets an error if  any conditions are not met.
+     */
     public void setError() {
         mUsername.setError("");
         mCodeEditText.setError("");
     }
 
+    /**
+     * Sends errors until username is valid
+     * @param view - current view
+     * @param hasFocus - whether it's being edited or not.
+     */
     //Helper methods
     private void onUsernameFocusChange(View view, boolean hasFocus) {
         if (!hasFocus) {
@@ -81,6 +89,11 @@ public class ResetPasswordFragment extends Fragment {
         }
     }
 
+    /**
+     *  Sends  errors until validation code is valid
+     * @param view - current view
+     * @param hasFocus - whether it's being edited or not.
+     */
     private void onCodeFocusChange(View view, boolean hasFocus) {
         EditText codeText = (EditText) view;
         if (!hasFocus) {
@@ -116,6 +129,11 @@ public class ResetPasswordFragment extends Fragment {
         }
     }
 
+    /**
+     *  Validates password as user types it.
+     * @param view - current view
+     * @param hasFocus - whether user is commenting code or not.
+     */
     private void onRePasswordFocusChange(View view, boolean hasFocus) {
         EditText rePasswordText = (EditText) view;
         String rePassword = rePasswordText.getText().toString();
@@ -131,6 +149,10 @@ public class ResetPasswordFragment extends Fragment {
         }
     }
 
+    /**
+     *  Checks for reset clicked to clear boxes.
+     * @param button - button to click
+     */
     private void onResetClicked(View button) {
         onUsernameFocusChange(mUsername, false);
         onCodeFocusChange(mCodeEditText, false);
@@ -159,6 +181,11 @@ public class ResetPasswordFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
+        /**
+         *  Sends credentials on the attempt to reset the password.
+         * @param credentials - user credentials
+         * @param resetCode - code to reset password
+         */
         void onResetPasswordAttempt(Credentials credentials, int resetCode);
     }
 }
