@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 /**
  * This custom connection class hold is used to hold all the information
  * a connection has.
+ * Username first and last name email, and most recent messages.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class Connection implements Comparable<Connection> {
 

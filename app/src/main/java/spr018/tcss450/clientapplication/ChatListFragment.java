@@ -34,6 +34,8 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
  * Activities that contain this fragment must implement the
  * {@link ChatListFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
+ * Displays the list of chats you are in.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class ChatListFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
@@ -68,6 +70,9 @@ public class ChatListFragment extends Fragment {
         checkChats();
     }
 
+    /**
+     * Check the chats you are in. Call a method to display a list of chats.
+     */
     private void checkChats() {
         //send get connections the username.
         SharedPreferences prefs =
@@ -95,6 +100,10 @@ public class ChatListFragment extends Fragment {
 
     }
 
+    /**
+     * Display the chats to the screen. Parse through the results and put in to a hashmap.
+     * @param results; Results from the database.
+     */
     private void handleViewConnections(String results) {
         try {
             JSONObject resultJSON = new JSONObject(results);

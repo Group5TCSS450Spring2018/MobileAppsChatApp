@@ -1,25 +1,20 @@
 package spr018.tcss450.clientapplication;
 
-import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,8 +25,7 @@ import spr018.tcss450.clientapplication.utility.SendPostAsyncTask;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
+ *  A fragment for user to view all weather related information from current weather to 10 day forecast.
  * {@link WeatherFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
@@ -46,7 +40,10 @@ public class WeatherFragment extends Fragment {
     public WeatherFragment() {
         // Required empty public constructor
     }
+    public void onCreate (Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
 
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,14 +59,19 @@ public class WeatherFragment extends Fragment {
                         getString(R.string.keys_shared_prefs),
                         Context.MODE_PRIVATE);
         String mLocation = mPrefs.getString(getString(R.string.keys_prefs_coordinates), "");
-        Log.d("LATLNG mPREFS", mLocation);
         addTab(TabWeatherFragment.newInstance(mLocation, "Current"), "Current");
-
         String newLocation = mPrefs.getString(getString(R.string.keys_prefs_NEWCOORDINATES),"");
-        Log.e("WEATHER", "LOCATION USED FOR UNSAVED IS: " + newLocation);
-        Log.d("NEW LOCATION", newLocation);
         addTab(TabWeatherFragment.newInstance(newLocation, "Unsaved"), "Unsaved");
 
+        getSavedWeatherTabs();
+
+        ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
+        mViewPager.setAdapter(mWeatherPagerAdapter);
+        //mViewPager.setOffscreenPageLimit(100);
+        mWeatherPagerAdapter.notifyDataSetChanged();
+        return view;
+    }
+    private void getSavedWeatherTabs(){
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -77,7 +79,7 @@ public class WeatherFragment extends Fragment {
                 .build();
 
         JSONObject msg = new JSONObject();
-        try{
+        try {
             String name = mPrefs.getString(getString(R.string.keys_prefs_user_name),"");
             msg.put("username", name);
         } catch (JSONException e){
@@ -87,14 +89,13 @@ public class WeatherFragment extends Fragment {
                 .onPostExecute(this::handleCreateTabs)
                 .onCancelled(this::handleErrorsInTask)
                 .build().execute();
-        ViewPager mViewPager = view.findViewById(R.id.weatherTabPager);
-        mViewPager.setAdapter(mWeatherPagerAdapter);
-        mWeatherPagerAdapter.notifyDataSetChanged();
-        return view;
     }
 
+    /**
+     *  Adds information to be displayed on weather tabs.
+     * @param results - All  weather info returned from web service.
+     */
     private void handleCreateTabs(String results) {
-        Log.d("ARRAYT", results);
         final String[] tabs;
         try {
             JSONObject r = new JSONObject(results);
@@ -111,7 +112,6 @@ public class WeatherFragment extends Fragment {
                         String lg = arrayT.get(i).toString().split(",")[2].
                                 split(":")[1].substring(1,arrayT.get(i).toString().split(",")[1].
                                         split(":")[1].length()-1);
-                        Log.d("HACKJOB", lg);
                         if(n.equals("null")){
                             //if zipcode is null
                             //user latitude and longitude concatinated
@@ -119,11 +119,13 @@ public class WeatherFragment extends Fragment {
                             String latlng = lat+","+lg;
                             addTab(TabWeatherFragment.newInstance(latlng, "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
+
                         } else {
                             //send in zip code.
                             addTab(TabWeatherFragment.newInstance(arrayT.get(i).toString().
                                     split(",")[0].split(":")[1], "Saved"), "Saved");
                             mWeatherPagerAdapter.notifyDataSetChanged();
+
                         }
                     }
                 }catch(JSONException e){
@@ -138,21 +140,14 @@ public class WeatherFragment extends Fragment {
         }
         mWeatherPagerAdapter.notifyDataSetChanged();
 
+
     }
-    private void handleError(final Exception e) {
-        Log.e("HOME WEATHER", e.getMessage());
-    }
-
-
-
     /**Handle errors that may ouccur during the async taks.
      * @param result the error message provided from the async task
      */
     private void handleErrorsInTask(String result) {
         Log.e("ASYNCT_TASK_ERROR", result);
     }
-
-
 
     @Override
     public void onAttach(Context context) {
@@ -165,12 +160,18 @@ public class WeatherFragment extends Fragment {
         }
     }
 
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
+    /**
+     *  Adds a tab for user to add multiple weather tabs.
+     * @param fragment - The  fragment to be added.
+     * @param name - Name of the fragment.
+     */
     private void addTab(TabWeatherFragment fragment, String name) {
         mWeatherTabs.add(fragment);
         mTabNames.add(name);
@@ -188,7 +189,5 @@ public class WeatherFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        //  TODO: Update argument type and name
-        void onWeatherInteraction(Uri uri);
     }
 }

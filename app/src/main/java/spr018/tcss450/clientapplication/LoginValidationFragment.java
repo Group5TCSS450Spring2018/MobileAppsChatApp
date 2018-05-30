@@ -17,11 +17,7 @@ import java.util.Objects;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link LoginValidationFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- *
+ * Fragment that displays the first time the user logins in. prompts for a 4 digit code.
  * @author Deepjot Kaur
  * @author Daryan Hanshew
  * @author Tenma Rollins
@@ -73,6 +69,11 @@ public class LoginValidationFragment extends Fragment {
     /* **************** */
     /* PRIVATE HANDLERS */
     /* **************** */
+
+    /**
+     * If the button is pressed, checks if the 4 digits are entered.
+     * @param v: view on which the button is located
+     */
     private void onValidationButtonPressed(View v) {
         if (mListener != null) {
             // check for errors in input
@@ -87,6 +88,11 @@ public class LoginValidationFragment extends Fragment {
         }
     }
 
+    /**
+     * Checks to see if the user input a valid 4 digit code.
+     * @param v: view on which the button is on.
+     * @param hasFocus: if the user has clicked away from the edit text.
+     */
     private void onCodeFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
             if (mCode.getText().toString().isEmpty()) {

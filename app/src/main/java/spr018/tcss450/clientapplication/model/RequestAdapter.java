@@ -14,7 +14,10 @@ import android.widget.TextView;
 import java.util.List;
 
 import spr018.tcss450.clientapplication.R;
-
+/**
+ * Adapter class that displays the requests that the user has.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
+ */
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.ViewHolder> {
     private List<Connection> mConnections;
     private OnItemClickListener mListener;

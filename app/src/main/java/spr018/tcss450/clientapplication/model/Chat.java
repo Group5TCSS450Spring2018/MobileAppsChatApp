@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * This custom connection class hold is used to hold all the information
- * a connection has.
+ * This custom chat class holds all information about the chat.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class Chat implements Comparable<Chat> {
 
@@ -21,20 +21,40 @@ public class Chat implements Comparable<Chat> {
     private String mUsername;
     private String mRecentMessage;
 
+    /*
+    * Constructor
+    * @param chatName; name of the chat.
+    * @param members: list of members in given chat
+    * @param timestamp: time that the chat was sent
+    * @param chatID: chats id.
+    */
     public Chat(String chatName, List<String> members, String timestamp, int chatID) {
         mName = chatName;
         mMembers = members;
         mTimestamp = parseTime(timestamp);
         mChatId = chatID;
     }
-
+    /*
+     * Constructor
+     * @param chatName; name of the chat.
+     * @param recent messages: most recent message
+     * @param timestamp: time that the chat was sent
+     * @param chatID: chats id.
+     */
     public Chat(String chatName, String recentMessage, String timestamp, int chatID) {
         mName = chatName;
         mRecentMessage = recentMessage;
         mTimestamp = parseTime(timestamp);
         mChatId = chatID;
     }
-
+    /*
+     * Constructor
+     * @param chatName; name of the chat.
+     * @param recent messages: most recent message
+     * @param timestamp: time that the chat was sent
+     * @param chatID: chats id.
+     * @param username: name of the sender.
+     */
     public Chat(String chatName, String chatRecentMessage, String timestamp, int chatID, String username) {
         mName = chatName;
         mRecentMessage = chatRecentMessage;
@@ -43,6 +63,11 @@ public class Chat implements Comparable<Chat> {
         mUsername = username;
     }
 
+    /**
+     * Returns the date and time
+     * @param timestamp; time stamp of the chat message.
+     * @return the date and time.
+     */
     private Calendar parseTime(String timestamp) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.US);
         Calendar calendar = Calendar.getInstance(Locale.US);

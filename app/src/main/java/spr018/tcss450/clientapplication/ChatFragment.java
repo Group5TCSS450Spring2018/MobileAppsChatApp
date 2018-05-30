@@ -44,6 +44,8 @@ import static spr018.tcss450.clientapplication.ChatActivity.CONNECTION_USERNAME;
  * A simple {@link Fragment} subclass.
  * Use the {@link ChatFragment#newInstance} factory method to
  * create an instance of this fragment.
+ * Fragment that holds the messages that you recieve and send.
+ * @author  Tuan Dinh Tenma Rollins Daryan Hanshew Deepjot Kaur
  */
 public class ChatFragment extends Fragment {
 
@@ -63,6 +65,13 @@ public class ChatFragment extends Fragment {
         // Required empty public constructor
     }
 
+    /**
+     * Constructor.
+     * @param username; the username of the user you are talking to.
+     * @param chatID; chat id of the chat you are viewing.
+     * @param chatName; the name of the chat you are viewing.
+     * @return the fragment.
+     */
     public static ChatFragment newInstance(String username, int chatID, String chatName) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
@@ -187,6 +196,10 @@ public class ChatFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Can the user leave chat? Success- it can. else print out stack trace.
+     * @param results; passed in from Database.
+     */
     private void leaveChat(String results) {
         try {
             JSONObject response = new JSONObject(results);
@@ -198,6 +211,10 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * Show the users the participants in the chat.
+     * @param results; result from database.
+     */
     private void showParticipants(String results) {
         try {
             JSONObject resultJSON = new JSONObject(results);
@@ -270,6 +287,10 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * send a message. send usernmae, message and chat id to the database.
+     * @param theButton; The view on which the button is on.
+     */
     private void sendMessage(final View theButton) {
         Log.e("SEND", "ATTEMPTING TO SEND MESSAGE");
         JSONObject messageJSON = new JSONObject();
@@ -295,10 +316,18 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * handle errors.
+     * @param s
+     */
     private void handleError(String s) {
         Log.e("SEND", s);
     }
 
+    /**
+     * Make sure the message gets sent.
+     * @param result
+     */
     private void endOfSendMsgTask(final String result) {
         try {
             Log.e("END SEND MESSAGE", result);
@@ -315,6 +344,10 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * get the messages on a thread and display on to the screen.
+     * @param resultJSON
+     */
     private void publishProgress(JSONObject resultJSON) {
         final String[] messages;
         final String[] usernames;
@@ -354,6 +387,10 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    /**
+     * handle errors throuwl by json.
+     * @param e
+     */
     private void handleError(final Exception e) {
         Log.e("GET", e.getMessage());
     }
