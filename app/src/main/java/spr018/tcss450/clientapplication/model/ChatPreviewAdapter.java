@@ -54,7 +54,7 @@ public class ChatPreviewAdapter extends RecyclerView.Adapter<ChatPreviewAdapter.
         }
     }
 
-    // Parameter could be any type of collection. I'm using list for now. - Tuan
+    // Parameter c  ould be any type of collection. I'm using list for now. - Tuan
     public ChatPreviewAdapter(List<Chat> chats) {
         mChats = chats;
     }
